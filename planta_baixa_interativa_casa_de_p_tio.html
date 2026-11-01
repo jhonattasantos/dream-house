@@ -315,7 +315,7 @@
                 <!-- Tour mini-map -->
                 <div class="w-full max-w-xl lg:max-w-sm bg-slate-900/80 border border-slate-800 rounded-2xl p-4 space-y-2">
                     <span class="text-xs font-mono text-slate-400 uppercase tracking-widest flex items-center gap-2"><i class="fa-solid fa-location-dot text-sky-400"></i> Você está aqui</span>
-                    <svg id="tour-minimap" viewBox="120 100 760 640" class="w-full h-auto"></svg>
+                    <svg id="tour-minimap" viewBox="140 90 712 616" class="w-full h-auto"></svg>
                     <p class="text-[10px] text-slate-500 font-mono">Toque em um ambiente para ir até ele • use ← → no teclado</p>
                 </div>
             </div>
@@ -512,8 +512,8 @@
     <!-- Application Script -->
     <script>
         // ---------- Geometry ----------
-        // Plan coordinates are in meters; 1 m = 40 SVG units. The house is 18 m x 15 m.
-        const S = 40, OX = 140, OY = 120, HOUSE_W = 18, HOUSE_H = 15;
+        // Plan coordinates are in meters; 1 m = 32 SVG units. The house is 21 m x 18 m.
+        const S = 32, OX = 160, OY = 110, HOUSE_W = 21, HOUSE_H = 18;
         const X = m => OX + m * S;
         const Y = m => OY + m * S;
         const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -530,23 +530,25 @@
                 icon: "fa-car",
                 benefits: ["Impacto visual espetacular ao entrar na residência."],
                 patioRel: "Transição imediata para o oásis verde.",
-                rects: [[5, 0, 8, 3]],
+                rects: [[5, 0, 11, 3]],
                 fill: "#334155", fillOpacity: 0.3, text: "#cbd5e1"
             },
             hallway: {
-                name: "Galeria de Circulação Envidraçada",
-                subtitle: "Eixo de Transição Perimetral",
-                height: "3.00 m",
-                floor: "Porcelanato Acetinado",
-                light: "Luz Difusa Contínua",
+                name: "Varanda das Redes",
+                subtitle: "Circulação & Descanso ao Redor do Pátio",
+                height: "2.80 m (Beiral)",
+                floor: "Cerâmica Atérmica Antiderrapante",
+                light: "Sombreada & Ventilada",
                 icon: "fa-person-walking",
                 benefits: [
-                    "Substitui corredores escuros por um passeio panorâmico.",
-                    "Painéis de vidro deslizantes para abertura total nos dias amenos."
+                    "2,50 m de largura: redes armadas na diagonal nos quatro cantos (3,5 m entre armadores), com passagem livre.",
+                    "Cobertura de 2,50 m + beiral de 0,50 m: chuva com vento até ~45° não alcança as portas dos cômodos.",
+                    "Piso 15 cm acima do jardim, com ralo linear na borda do pátio."
                 ],
-                patioRel: "Emoldura 100% do jardim central através de esquadrias minimalistas.",
-                rects: [[5, 3, 8, 1], [0, 10, 13, 1], [5, 4, 1, 6], [12, 4, 1, 6]],
-                labelRect: [5, 3, 8, 1],
+                patioRel: "Abraça o pátio pelos quatro lados — é a sala ao ar livre da casa.",
+                rects: [[5, 3, 11, 2.5], [0, 11.5, 16, 2.5], [5, 5.5, 2.5, 6], [13.5, 5.5, 2.5, 6]],
+                labelRect: [5, 3, 11, 2.5],
+                dimsLabel: "Largura 2,50 m",
                 walls: false,
                 fill: "#0f172a", fillOpacity: 0.8, text: "#94a3b8"
             },
@@ -563,7 +565,7 @@
                     "Isolamento acústico entre as alas da casa."
                 ],
                 patioRel: "É o coração do projeto. Todos os cômodos circundam este oásis verde.",
-                rects: [[6, 4, 6, 6]],
+                rects: [[7.5, 5.5, 6, 6]],
                 uncovered: true,
                 walls: false,
                 fill: "#064e3b", fillOpacity: 0.35, text: "#6ee7b7"
@@ -573,14 +575,14 @@
                 subtitle: "Zona Social Principal",
                 height: "3.40 m (Pé-Direito Elevado)",
                 floor: "Porcelanato Premium",
-                light: "Direta (Face Leste + Pátio)",
+                light: "Direta (Face Leste + Varanda)",
                 icon: "fa-couch",
                 benefits: [
                     "Recebe a brisa leste diretamente e a conduz até o pátio (ventilação cruzada).",
                     "Excelente conforto térmico para recepções sociais."
                 ],
-                patioRel: "Abre-se por inteiro para a galeria e o pátio, integrando convívio e natureza.",
-                rects: [[13, 0, 5, 11]],
+                patioRel: "Abre-se por inteiro para a varanda e o pátio, integrando convívio e natureza.",
+                rects: [[16, 0, 5, 14]],
                 fill: "#1e1b4b", fillOpacity: 0.4, text: "#c7d2fe"
             },
             kitchen: {
@@ -588,14 +590,14 @@
                 subtitle: "Área Culinária",
                 height: "3.00 m",
                 floor: "Porcelanato Antiderrapante",
-                light: "Matutina (Leste)",
+                light: "Matutina (Leste) + Sul",
                 icon: "fa-utensils",
                 benefits: [
                     "Próxima à área de refeições e ao pátio para cultivo de temperos.",
                     "Exaustão rápida de aromas culinários."
                 ],
                 patioRel: "Permite vista direta para o jardim durante o preparo das refeições.",
-                rects: [[12, 11, 6, 4]],
+                rects: [[13, 14, 8, 4]],
                 fill: "#831843", fillOpacity: 0.35, text: "#fecdd3"
             },
             bwc_social: {
@@ -609,8 +611,8 @@
                     "Atende visitas sem que precisem entrar na ala íntima.",
                     "Janela alta ao sul garante ventilação com privacidade."
                 ],
-                patioRel: "Acesso direto pela galeria, ao lado da cozinha.",
-                rects: [[9, 11, 3, 4]],
+                patioRel: "Acesso direto pela varanda, ao lado da cozinha.",
+                rects: [[10, 14, 3, 4]],
                 fill: "#164e63", fillOpacity: 0.35, text: "#a5f3fc"
             },
             office: {
@@ -622,7 +624,7 @@
                 icon: "fa-laptop-code",
                 benefits: ["Ambiente silencioso para foco absoluto."],
                 patioRel: "Pausas visuais revigorantes para o pátio verde.",
-                rects: [[5, 11, 4, 4]],
+                rects: [[5.5, 14, 4.5, 4]],
                 fill: "#78350f", fillOpacity: 0.3, text: "#fde68a"
             },
             bedroom_2: {
@@ -636,8 +638,8 @@
                     "Canto sudoeste reservado, longe da área social.",
                     "Janela oeste pede brise ou vegetação contra o sol da tarde."
                 ],
-                patioRel: "Acesso pela galeria, com vista para o jardim no caminho.",
-                rects: [[0, 11, 5, 4]],
+                patioRel: "Acesso pela varanda, com vista para o jardim no caminho.",
+                rects: [[0, 14, 5.5, 4]],
                 fill: "#065f46", fillOpacity: 0.3, text: "#a7f3d0"
             },
             service: {
@@ -651,8 +653,8 @@
                     "Lavanderia e despensa fora da vista social.",
                     "Janela a oeste aproveita o sol da tarde para secar roupas."
                 ],
-                patioRel: "Ligada à galeria, isolada da estética do pátio.",
-                rects: [[0, 8, 5, 2]],
+                patioRel: "Ligada à varanda, isolada da estética do pátio.",
+                rects: [[0, 8, 5, 3.5]],
                 fill: "#475569", fillOpacity: 0.3, text: "#e2e8f0"
             },
             master_suite: {
@@ -687,45 +689,54 @@
 
         // Doors and openings. A door's leaf hinges at (x, y) and swings to the +/- side of the wall.
         const OPENINGS = [
-            { x: 8.4, y: 0, dir: 'h', len: 1.2, type: 'door', swing: 1 },        // entrada principal
-            { x: 6.5, y: 3, dir: 'h', len: 5, type: 'opening' },                 // hall → galeria
-            { x: 5, y: 3.1, dir: 'v', len: 0.8, type: 'door', swing: -1 },       // suíte master
+            { x: 9.9, y: 0, dir: 'h', len: 1.2, type: 'door', swing: 1 },        // entrada principal
+            { x: 7.5, y: 3, dir: 'h', len: 6, type: 'opening' },                 // hall → varanda
+            { x: 5, y: 4.1, dir: 'v', len: 0.8, type: 'door', swing: -1 },       // suíte master
             { x: 3.6, y: 5, dir: 'h', len: 0.8, type: 'door', swing: 1 },        // closet & bwc
-            { x: 5, y: 8.1, dir: 'v', len: 0.9, type: 'door', swing: -1 },       // serviço
-            { x: 3.8, y: 11, dir: 'h', len: 0.9, type: 'door', swing: 1 },       // suíte hóspedes
-            { x: 5.3, y: 11, dir: 'h', len: 0.9, type: 'door', swing: 1 },       // home office
-            { x: 9.3, y: 11, dir: 'h', len: 0.8, type: 'door', swing: 1 },       // banheiro social
-            { x: 13, y: 0.6, dir: 'v', len: 1.8, type: 'opening' },              // hall → sala
-            { x: 13, y: 4.5, dir: 'v', len: 5, type: 'opening' },                // galeria → sala
-            { x: 13.6, y: 11, dir: 'h', len: 3.4, type: 'opening' }              // sala ↔ cozinha
+            { x: 5, y: 8.6, dir: 'v', len: 0.9, type: 'door', swing: -1 },       // serviço
+            { x: 0, y: 12.3, dir: 'v', len: 0.9, type: 'door', swing: 1 },       // saída lateral
+            { x: 3.5, y: 14, dir: 'h', len: 0.9, type: 'door', swing: 1 },       // suíte hóspedes
+            { x: 8.6, y: 14, dir: 'h', len: 0.9, type: 'door', swing: 1 },       // home office
+            { x: 10.3, y: 14, dir: 'h', len: 0.8, type: 'door', swing: 1 },      // banheiro social
+            { x: 13.2, y: 14, dir: 'h', len: 0.9, type: 'door', swing: 1 },      // cozinha
+            { x: 16, y: 0.6, dir: 'v', len: 1.8, type: 'opening' },              // hall → sala
+            { x: 16, y: 6, dir: 'v', len: 5, type: 'opening' },                  // varanda → sala
+            { x: 16.6, y: 14, dir: 'h', len: 3.8, type: 'opening' }              // sala ↔ cozinha
         ];
 
         const WINDOWS = [
             { x: 1.2, y: 0, dir: 'h', len: 2.6, room: 'master_suite' },
-            { x: 14.2, y: 0, dir: 'h', len: 2.6, room: 'living' },
+            { x: 17.2, y: 0, dir: 'h', len: 2.6, room: 'living' },
             { x: 0, y: 1.2, dir: 'v', len: 2.4, room: 'master_suite' },
             { x: 0, y: 6, dir: 'v', len: 1, room: 'master_bath' },
-            { x: 0, y: 8.5, dir: 'v', len: 1, room: 'service' },
-            { x: 0, y: 10.1, dir: 'v', len: 0.8, room: 'hallway' },
-            { x: 0, y: 12, dir: 'v', len: 2, room: 'bedroom_2' },
-            { x: 18, y: 1, dir: 'v', len: 3, room: 'living' },
-            { x: 18, y: 5, dir: 'v', len: 3, room: 'living' },
-            { x: 18, y: 8.8, dir: 'v', len: 1.6, room: 'living' },
-            { x: 18, y: 12, dir: 'v', len: 2, room: 'kitchen' },
-            { x: 1.2, y: 15, dir: 'h', len: 2.6, room: 'bedroom_2' },
-            { x: 5.8, y: 15, dir: 'h', len: 2.4, room: 'office' },
-            { x: 10, y: 15, dir: 'h', len: 1, room: 'bwc_social' },
-            { x: 13.4, y: 15, dir: 'h', len: 3.2, room: 'kitchen' }
+            { x: 0, y: 9, dir: 'v', len: 1.2, room: 'service' },
+            { x: 0, y: 15, dir: 'v', len: 2, room: 'bedroom_2' },
+            { x: 21, y: 1, dir: 'v', len: 3, room: 'living' },
+            { x: 21, y: 5.5, dir: 'v', len: 3, room: 'living' },
+            { x: 21, y: 10, dir: 'v', len: 3, room: 'living' },
+            { x: 21, y: 15, dir: 'v', len: 2, room: 'kitchen' },
+            { x: 1.4, y: 18, dir: 'h', len: 2.6, room: 'bedroom_2' },
+            { x: 6.5, y: 18, dir: 'h', len: 2.4, room: 'office' },
+            { x: 11, y: 18, dir: 'h', len: 1, room: 'bwc_social' },
+            { x: 15, y: 18, dir: 'h', len: 4, room: 'kitchen' }
+        ];
+
+        // Hammocks hung diagonally across the veranda corners: [wall anchor, pillar anchor] in meters.
+        const HAMMOCKS = [
+            [[5, 3], [7.5, 5.5]],
+            [[16, 3], [13.5, 5.5]],
+            [[5, 14], [7.5, 11.5]],
+            [[16, 14], [13.5, 11.5]]
         ];
 
         const BUDGET_DEFAULT = [
-            { id: 'estrutura', name: 'Fundação & Estrutura', icon: 'fa-helmet-safety', color: '#f59e0b', value: 130000, desc: 'Sapatas corridas, pilares em concreto armado e laje impermeabilizada.' },
-            { id: 'alvenaria', name: 'Alvenaria & Cobertura', icon: 'fa-cubes', color: '#6366f1', value: 115000, desc: 'Blocos cerâmicos térmicos (maior conforto térmico) e estrutura de telhado em madeira tratada.' },
-            { id: 'esquadrias', name: 'Esquadrias & Vidros', icon: 'fa-window-maximize', color: '#06b6d4', value: 105000, desc: 'Caixilhos de alumínio minimalistas com vidro temperado para o pátio central.' },
-            { id: 'instalacoes', name: 'Instalações Elétricas & Hidráulicas', icon: 'fa-plug', color: '#f43f5e', value: 75000, desc: 'Quadro de distribuição, iluminação LED, água fria/quente e reaproveitamento de água da chuva.' },
-            { id: 'acabamentos', name: 'Acabamentos & Revestimentos', icon: 'fa-paint-roller', color: '#8b5cf6', value: 85000, desc: 'Porcelanatos, pintura, louças, metais e marcenaria básica.' },
-            { id: 'paisagismo', name: 'Paisagismo & Pátio', icon: 'fa-tree', color: '#10b981', value: 45000, desc: "Espelho d'água, sistema de irrigação automatizada e espécies nativas do Nordeste." },
-            { id: 'projetos', name: 'Projetos & Licenças', icon: 'fa-file-signature', color: '#94a3b8', value: 25000, desc: 'Projeto arquitetônico, complementares, ART/RRT, alvará e habite-se.' }
+            { id: 'estrutura', name: 'Fundação & Estrutura', icon: 'fa-helmet-safety', color: '#f59e0b', value: 190000, desc: 'Sapatas corridas, pilares em concreto armado e laje impermeabilizada.' },
+            { id: 'alvenaria', name: 'Alvenaria & Cobertura', icon: 'fa-cubes', color: '#6366f1', value: 168000, desc: 'Blocos cerâmicos térmicos (maior conforto térmico) e estrutura de telhado em madeira tratada.' },
+            { id: 'esquadrias', name: 'Esquadrias & Vidros', icon: 'fa-window-maximize', color: '#06b6d4', value: 153000, desc: 'Caixilhos de alumínio minimalistas e portas de correr em vidro temperado para a varanda.' },
+            { id: 'instalacoes', name: 'Instalações Elétricas & Hidráulicas', icon: 'fa-plug', color: '#f43f5e', value: 110000, desc: 'Quadro de distribuição, iluminação LED, água fria/quente e reaproveitamento de água da chuva.' },
+            { id: 'acabamentos', name: 'Acabamentos & Revestimentos', icon: 'fa-paint-roller', color: '#8b5cf6', value: 124000, desc: 'Porcelanatos, pintura, louças, metais e marcenaria básica.' },
+            { id: 'paisagismo', name: 'Paisagismo & Pátio', icon: 'fa-tree', color: '#10b981', value: 66000, desc: "Espelho d'água, sistema de irrigação automatizada e espécies nativas do Nordeste." },
+            { id: 'projetos', name: 'Projetos & Licenças', icon: 'fa-file-signature', color: '#94a3b8', value: 37000, desc: 'Projeto arquitetônico, complementares, ART/RRT, alvará e habite-se.' }
         ];
 
         // ---------- Persistence ----------
@@ -759,7 +770,7 @@
         const roomArea = room => room.rects.reduce((sum, [, , w, h]) => sum + w * h, 0);
         const builtArea = () => Object.values(roomData).filter(r => !r.uncovered).reduce((sum, r) => sum + roomArea(r), 0);
         const openArea = () => Object.values(roomData).filter(r => r.uncovered).reduce((sum, r) => sum + roomArea(r), 0);
-        const roomDims = room => room.rects.length === 1 ? `${fmtNum(room.rects[0][2], 2)} × ${fmtNum(room.rects[0][3], 2)} m` : 'Largura 1,00 m';
+        const roomDims = room => room.dimsLabel || (room.rects.length === 1 ? `${fmtNum(room.rects[0][2], 2)} × ${fmtNum(room.rects[0][3], 2)} m` : '');
         const fitFontSize = (text, maxWidth, max = 12, min = 7) => clamp(maxWidth / (text.length * 0.62), min, max);
 
         function svgEl(tag, attrs = {}, parent) {
@@ -837,18 +848,20 @@
             });
             svgEl('rect', { x: X(0), y: Y(0), width: HOUSE_W * S, height: HOUSE_H * S, 'stroke-width': mini ? 5 : 8 }, walls);
 
-            // Glass around courtyard
+            // Courtyard edge: step down to the garden with a linear drain
             const [cx, cy, cw, ch] = roomData.courtyard.rects[0];
             svgEl('rect', {
                 x: X(cx), y: Y(cy), width: cw * S, height: ch * S, fill: 'none',
-                stroke: '#38bdf8', 'stroke-width': mini ? 2 : 3, 'stroke-dasharray': '16 6', opacity: 0.9, 'pointer-events': 'none'
+                stroke: '#38bdf8', 'stroke-width': mini ? 1.5 : 2, 'stroke-dasharray': mini ? 'none' : '2 3', opacity: 0.9, 'pointer-events': 'none'
             }, svg);
 
             if (mini) return;
 
+            drawVerandaEdge(svg, cx, cy, cw, ch);
             const openingsLayer = svgEl('g', { 'pointer-events': 'none' }, svg);
             OPENINGS.forEach(o => drawOpening(openingsLayer, o));
             WINDOWS.forEach(w => drawWindow(openingsLayer, w));
+            drawHammocks(svg);
 
             svgEl('g', { id: 'layer-sun-overlay', 'pointer-events': 'none' }, svg);
             drawLabels(svg);
@@ -860,11 +873,44 @@
         }
 
         function drawCourtyardDecor(g) {
-            svgEl('rect', { x: X(6), y: Y(4), width: 6 * S, height: 6 * S, fill: 'url(#grass-pattern)', opacity: 0.6, 'pointer-events': 'none' }, g);
-            svgEl('rect', { x: X(6), y: Y(8.8), width: 6 * S, height: 1.2 * S, fill: 'url(#deck-pattern)', opacity: 0.8, 'pointer-events': 'none' }, g);
-            svgEl('rect', { x: X(6.6), y: Y(4.6), width: 3.4 * S, height: 1.5 * S, rx: 6, fill: '#0ea5e9', 'fill-opacity': 0.25, stroke: '#38bdf8', 'stroke-opacity': 0.5, 'pointer-events': 'none' }, g);
-            [[11, 5.3, 0.75], [7.1, 8.1, 0.5], [11.1, 8.1, 0.55]].forEach(([x, y, r]) => {
-                svgEl('circle', { class: 'animate-foliage', cx: X(x), cy: Y(y), r: r * S, fill: '#059669', 'fill-opacity': 0.45, stroke: '#10b981', 'stroke-opacity': 0.6, 'pointer-events': 'none' }, g);
+            const [x0, y0, w, h] = roomData.courtyard.rects[0];
+            svgEl('rect', { x: X(x0), y: Y(y0), width: w * S, height: h * S, fill: 'url(#grass-pattern)', opacity: 0.6, 'pointer-events': 'none' }, g);
+            svgEl('rect', { x: X(x0), y: Y(y0 + h - 1.2), width: w * S, height: 1.2 * S, fill: 'url(#deck-pattern)', opacity: 0.8, 'pointer-events': 'none' }, g);
+            svgEl('rect', { x: X(x0 + 0.6), y: Y(y0 + 0.6), width: 3.4 * S, height: 1.5 * S, rx: 6, fill: '#0ea5e9', 'fill-opacity': 0.25, stroke: '#38bdf8', 'stroke-opacity': 0.5, 'pointer-events': 'none' }, g);
+            [[5, 1.3, 0.75], [1.1, 4.1, 0.5], [5.1, 4.1, 0.55]].forEach(([x, y, r]) => {
+                svgEl('circle', { class: 'animate-foliage', cx: X(x0 + x), cy: Y(y0 + y), r: r * S, fill: '#059669', 'fill-opacity': 0.45, stroke: '#10b981', 'stroke-opacity': 0.6, 'pointer-events': 'none' }, g);
+            });
+        }
+
+        // Roof eave 0.5 m over the garden and the pillars that carry it.
+        function drawVerandaEdge(svg, cx, cy, cw, ch) {
+            const g = svgEl('g', { 'pointer-events': 'none' }, svg);
+            const eave = 0.5;
+            svgEl('rect', {
+                x: X(cx + eave), y: Y(cy + eave), width: (cw - 2 * eave) * S, height: (ch - 2 * eave) * S,
+                fill: 'none', stroke: '#94a3b8', 'stroke-width': 1, 'stroke-dasharray': '8 5', opacity: 0.7
+            }, g);
+            const p = 0.3;
+            [0, cw / 2, cw].forEach(dx => [0, ch / 2, ch].forEach(dy => {
+                if (dx === cw / 2 && dy === ch / 2) return;
+                svgEl('rect', { x: X(cx + dx - p / 2), y: Y(cy + dy - p / 2), width: p * S, height: p * S, fill: '#e2e8f0' }, g);
+            }));
+        }
+
+        function drawHammocks(svg) {
+            const g = svgEl('g', { 'pointer-events': 'none' }, svg);
+            HAMMOCKS.forEach(([wall, pillar]) => {
+                const a = { x: X(wall[0]), y: Y(wall[1]) }, b = { x: X(pillar[0]), y: Y(pillar[1]) };
+                const len = Math.hypot(b.x - a.x, b.y - a.y);
+                const ux = (b.x - a.x) / len, uy = (b.y - a.y) / len;
+                const inset = 0.2 * S, bulge = 0.4 * S;
+                const p1 = { x: a.x + ux * inset, y: a.y + uy * inset }, p2 = { x: b.x - ux * inset, y: b.y - uy * inset };
+                const mx = (p1.x + p2.x) / 2, my = (p1.y + p2.y) / 2;
+                svgEl('path', {
+                    d: `M ${p1.x} ${p1.y} Q ${mx - uy * bulge} ${my + ux * bulge} ${p2.x} ${p2.y} Q ${mx + uy * bulge} ${my - ux * bulge} ${p1.x} ${p1.y} Z`,
+                    fill: '#f472b6', 'fill-opacity': 0.22, stroke: '#f9a8d4', 'stroke-width': 1.5
+                }, g);
+                [p1, p2].forEach(pt => svgEl('circle', { cx: pt.x, cy: pt.y, r: 2.5, fill: '#f9a8d4' }, g));
             });
         }
 
@@ -956,43 +1002,43 @@
                 label(x + side * 6, (Y(a) + Y(b)) / 2, `${fmtNum(b - a, 2)}`, true);
             };
 
-            [[0, 5], [5, 13], [13, 18]].forEach(([a, b]) => dimH(a, b, OY - 22));
+            [[0, 5], [5, 16], [16, 21]].forEach(([a, b]) => dimH(a, b, OY - 22));
             dimH(0, HOUSE_W, OY - 50);
-            [[0, 5], [5, 8], [8, 10], [10, 11], [11, 15]].forEach(([a, b]) => dimV(a, b, OX - 22, -1));
+            [[0, 5], [5, 8], [8, 11.5], [11.5, 14], [14, 18]].forEach(([a, b]) => dimV(a, b, OX - 22, -1));
             dimV(0, HOUSE_H, OX - 50, -1);
-            [[0, 11], [11, 15]].forEach(([a, b]) => dimV(a, b, X(HOUSE_W) + 22, -1));
-            [[0, 5], [5, 9], [9, 12], [12, 18]].forEach(([a, b]) => dimH(a, b, Y(HOUSE_H) + 22));
+            [[0, 14], [14, 18]].forEach(([a, b]) => dimV(a, b, X(HOUSE_W) + 22, -1));
+            [[0, 5.5], [5.5, 10], [10, 13], [13, 21]].forEach(([a, b]) => dimH(a, b, Y(HOUSE_H) + 22));
 
             // Graphic scale bar (0–5 m)
             const sb = svgEl('g', { stroke: '#cbd5e1' }, g);
             for (let i = 0; i < 5; i++) {
-                svgEl('rect', { x: X(i), y: 764, width: S, height: 6, fill: i % 2 ? 'none' : '#cbd5e1' }, sb);
+                svgEl('rect', { x: X(i), y: 742, width: S, height: 6, fill: i % 2 ? 'none' : '#cbd5e1' }, sb);
             }
-            const t0 = svgEl('text', { x: X(0), y: 784, fill: '#94a3b8', stroke: 'none', 'text-anchor': 'middle' }, g); t0.textContent = '0';
-            const t5 = svgEl('text', { x: X(5), y: 784, fill: '#94a3b8', stroke: 'none', 'text-anchor': 'middle' }, g); t5.textContent = '5 m';
-            const ts = svgEl('text', { x: X(0), y: 758, fill: '#64748b', stroke: 'none' }, g); ts.textContent = 'ESCALA GRÁFICA';
-            const lot = svgEl('text', { x: X(HOUSE_W), y: 778, fill: '#475569', stroke: 'none', 'text-anchor': 'end', 'font-size': 11 }, g);
-            lot.textContent = `LOTE 20 × 36 m • CONSTRUÇÃO ${HOUSE_W} × ${HOUSE_H} m`;
+            const t0 = svgEl('text', { x: X(0), y: 762, fill: '#94a3b8', stroke: 'none', 'text-anchor': 'middle' }, g); t0.textContent = '0';
+            const t5 = svgEl('text', { x: X(5), y: 762, fill: '#94a3b8', stroke: 'none', 'text-anchor': 'middle' }, g); t5.textContent = '5 m';
+            const ts = svgEl('text', { x: X(0), y: 736, fill: '#64748b', stroke: 'none' }, g); ts.textContent = 'ESCALA GRÁFICA';
+            const lot = svgEl('text', { x: X(HOUSE_W), y: 756, fill: '#475569', stroke: 'none', 'text-anchor': 'end', 'font-size': 11 }, g);
+            lot.textContent = `CONSTRUÇÃO ${HOUSE_W} × ${HOUSE_H} m • LOTE MÍN. 24 m DE FRENTE`;
         }
 
         function drawWind(svg) {
             const g = svgEl('g', { id: 'layer-wind', 'pointer-events': 'none', fill: 'none' }, svg);
             const breeze = [
-                'M 985 255 C 900 255, 760 300, 640 330',
-                'M 985 470 C 900 470, 760 440, 640 420',
-                'M 985 770 C 900 700, 760 600, 620 500'
+                'M 985 200 C 900 200, 720 260, 600 310',
+                'M 985 400 C 900 400, 720 390, 600 385',
+                'M 985 760 C 900 700, 720 560, 595 470'
             ];
             breeze.forEach(d => svgEl('path', { d, class: 'wind-path', stroke: '#38bdf8', 'stroke-width': 2.5, 'marker-end': 'url(#arrow-wind)', opacity: 0.85 }, g));
-            svgEl('path', { d: 'M 380 360 C 280 340, 180 320, 20 310', class: 'wind-path', stroke: '#fb923c', 'stroke-width': 2, 'marker-end': 'url(#arrow-hot)', opacity: 0.7 }, g);
+            svgEl('path', { d: 'M 400 330 C 300 320, 200 310, 20 300', class: 'wind-path', stroke: '#fb923c', 'stroke-width': 2, 'marker-end': 'url(#arrow-hot)', opacity: 0.7 }, g);
 
             const label = (x, y, text, fill, anchor = 'middle') => {
                 const t = svgEl('text', { x, y, fill, 'font-family': 'JetBrains Mono', 'font-size': 10, 'font-weight': 700, 'text-anchor': anchor }, g);
                 t.textContent = text;
             };
-            label(985, 240, 'BRISA LESTE', '#7dd3fc', 'end');
+            label(985, 185, 'BRISA LESTE', '#7dd3fc', 'end');
             label(985, 790, 'BRISA SUDESTE', '#7dd3fc', 'end');
-            label(20, 300, 'AR QUENTE SAI A OESTE', '#fdba74', 'start');
-            label(X(9), Y(9.55), '↑ EFEITO CHAMINÉ', '#fdba74');
+            label(20, 290, 'AR QUENTE SAI A OESTE', '#fdba74', 'start');
+            label(X(10.5), Y(11.05), '↑ EFEITO CHAMINÉ', '#fdba74');
         }
 
         function applyLayers() {
@@ -1020,8 +1066,8 @@
             const elevation = Math.sin(phi);
             const northSouth = season === 'jun' ? -1 : 1;   // jun: sol mais ao norte; dez: mais ao sul
             const reach = 470 * (1 - 0.7 * elevation);
-            const sx = clamp(500 + Math.cos(phi) * reach, 20, 980);
-            const sy = clamp(420 + northSouth * elevation * reach, 20, 780);
+            const sx = clamp(X(HOUSE_W / 2) + Math.cos(phi) * reach, 20, 980);
+            const sy = clamp(Y(HOUSE_H / 2) + northSouth * elevation * reach, 20, 780);
 
             const grad = document.getElementById('sun-grad');
             grad.setAttribute('x1', sx); grad.setAttribute('y1', sy);
