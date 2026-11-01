@@ -1,0 +1,87 @@
+@import "tailwindcss";
+@import "@fortawesome/fontawesome-free/css/all.min.css";
+
+@theme {
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+/* Tailwind v4 resets button cursors to default; keep the pointer the original page had. */
+button:not(:disabled) { cursor: pointer; }
+
+/* Blueprint grid background */
+.bg-grid-pattern {
+  background-size: 24px 24px;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+}
+
+.glass-panel {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
+::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.5); }
+
+/* Pan & zoom */
+.floorplan { cursor: grab; touch-action: none; }
+.floorplan.is-panning { cursor: grabbing; }
+
+/* SVG rooms */
+.room-group { outline: none; }
+.room-shape {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+.room-shape:hover {
+  fill-opacity: 0.85 !important;
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.4));
+}
+.room-group:focus-visible .room-shape,
+.room-shape.active {
+  fill-opacity: 0.9 !important;
+  stroke: #38bdf8 !important;
+  stroke-width: 3px !important;
+  filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.6));
+}
+
+@keyframes float-leaves {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-3px) rotate(2deg); }
+}
+.animate-foliage {
+  animation: float-leaves 6s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@keyframes wind-flow {
+  to { stroke-dashoffset: -48; }
+}
+.wind-path {
+  stroke-dasharray: 10 14;
+  animation: wind-flow 1.6s linear infinite;
+}
+
+/* Dark halo keeps room names readable over the furniture layer */
+.floorplan.show-furniture text {
+  paint-order: stroke;
+  stroke: #020617;
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+
+.layer-btn[aria-pressed="true"] {
+  background: rgba(14, 165, 233, 0.25);
+  color: #e0f2fe;
+}
+.layer-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-foliage, .wind-path, .animate-pulse, .animate-ping { animation: none; }
+}
