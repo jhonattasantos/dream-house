@@ -230,20 +230,23 @@
                 <!-- Plan toolbar: layers & zoom -->
                 <div class="absolute top-3 right-3 z-10 flex flex-col items-end gap-2">
                     <div class="glass-panel rounded-lg flex text-xs overflow-hidden">
-                        <button class="layer-btn px-2.5 py-1.5 text-slate-400 hover:text-white flex items-center gap-1.5 transition" data-layer="dims" aria-pressed="true" title="Mostrar cotas">
-                            <i class="fa-solid fa-ruler-combined"></i><span class="hidden sm:inline">Cotas</span>
+                        <button class="layer-btn px-2.5 py-1.5 text-slate-400 hover:text-white flex items-center gap-1.5 transition" data-layer="labels" aria-pressed="true" title="Mostrar nomes dos ambientes">
+                            <i class="fa-solid fa-font"></i><span class="hidden 2xl:inline">Nomes</span>
+                        </button>
+                        <button class="layer-btn px-2.5 py-1.5 text-slate-400 hover:text-white flex items-center gap-1.5 transition border-l border-slate-700/60" data-layer="dims" aria-pressed="true" title="Mostrar cotas">
+                            <i class="fa-solid fa-ruler-combined"></i><span class="hidden 2xl:inline">Cotas</span>
                         </button>
                         <button class="layer-btn px-2.5 py-1.5 text-slate-400 hover:text-white flex items-center gap-1.5 transition border-l border-slate-700/60" data-layer="sun" aria-pressed="false" title="Simular insolação">
-                            <i class="fa-solid fa-sun"></i><span class="hidden sm:inline">Sol</span>
+                            <i class="fa-solid fa-sun"></i><span class="hidden 2xl:inline">Sol</span>
                         </button>
                         <button class="layer-btn px-2.5 py-1.5 text-slate-400 hover:text-white flex items-center gap-1.5 transition border-l border-slate-700/60" data-layer="wind" aria-pressed="false" title="Mostrar ventilação">
-                            <i class="fa-solid fa-wind"></i><span class="hidden sm:inline">Vento</span>
+                            <i class="fa-solid fa-wind"></i><span class="hidden 2xl:inline">Vento</span>
                         </button>
                         <button class="layer-btn px-2.5 py-1.5 text-slate-400 hover:text-white flex items-center gap-1.5 transition border-l border-slate-700/60" data-layer="furniture" aria-pressed="false" title="Mostrar móveis">
-                            <i class="fa-solid fa-couch"></i><span class="hidden sm:inline">Móveis</span>
+                            <i class="fa-solid fa-couch"></i><span class="hidden 2xl:inline">Móveis</span>
                         </button>
                         <button class="layer-btn px-2.5 py-1.5 text-slate-400 hover:text-white flex items-center gap-1.5 transition border-l border-slate-700/60" data-layer="utils" aria-pressed="false" title="Mostrar instalações hidráulicas e elétricas">
-                            <i class="fa-solid fa-faucet-drip"></i><span class="hidden sm:inline">Instalações</span>
+                            <i class="fa-solid fa-faucet-drip"></i><span class="hidden 2xl:inline">Instalações</span>
                         </button>
                     </div>
                     <div class="glass-panel rounded-lg flex flex-col text-xs overflow-hidden">
@@ -863,7 +866,7 @@
         let currentSelectedRoom = 'courtyard';
         let tourIndex = 0;
         const tourRooms = Object.keys(roomData);
-        const layers = { dims: true, sun: false, wind: false, utils: false, furniture: false };
+        const layers = { labels: true, dims: true, sun: false, wind: false, utils: false, furniture: false };
         const sunState = { hour: 9, season: 'dez' };
         let view = { ...BASE_VIEW };
 
@@ -1150,7 +1153,7 @@
         }
 
         function drawLabels(svg) {
-            const g = svgEl('g', { 'pointer-events': 'none', 'font-family': 'JetBrains Mono', 'text-anchor': 'middle' }, svg);
+            const g = svgEl('g', { id: 'layer-labels', 'pointer-events': 'none', 'font-family': 'JetBrains Mono', 'text-anchor': 'middle' }, svg);
             Object.values(roomData).forEach(room => {
                 const [x, y, w, h] = room.labelRect || room.rects[0];
                 const cx = X(x + w / 2), cy = Y(y + h / 2);
@@ -1335,6 +1338,8 @@
             const dims = document.getElementById('layer-dims');
             const wind = document.getElementById('layer-wind');
             if (dims) dims.style.display = layers.dims ? '' : 'none';
+            const labels = document.getElementById('layer-labels');
+            if (labels) labels.style.display = layers.labels ? '' : 'none';
             if (wind) wind.style.display = layers.wind ? '' : 'none';
             const furniture = document.getElementById('layer-furniture');
             if (furniture) furniture.style.display = layers.furniture ? '' : 'none';

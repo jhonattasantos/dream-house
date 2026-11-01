@@ -10,7 +10,7 @@ Abra `planta_baixa_interativa_casa_de_p_tio.html` no navegador. Não há build �
 
 - **Planta Baixa** — desenho em escala (1 m = 32 unidades) com paredes, portas, janelas e cotas. Clique nos ambientes para ver área, dimensões, pé-direito, piso, ventilação e benefícios bioclimáticos.
   - Zoom com a roda do mouse / pinça, arraste para mover.
-  - Camadas: **Cotas**, **Sol** (simulação de insolação por hora e estação), **Vento** (brisas leste/sudeste e efeito chaminé), **Móveis** (layout indicativo em escala) e **Instalações** (telhado com caimento para o pátio, drenagem com duas saídas, cisterna, esgoto até a fossa, caixa d'água/solar e quadro de luz).
+  - Camadas: **Nomes**, **Cotas**, **Sol** (simulação de insolação por hora e estação), **Vento** (brisas leste/sudeste e efeito chaminé), **Móveis** (layout indicativo em escala) e **Instalações** (telhado com caimento para o pátio, drenagem com duas saídas, cisterna, esgoto até a fossa, caixa d'água/solar e quadro de luz).
   - **Editar** um ambiente altera nome, materiais e textos (salvo no navegador).
 - **Tour Guiado** — percorra os ambientes com mini-mapa; use ← → no teclado.
 - **Orçamento** — valores por etapa editáveis, com total, percentuais e custo por m² calculados automaticamente.
