@@ -231,6 +231,9 @@
                         <button class="layer-btn px-2.5 py-1.5 text-slate-400 hover:text-white flex items-center gap-1.5 transition border-l border-slate-700/60" data-layer="wind" aria-pressed="false" title="Mostrar ventilação">
                             <i class="fa-solid fa-wind"></i><span class="hidden sm:inline">Vento</span>
                         </button>
+                        <button class="layer-btn px-2.5 py-1.5 text-slate-400 hover:text-white flex items-center gap-1.5 transition border-l border-slate-700/60" data-layer="utils" aria-pressed="false" title="Mostrar instalações hidráulicas e elétricas">
+                            <i class="fa-solid fa-faucet-drip"></i><span class="hidden sm:inline">Instalações</span>
+                        </button>
                     </div>
                     <div class="glass-panel rounded-lg flex flex-col text-xs overflow-hidden">
                         <button onclick="zoomBy(1/1.25)" class="w-8 h-8 text-slate-300 hover:text-white hover:bg-slate-800/60" title="Aproximar"><i class="fa-solid fa-plus"></i></button>
@@ -252,6 +255,27 @@
                     </div>
                     <p id="sun-message" class="text-xs text-slate-300 leading-relaxed"></p>
                     <p id="sun-rooms" class="text-[11px] text-amber-200/90 leading-relaxed"></p>
+                </div>
+
+                <!-- Utilities legend -->
+                <div id="utils-panel" class="absolute bottom-3 left-3 right-3 sm:right-auto sm:w-96 max-h-[55%] overflow-y-auto glass-panel rounded-xl p-3 z-10 space-y-2.5 hidden">
+                    <button id="utils-toggle" type="button" aria-expanded="true" aria-controls="utils-legend" class="w-full text-xs font-mono uppercase text-sky-300 flex items-center gap-1.5">
+                        <i class="fa-solid fa-faucet-drip"></i> Instalações
+                        <i class="fa-solid fa-chevron-down ml-auto text-slate-400 transition-transform"></i>
+                    </button>
+                    <div id="utils-legend" class="space-y-2.5">
+                    <ul class="space-y-1.5 text-[11px] text-slate-300 leading-snug">
+                        <li class="flex items-start gap-2"><svg width="28" height="10" class="shrink-0" aria-hidden="true"><path d="M2 5 H22" stroke="#7dd3fc" stroke-width="2"/><path d="M20 1 L26 5 L20 9 z" fill="#7dd3fc"/></svg><span>Telhado com caimento para o pátio (implúvio)</span></li>
+                        <li class="flex items-start gap-2"><svg width="28" height="10" class="shrink-0" aria-hidden="true"><path d="M2 5 H26" stroke="#22d3ee" stroke-width="3"/><circle cx="14" cy="5" r="3.5" fill="#0284c7" stroke="#e0f2fe"/></svg><span>Calha no beiral → 8 condutores Ø100 dentro dos pilares</span></li>
+                        <li class="flex items-start gap-2"><svg width="28" height="10" class="shrink-0" aria-hidden="true"><path d="M2 5 H26" stroke="#3b82f6" stroke-width="3"/></svg><span>Ralo linear + caixa de areia (CA) → saída principal Ø200 → cisterna → extravasor para a rua</span></li>
+                        <li class="flex items-start gap-2"><svg width="28" height="10" class="shrink-0" aria-hidden="true"><path d="M2 5 H26" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="4 3"/></svg><span>Saída de emergência Ø150, independente → recuo oeste</span></li>
+                        <li class="flex items-start gap-2"><svg width="28" height="10" class="shrink-0" aria-hidden="true"><path d="M2 5 H26" stroke="#d97706" stroke-width="2" stroke-dasharray="6 3"/></svg><span>Esgoto → caixa de gordura (CG) → fossa séptica (F) + sumidouro (S)</span></li>
+                        <li class="flex items-start gap-2"><svg width="28" height="10" class="shrink-0" aria-hidden="true"><path d="M2 5 H26" stroke="#38bdf8" stroke-width="5" opacity="0.8"/></svg><span>Parede hidráulica: áreas molhadas agrupadas</span></li>
+                        <li class="flex items-start gap-2"><svg width="28" height="10" class="shrink-0" aria-hidden="true"><rect x="2" y="1" width="12" height="8" fill="#0ea5e9" fill-opacity="0.3" stroke="#38bdf8"/><rect x="15" y="1" width="11" height="8" fill="#f59e0b" fill-opacity="0.3" stroke="#fbbf24"/></svg><span>Caixa d'água + aquecedor solar sobre o BWC master</span></li>
+                        <li class="flex items-start gap-2"><svg width="28" height="10" class="shrink-0" aria-hidden="true"><rect x="8" y="1" width="12" height="8" rx="1.5" fill="#facc15" fill-opacity="0.25" stroke="#facc15"/></svg><span>Quadro de distribuição (QD) + inversor solar junto à entrada</span></li>
+                    </ul>
+                    <p id="utils-stats" class="text-[11px] text-sky-200/90 leading-relaxed border-t border-slate-700/60 pt-2"></p>
+                    </div>
                 </div>
 
                 <div class="absolute bottom-3 right-3 z-10 text-[10px] font-mono text-slate-500 pointer-events-none hidden lg:block">
@@ -577,7 +601,8 @@
                 benefits: [
                     "Efeito chaminé natural para exaustão de ar quente.",
                     "Vegetação e espelho d'água reduzem a temperatura local.",
-                    "Isolamento acústico entre as alas da casa."
+                    "Isolamento acústico entre as alas da casa.",
+                    "Implúvio: o telhado cai para o pátio; calha no beiral, condutores nos pilares e duas saídas de drenagem independentes."
                 ],
                 patioRel: "É o coração do projeto. Todos os cômodos circundam este oásis verde.",
                 rects: [[7.5, 5.5, 6, 6]],
@@ -827,7 +852,7 @@
         let currentSelectedRoom = 'courtyard';
         let tourIndex = 0;
         const tourRooms = Object.keys(roomData);
-        const layers = { dims: true, sun: false, wind: false };
+        const layers = { dims: true, sun: false, wind: false, utils: false };
         const sunState = { hour: 9, season: 'dez' };
         let view = { ...BASE_VIEW };
 
@@ -852,6 +877,12 @@
                     </marker>
                     <marker id="arrow-hot" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
                         <path d="M0,0 L10,5 L0,10 z" fill="#fb923c"/>
+                    </marker>
+                    <marker id="arrow-rain" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                        <path d="M0,0 L10,5 L0,10 z" fill="#7dd3fc"/>
+                    </marker>
+                    <marker id="arrow-pipe" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                        <path d="M0,0 L10,5 L0,10 z" fill="#3b82f6"/>
                     </marker>
                     <linearGradient id="sun-grad" gradientUnits="userSpaceOnUse">
                         <stop offset="0" stop-color="#fbbf24" stop-opacity="0.38"/>
@@ -902,6 +933,7 @@
             drawLabels(svg);
             drawDimensions(svg);
             drawWind(svg);
+            drawUtilities(svg, cx, cy, cw, ch);
             svgEl('g', { id: 'layer-sun-icon', 'pointer-events': 'none' }, svg);
 
             applyLayers();
@@ -1076,11 +1108,103 @@
             label(X(10.5), Y(11.05), '↑ EFEITO CHAMINÉ', '#fdba74');
         }
 
+        // Design rainfall for the Paraíba coast (order of magnitude from NBR 10844; confirm in the hydraulic design).
+        const RAIN_MM_H = 160, PATIO_STEP_M = 0.15;
+
+        // Roof drains inward (implúvio): eave gutter → downpipes in the pillars → linear drain → two independent outlets.
+        // Wet areas send sewage along the west setback to a septic tank in the front setback.
+        function drawUtilities(svg, cx, cy, cw, ch) {
+            const g = svgEl('g', { id: 'layer-utils', 'pointer-events': 'none', fill: 'none' }, svg);
+            const path = (pts, attrs) => svgEl('path', { d: 'M ' + pts.map(([x, y]) => `${X(x)} ${Y(y)}`).join(' L '), ...attrs }, g);
+            const box = ([x, y, w, h], attrs) => svgEl('rect', { x: X(x), y: Y(y), width: w * S, height: h * S, ...attrs }, g);
+            const tag = (x, y, text, fill, size = 8) => {
+                const t = svgEl('text', { x: X(x), y: Y(y), fill, 'font-family': 'JetBrains Mono', 'font-size': size, 'font-weight': 700, 'text-anchor': 'middle', 'dominant-baseline': 'middle' }, g);
+                t.textContent = text;
+            };
+
+            // Wet areas and the walls they share
+            ['bath_3', 'service', 'master_bath', 'bwc_social', 'kitchen'].forEach(key =>
+                roomData[key].rects.forEach(r => box(r, { fill: '#0ea5e9', 'fill-opacity': 0.12 })));
+            [[[0, 9.5], [5, 9.5]], [[13, 14], [13, 18]]].forEach(pts => path(pts, { stroke: '#38bdf8', 'stroke-width': 6, opacity: 0.8 }));
+
+            // Roof slope towards the courtyard, ending at the eave gutter
+            const eave = 0.5, gx0 = cx + eave, gy0 = cy + eave, gx1 = cx + cw - eave, gy1 = cy + ch - eave;
+            [[[8.1, 3.25], [8.1, gy0]], [[12.9, 3.25], [12.9, gy0]],
+             [[8.1, 13.75], [8.1, gy1]], [[12.9, 13.75], [12.9, gy1]],
+             [[5.25, 7.4], [gx0, 7.4]], [[5.25, 9.6], [gx0, 9.6]],
+             [[15.75, 7.4], [gx1, 7.4]], [[15.75, 9.6], [gx1, 9.6]]]
+                .forEach(pts => path(pts, { stroke: '#7dd3fc', 'stroke-width': 1.5, 'stroke-dasharray': '5 3', 'marker-end': 'url(#arrow-rain)' }));
+
+            // Eave gutter and the eight downpipes inside the pillars
+            box([gx0, gy0, gx1 - gx0, gy1 - gy0], { stroke: '#22d3ee', 'stroke-width': 3 });
+            [0, cw / 2, cw].forEach(dx => [0, ch / 2, ch].forEach(dy => {
+                if (dx === cw / 2 && dy === ch / 2) return;
+                const px = cx + dx, py = cy + dy;
+                path([[px, py], [clamp(px, gx0, gx1), clamp(py, gy0, gy1)]], { stroke: '#22d3ee', 'stroke-width': 2 });
+                svgEl('circle', { cx: X(px), cy: Y(py), r: 4, fill: '#0284c7', stroke: '#e0f2fe', 'stroke-width': 1 }, g);
+            }));
+
+            // Linear drain collector along the courtyard edge, with sand traps
+            box([cx + 0.15, cy + 0.15, cw - 0.3, ch - 0.3], { stroke: '#3b82f6', 'stroke-width': 2.5 });
+            const trapMain = [cx + cw - 0.65, cy + 0.3], trapEmergency = [cx + 0.35, cy + ch - 0.35];
+            [trapMain, trapEmergency].forEach(([x, y]) => {
+                box([x - 0.25, y - 0.25, 0.5, 0.5], { fill: '#1e3a8a', stroke: '#93c5fd', 'stroke-width': 1 });
+                tag(x, y, 'CA', '#bfdbfe', 7);
+            });
+
+            // Main outlet → cistern under the garage → overflow to the street
+            const cistern = [14.2, 0.4, 1.6, 2.4];
+            path([trapMain, [14.75, trapMain[1]], [14.75, cistern[1] + cistern[3]]], { stroke: '#3b82f6', 'stroke-width': 3 });
+            box(cistern, { fill: '#1e3a8a', 'fill-opacity': 0.5, stroke: '#60a5fa', 'stroke-width': 1.5 });
+            tag(15, 1.35, 'CISTERNA', '#bfdbfe', 7);
+            tag(15, 1.8, '~15 m³', '#93c5fd', 7);
+            path([[15.4, cistern[1]], [15.4, -0.5]], { stroke: '#3b82f6', 'stroke-width': 2, 'marker-end': 'url(#arrow-pipe)' });
+
+            // Independent emergency outlet → west setback
+            path([trapEmergency, [trapEmergency[0], 11.9], [-1, 11.9]], { stroke: '#3b82f6', 'stroke-width': 2.5, 'stroke-dasharray': '6 4', 'marker-end': 'url(#arrow-pipe)' });
+
+            // Sewage → grease trap → septic tank + soakaway in the front setback
+            const sewer = { stroke: '#d97706', 'stroke-width': 2, 'stroke-dasharray': '6 3' };
+            [8.5, 10.5, 16].forEach(y => path([[0, y], [-0.4, y]], sewer));
+            path([[13, 18], [13, 18.35], [-0.4, 18.35], [-0.4, -0.4], [-2, -0.4]], sewer);
+            box([13.35, 18.17, 0.6, 0.36], { fill: '#78350f', stroke: '#fbbf24', 'stroke-width': 1 });
+            tag(13.65, 18.36, 'CG', '#fde68a', 6);
+            [[-0.4, 18.35], [-0.4, -0.4]].forEach(([x, y]) => box([x - 0.15, y - 0.15, 0.3, 0.3], { fill: '#78350f', stroke: '#fbbf24', 'stroke-width': 1 }));
+            box([-4.4, -1.6, 2.4, 1.5], { fill: '#78350f', 'fill-opacity': 0.5, stroke: '#fbbf24', 'stroke-width': 1.5 });
+            tag(-3.2, -0.85, 'F', '#fde68a', 10);
+            path([[-3.2, -0.1], [-3.2, 0.4]], sewer);
+            svgEl('circle', { cx: X(-3.2), cy: Y(1.2), r: 0.8 * S, fill: '#78350f', 'fill-opacity': 0.35, stroke: '#fbbf24', 'stroke-width': 1.5, 'stroke-dasharray': '3 2' }, g);
+            tag(-3.2, 1.2, 'S', '#fde68a', 10);
+
+            // Water tank + solar heater over the master bathroom
+            box([0.3, 14.3, 1.7, 0.8], { fill: '#0ea5e9', 'fill-opacity': 0.3, stroke: '#38bdf8', 'stroke-width': 1 });
+            tag(1.15, 14.7, "CX D'ÁGUA", '#bae6fd', 6);
+            box([2.2, 14.3, 2.0, 0.8], { fill: '#f59e0b', 'fill-opacity': 0.3, stroke: '#fbbf24', 'stroke-width': 1 });
+            tag(3.2, 14.7, 'SOLAR', '#fde68a', 6);
+
+            // Distribution board + solar inverter by the entrance
+            box([5.6, 0.25, 1.6, 0.5], { fill: '#facc15', 'fill-opacity': 0.25, stroke: '#facc15', 'stroke-width': 1, rx: 3 });
+            tag(6.4, 0.5, 'QD + INV', '#fef08a', 6);
+        }
+
+        function updateUtilsStats() {
+            const catchment = builtArea() + openArea();
+            const flow = RAIN_MM_H * catchment / 3600;
+            const bufferMin = openArea() * PATIO_STEP_M * 1000 / (flow * 60);
+            document.getElementById('utils-stats').innerHTML =
+                `Área que escoa para o pátio: <b>${fmtNum(catchment, 0)} m²</b> • chuva de projeto ${RAIN_MM_H} mm/h → <b>${fmtNum(flow, 1)} L/s</b>. ` +
+                `Se os dois ralos entupirem, o desnível de ${fmtNum(PATIO_STEP_M * 100, 0)} cm segura cerca de <b>${fmtNum(bufferMin, 0)} min</b> de chuva forte antes de chegar à varanda.`;
+        }
+
         function applyLayers() {
             const dims = document.getElementById('layer-dims');
             const wind = document.getElementById('layer-wind');
             if (dims) dims.style.display = layers.dims ? '' : 'none';
             if (wind) wind.style.display = layers.wind ? '' : 'none';
+            const utils = document.getElementById('layer-utils');
+            if (utils) utils.style.display = layers.utils ? '' : 'none';
+            document.getElementById('utils-panel').classList.toggle('hidden', !layers.utils);
+            if (layers.utils) updateUtilsStats();
             document.querySelectorAll('.layer-btn').forEach(btn => btn.setAttribute('aria-pressed', String(layers[btn.dataset.layer])));
             updateSun();
         }
@@ -1530,9 +1654,17 @@
             });
 
             document.querySelectorAll('.layer-btn').forEach(btn => btn.addEventListener('click', () => {
-                layers[btn.dataset.layer] = !layers[btn.dataset.layer];
+                const layer = btn.dataset.layer;
+                layers[layer] = !layers[layer];
+                // The sun and utilities panels share the same corner, so only one is shown at a time.
+                if (layers[layer] && (layer === 'sun' || layer === 'utils')) layers[layer === 'sun' ? 'utils' : 'sun'] = false;
                 applyLayers();
             }));
+            document.getElementById('utils-toggle').addEventListener('click', e => {
+                const open = document.getElementById('utils-legend').classList.toggle('hidden') === false;
+                e.currentTarget.setAttribute('aria-expanded', String(open));
+                e.currentTarget.querySelector('.fa-chevron-down').classList.toggle('-rotate-90', !open);
+            });
             document.getElementById('sun-hour').addEventListener('input', e => {
                 sunState.hour = Number(e.target.value);
                 updateSun();
