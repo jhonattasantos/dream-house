@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full bg-slate-950 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planta Baixa - Casa de Pátio (Atrium House)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        blueprint: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            800: '#0c2847',
+                            900: '#07182c',
+                            950: '#030c17',
+                        },
+                        courtyard: {
+                            emerald: '#10b981',
+                            glass: 'rgba(56, 189, 248, 0.15)',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Blueprint Grid Background */
+        .bg-grid-pattern {
+            background-size: 24px 24px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+        }
+        .bg-grid-major {
+            background-size: 120px 120px;
+            background-image: 
+                linear-gradient(to right, rgba(56, 189, 248, 0.1) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(56, 189, 248, 0.1) 1px, transparent 1px);
+        }
+        /* Glass Effect */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.3);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(148, 163, 184, 0.5);
+        }
+        
+        /* Sun Simulation Overlay */
+        .sun-overlay {
+            transition: all 0.5s ease;
+            pointer-events: none;
+        }
+
+        /* SVG Room Styling */
+        .room-shape {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        .room-shape:hover {
+            fill-opacity: 0.85 !important;
+            stroke-width: 2.5px !important;
+            filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.4));
+        }
+        .room-shape.active {
+            fill-opacity: 0.9 !important;
+            stroke: #38bdf8 !important;
+            stroke-width: 3px !important;
+            filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.6));
+        }
+
+        /* Foliage animation */
+        @keyframes float-leaves {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-3px) rotate(2deg); }
+        }
+        .animate-foliage {
+            animation: float-leaves 6s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col font-sans overflow-hidden bg-slate-950 text-slate-100 select-none">
+
+    <!-- Header Navigation -->
+    <header class="h-16 border-b border-slate-800 glass-panel px-4 md:px-6 flex items-center justify-between z-20 shrink-0">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400">
+                <i class="fa-solid me-0 fa-house-chimney-window text-lg"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-base md:text-lg tracking-tight text-white flex items-center gap-2">
+                    Casa de Pátio <span class="text-xs px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 font-mono border border-sky-500/30">Nordeste 220m²</span>
+                </h1>
+                <p class="text-xs text-slate-400 hidden sm:block">Tour Virtual & Simulação Bioclimática</p>
+            </div>
+        </div>
+
+        <!-- Controls Toolbar -->
+        <div class="flex items-center space-x-2 md:space-x-3">
+            <!-- Navigation Mode Switcher -->
+            <div class="bg-slate-900/90 p-1 rounded-lg border border-slate-800 flex text-xs">
+                <button id="nav-mode-plan" onclick="switchNavMode('plan')" class="px-3 py-1.5 rounded-md font-medium transition-all flex items-center gap-1.5 bg-sky-600 text-white shadow">
+                    <i class="fa-solid fa-map"></i>
+                    <span class="hidden md:inline">Planta Baixa</span>
+                </button>
+                <button id="nav-mode-tour" onclick="switchNavMode('tour')" class="px-3 py-1.5 rounded-md font-medium transition-all flex items-center gap-1.5 text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-vr-cardboard"></i>
+                    <span class="hidden md:inline">Tour Guiado</span>
+                </button>
+                <button id="nav-mode-budget" onclick="switchNavMode('budget')" class="px-3 py-1.5 rounded-md font-medium transition-all flex items-center gap-1.5 text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-calculator"></i>
+                    <span class="hidden md:inline">Orçamento</span>
+                </button>
+            </div>
+
+            <!-- Climate Simulation Trigger -->
+            <button onclick="toggleClimateModal(true)" class="px-3 py-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-xs font-medium flex items-center gap-1.5 transition-all">
+                <i class="fa-solid fa-wind"></i>
+                <span class="hidden sm:inline">Clima Nordeste</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <div class="flex-1 flex overflow-hidden relative">
+
+        <!-- Left Sidebar: Architectural Concepts & Room List -->
+        <aside class="w-80 border-r border-slate-800 glass-panel flex flex-col z-10 hidden xl:flex" id="sidebar-container">
+            <div class="p-4 border-b border-slate-800/80 bg-slate-900/40">
+                <h2 class="text-xs uppercase font-mono tracking-wider text-sky-400 font-semibold mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-sun text-amber-400"></i> Adaptação Nordestina
+                </h2>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    Projeto otimizado para o clima tropical quente e úmido/semiárido. O pátio central gera um <strong>efeito chaminé</strong>, puxando a brisa constante do mar/sertão.
+                </p>
+            </div>
+
+            <div class="p-3 border-b border-slate-800 font-mono text-xs text-slate-400 flex justify-between items-center">
+                <span>AMBIENTES DA CASA</span>
+                <span class="text-sky-400">9 Espaços</span>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-3 space-y-1.5" id="sidebar-room-list">
+                <!-- Injected via JavaScript -->
+            </div>
+        </aside>
+
+        <!-- Center: Dynamic Viewport (Plan, Tour, Budget) -->
+        <main class="flex-1 relative flex flex-col bg-slate-950 bg-grid-pattern overflow-hidden">
+            
+            <!-- VIEW 1: FLOOR PLAN (Default) -->
+            <div id="view-plan" class="flex-1 relative flex items-center justify-center p-4 overflow-auto">
+                <!-- Compass -->
+                <div class="absolute top-4 left-4 pointer-events-none z-10 flex flex-col gap-1">
+                    <div class="flex items-center gap-2 text-slate-500 font-mono text-xs">
+                        <div class="w-8 h-8 rounded-full border border-slate-700/60 flex items-center justify-center relative bg-slate-900/60">
+                            <span class="absolute top-0.5 text-[9px] font-bold text-sky-400">N</span>
+                            <span class="absolute bottom-0.5 text-[9px]">S</span>
+                            <span class="absolute left-1 text-[9px]">O</span>
+                            <span class="absolute right-1 text-[9px]">L</span>
+                            <div class="w-full h-0.5 bg-slate-700/40 transform rotate-45"></div>
+                        </div>
+                        <div>
+                            <div class="text-slate-300 font-semibold">VENTILAÇÃO SUDESTE/LESTE</div>
+                            <div class="text-[10px] text-slate-500">Escala 1:100 • 220m²</div>
+                        </div>
+                    </div>
+                </div>
+
+                <svg id="floorplan-svg" viewBox="0 0 1000 800" class="w-full h-full max-w-[1050px] max-h-[800px] drop-shadow-2xl transition-transform duration-300">
+                    <defs>
+                        <pattern id="grass-pattern" width="10" height="10" patternUnits="userSpaceOnUse">
+                            <circle cx="2" cy="2" r="1" fill="#10b981" opacity="0.3"/>
+                            <circle cx="7" cy="7" r="1" fill="#059669" opacity="0.4"/>
+                        </pattern>
+                        <pattern id="deck-pattern" width="20" height="6" patternUnits="userSpaceOnUse">
+                            <line x1="0" y1="5" x2="20" y2="5" stroke="#78350f" stroke-width="0.8" opacity="0.4"/>
+                        </pattern>
+                    </defs>
+
+                    <!-- Base Plot Boundary -->
+                    <rect x="40" y="40" width="920" height="720" rx="12" fill="#071626" stroke="#1e293b" stroke-width="2" stroke-dasharray="8 8"/>
+                    <text x="55" y="65" fill="#475569" font-family="JetBrains Mono" font-size="11">LOTE RESIDENCIAL 20m x 36m</text>
+
+                    <!-- ROOM SHAPES -->
+                    <g id="layer-rooms">
+                        <g class="room-group" data-room="courtyard" onclick="selectRoom('courtyard')">
+                            <rect id="room-courtyard" class="room-shape" x="370" y="270" width="260" height="260" fill="#064e3b" fill-opacity="0.35" stroke="#10b981" stroke-width="2" stroke-dasharray="4 4"/>
+                            <rect x="370" y="480" width="260" height="50" fill="url(#deck-pattern)" opacity="0.7"/>
+                            <circle cx="500" cy="380" r="45" fill="#059669" opacity="0.3"/>
+                            <text x="500" y="445" text-anchor="middle" fill="#6ee7b7" font-family="JetBrains Mono" font-size="12" font-weight="700">PÁTIO CENTRAL & ESPELHO D'ÁGUA</text>
+                        </g>
+
+                        <g class="room-group" data-room="hallway" onclick="selectRoom('hallway')">
+                            <rect class="room-shape hallway-part" x="330" y="230" width="340" height="40" fill="#0f172a" fill-opacity="0.8" stroke="#334155" stroke-width="1"/>
+                            <rect class="room-shape hallway-part" x="330" y="530" width="340" height="40" fill="#0f172a" fill-opacity="0.8" stroke="#334155" stroke-width="1"/>
+                            <rect class="room-shape hallway-part" x="330" y="270" width="40" height="260" fill="#0f172a" fill-opacity="0.8" stroke="#334155" stroke-width="1"/>
+                            <rect class="room-shape hallway-part" x="630" y="270" width="40" height="260" fill="#0f172a" fill-opacity="0.8" stroke="#334155" stroke-width="1"/>
+                            <text x="500" y="255" text-anchor="middle" fill="#94a3b8" font-family="Inter" font-size="10" font-weight="500">Galeria Envidraçada de Circulação</text>
+                        </g>
+
+                        <g class="room-group" data-room="living" onclick="selectRoom('living')">
+                            <rect id="room-living" class="room-shape" x="100" y="570" width="570" height="150" fill="#1e1b4b" fill-opacity="0.4" stroke="#6366f1" stroke-width="1.5"/>
+                            <text x="385" y="645" text-anchor="middle" fill="#c7d2fe" font-family="JetBrains Mono" font-size="13" font-weight="700">SALA DE ESTAR & JANTAR INTEGRADA</text>
+                        </g>
+
+                        <g class="room-group" data-room="kitchen" onclick="selectRoom('kitchen')">
+                            <rect id="room-kitchen" class="room-shape" x="670" y="570" width="230" height="150" fill="#831843" fill-opacity="0.35" stroke="#f43f5e" stroke-width="1.5"/>
+                            <text x="785" y="645" text-anchor="middle" fill="#fecdd3" font-family="JetBrains Mono" font-size="12" font-weight="700">COZINHA GOURMET</text>
+                        </g>
+
+                        <g class="room-group" data-room="master_suite" onclick="selectRoom('master_suite')">
+                            <rect id="room-master_suite" class="room-shape" x="100" y="100" width="230" height="250" fill="#1e3a8a" fill-opacity="0.35" stroke="#3b82f6" stroke-width="1.5"/>
+                            <text x="215" y="220" text-anchor="middle" fill="#bfdbfe" font-family="JetBrains Mono" font-size="12" font-weight="700">SUÍTE MASTER</text>
+                        </g>
+
+                        <g class="room-group" data-room="master_bath" onclick="selectRoom('master_bath')">
+                            <rect id="room-master_bath" class="room-shape" x="100" y="350" width="230" height="120" fill="#172554" fill-opacity="0.35" stroke="#2563eb" stroke-width="1.5"/>
+                            <text x="215" y="410" text-anchor="middle" fill="#bfdbfe" font-family="JetBrains Mono" font-size="11" font-weight="700">CLOSET & BWC</text>
+                        </g>
+
+                        <g class="room-group" data-room="bedroom_2" onclick="selectRoom('bedroom_2')">
+                            <rect id="room-bedroom_2" class="room-shape" x="670" y="100" width="230" height="180" fill="#065f46" fill-opacity="0.3" stroke="#10b981" stroke-width="1.5"/>
+                            <text x="785" y="190" text-anchor="middle" fill="#a7f3d0" font-family="JetBrains Mono" font-size="12" font-weight="700">SUÍTE HÓSPEDES</text>
+                        </g>
+
+                        <g class="room-group" data-room="office" onclick="selectRoom('office')">
+                            <rect id="room-office" class="room-shape" x="670" y="280" width="230" height="150" fill="#78350f" fill-opacity="0.3" stroke="#f59e0b" stroke-width="1.5"/>
+                            <text x="785" y="355" text-anchor="middle" fill="#fde68a" font-family="JetBrains Mono" font-size="12" font-weight="700">HOME OFFICE</text>
+                        </g>
+
+                        <g class="room-group" data-room="entrance" onclick="selectRoom('entrance')">
+                            <rect id="room-entrance" class="room-shape" x="330" y="100" width="340" height="130" fill="#334155" fill-opacity="0.3" stroke="#64748b" stroke-width="1.5"/>
+                            <text x="500" y="165" text-anchor="middle" fill="#cbd5e1" font-family="JetBrains Mono" font-size="12" font-weight="700">HALL DE ENTRADA & GARAGEM</text>
+                        </g>
+
+                        <g class="room-group" data-room="service" onclick="selectRoom('service')">
+                            <rect id="room-service" class="room-shape" x="100" y="470" width="230" height="100" fill="#475569" fill-opacity="0.3" stroke="#94a3b8" stroke-width="1.5"/>
+                            <text x="215" y="525" text-anchor="middle" fill="#e2e8f0" font-family="JetBrains Mono" font-size="11" font-weight="700">LAVABO & SERVIÇO</text>
+                        </g>
+                    </g>
+
+                    <!-- WALLS -->
+                    <g stroke="#f8fafc" stroke-width="6" stroke-linecap="square">
+                        <line x1="100" y1="100" x2="900" y2="100" stroke-width="8"/>
+                        <line x1="100" y1="720" x2="900" y2="720" stroke-width="8"/>
+                        <line x1="100" y1="100" x2="100" y2="720" stroke-width="8"/>
+                        <line x1="900" y1="100" x2="900" y2="720" stroke-width="8"/>
+                        <line x1="330" y1="100" x2="330" y2="570" stroke-width="4"/>
+                        <line x1="670" y1="100" x2="670" y2="570" stroke-width="4"/>
+                        <line x1="100" y1="350" x2="330" y2="350" stroke-width="4"/>
+                        <line x1="100" y1="470" x2="330" y2="470" stroke-width="4"/>
+                        <line x1="670" y1="280" x2="900" y2="280" stroke-width="4"/>
+                        <line x1="670" y1="430" x2="900" y2="430" stroke-width="4"/>
+                        <line x1="100" y1="570" x2="900" y2="570" stroke-width="5"/>
+                        <!-- Glass around courtyard -->
+                        <g stroke="#38bdf8" stroke-width="3" opacity="0.9">
+                            <line x1="370" y1="270" x2="630" y2="270" stroke-dasharray="16 6"/>
+                            <line x1="370" y1="530" x2="630" y2="530" stroke-dasharray="16 6"/>
+                            <line x1="370" y1="270" x2="370" y2="530" stroke-dasharray="16 6"/>
+                            <line x1="630" y1="270" x2="630" y2="530" stroke-dasharray="16 6"/>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+
+            <!-- VIEW 2: CINEMATIC VIRTUAL TOUR (Hidden initially) -->
+            <div id="view-tour" class="flex-1 hidden flex-col lg:flex-row bg-slate-950 p-6 overflow-y-auto gap-6 items-center justify-center">
+                <div class="max-w-xl w-full bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                        <div>
+                            <span class="text-xs font-mono text-sky-400 uppercase tracking-widest">Tour Interativo 360°</span>
+                            <h2 id="tour-room-title" class="text-2xl font-bold text-white mt-1">Pátio Central & Jardim</h2>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xl" id="tour-room-icon">
+                            <i class="fa-solid fa-tree"></i>
+                        </div>
+                    </div>
+
+                    <!-- Simulated Visual Camera Render -->
+                    <div class="w-full h-64 rounded-xl relative overflow-hidden bg-slate-950 border border-slate-800 flex items-center justify-center group">
+                        <!-- Simulated background scene based on room -->
+                        <div id="tour-scene-bg" class="absolute inset-0 bg-gradient-to-tr from-emerald-950 via-slate-900 to-sky-950 opacity-90 transition-all duration-500 flex items-center justify-center">
+                            <div class="text-center p-6 space-y-2">
+                                <i id="tour-scene-icon" class="fa-solid fa-seedling text-5xl text-emerald-400 animate-pulse"></i>
+                                <p id="tour-scene-desc" class="text-xs font-mono text-slate-300">Câmera Posicionada no Centro do Pátio</p>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-3 left-3 bg-slate-900/80 backdrop-blur px-3 py-1 rounded-lg border border-slate-700/60 text-[10px] font-mono text-slate-300 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> Live Cinematic Render
+                        </div>
+                    </div>
+
+                    <!-- Room Description & Climate Notes -->
+                    <div class="space-y-3">
+                        <p id="tour-room-desc" class="text-xs text-slate-300 leading-relaxed">
+                            O pátio central funciona como resfriador natural. A vegetação densa e a lâmina d'água reduzem a temperatura ambiente em até 4°C através da evapotranspiração.
+                        </p>
+                        <div class="p-3 rounded-lg bg-sky-950/30 border border-sky-800/40 text-xs text-sky-300 flex items-start gap-2">
+                            <i class="fa-solid fa-lightbulb text-amber-400 mt-0.5"></i>
+                            <div>
+                                <strong class="text-white">Dica Bioclimática:</strong> 
+                                <span id="tour-room-tip">Mantenha os caixilhos de vidro abertos durante as manhãs para captação máxima de brisa litorânea.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Walkthrough Controls -->
+                    <div class="flex items-center justify-between pt-2">
+                        <button onclick="prevTourStop()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 transition flex items-center gap-2">
+                            <i class="fa-solid fa-arrow-left"><span>Anterior</span></i>
+                        </button>
+                        <span id="tour-counter" class="text-xs font-mono text-slate-400">1 / 9</span>
+                        <button onclick="nextTourStop()" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-xs font-medium text-white transition flex items-center gap-2 shadow-lg">
+                            <span>Próximo Cômodo</span> <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 3: BUDGET & COST ESTIMATION (Hidden initially) -->
+            <div id="view-budget" class="flex-1 hidden overflow-y-auto p-6 md:p-10">
+                <div class="max-w-4xl mx-auto space-y-6">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+                        <div>
+                            <span class="text-xs font-mono text-emerald-400 uppercase tracking-widest">Orçamento Estimado (Nordeste)</span>
+                            <h2 class="text-2xl font-bold text-white mt-1">Estimativa de Custos por Etapa (220m²)</h2>
+                        </div>
+                        <div class="bg-slate-900 border border-slate-800 px-4 py-3 rounded-xl">
+                            <span class="text-[10px] text-slate-400 font-mono block">VALOR TOTAL ESTIMADO</span>
+                            <span class="text-xl font-bold font-mono text-emerald-400">R$ 580.000,00</span>
+                        </div>
+                    </div>
+
+                    <!-- Breakdown Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="font-semibold text-sm text-slate-200 flex items-center gap-2"><i class="fa-solid fa-helmet-safety text-amber-400"></i> Fundação & Estrutura</span>
+                                <span class="font-mono text-xs text-sky-400">R$ 130.000</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                                <div class="bg-amber-500 h-full w-[22%]"></div>
+                            </div>
+                            <p class="text-xs text-slate-400">Sapatas corridas, pilares em concreto armado e laje impermeabilizada.</p>
+                        </div>
+
+                        <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="font-semibold text-sm text-slate-200 flex items-center gap-2"><i class="fa-solid fa-cubes text-indigo-400"></i> Alvenaria & Cobertura</span>
+                                <span class="font-mono text-xs text-sky-400">R$ 115.000</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                                <div class="bg-indigo-500 h-full w-[20%]"></div>
+                            </div>
+                            <p class="text-xs text-slate-400">Blocos cerâmicos térmicos (maior conforto térmico) e estrutura de telhado em madeira tratada.</p>
+                        </div>
+
+                        <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="font-semibold text-sm text-slate-200 flex items-center gap-2"><i class="fa-solid fa-window-maximize text-cyan-400"></i> Esquadrias & Vidros</span>
+                                <span class="font-mono text-xs text-sky-400">R$ 105.000</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                                <div class="bg-cyan-500 h-full w-[18%]"></div>
+                            </div>
+                            <p class="text-xs text-slate-400">Caixilhos de alumínio minimalistas com vidro temperado para o pátio central.</p>
+                        </div>
+
+                        <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="font-semibold text-sm text-slate-200 flex items-center gap-2"><i class="fa-solid fa-tree text-emerald-400"></i> Paisagismo & Pátio</span>
+                                <span class="font-mono text-xs text-sky-400">R$ 45.000</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                                <div class="bg-emerald-500 h-full w-[8%]"></div>
+                            </div>
+                            <p class="text-xs text-slate-400">Espelho d'água, sistema de irrigação automatizada e espécies nativas do Nordeste.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Sidebar: Room Inspector -->
+        <aside class="w-80 lg:w-96 border-l border-slate-800 glass-panel flex flex-col z-10" id="inspector-panel">
+            <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+                <div class="flex items-center gap-2 text-sky-400 font-mono text-xs uppercase font-semibold">
+                    <i class="fa-solid fa-microscope text-sm"></i> Especificações Técnicas
+                </div>
+                <span id="room-badge" class="px-2 py-0.5 text-[10px] rounded-full font-mono bg-slate-800 text-slate-300 border border-slate-700">Selecione o Cômodo</span>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-5 space-y-6" id="room-details-content">
+                <div id="default-inspector-msg" class="text-center py-10 space-y-3">
+                    <div class="w-14 h-14 rounded-2xl bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center mx-auto text-2xl">
+                        <i class="fa-solid fa-hand-pointer"></i>
+                    </div>
+                    <h3 class="text-sm font-semibold text-slate-200">Explore o Projeto</h3>
+                    <p class="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed">
+                        Clique em qualquer espaço no desenho técnico para ver materiais recomendados, insolação e comportamento térmico.
+                    </p>
+                </div>
+
+                <div id="active-room-details" class="hidden space-y-5">
+                    <div>
+                        <h2 id="inspect-name" class="text-xl font-bold text-white tracking-tight">Nome</h2>
+                        <p id="inspect-subtitle" class="text-xs text-sky-400 font-mono mt-0.5">Zona Térmica</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-500 font-mono block">ÁREA</span>
+                            <span id="inspect-area" class="text-base font-bold font-mono text-emerald-400">00 m²</span>
+                        </div>
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-500 font-mono block">PÉ-DIREITO</span>
+                            <span id="inspect-height" class="text-base font-bold font-mono text-sky-400">3.00 m</span>
+                        </div>
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-500 font-mono block">MATERIAL DE PISO</span>
+                            <span id="inspect-floor" class="text-xs font-semibold text-slate-300 mt-1 block">Porcelanato</span>
+                        </div>
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-500 font-mono block">VENTILAÇÃO</span>
+                            <span id="inspect-light" class="text-xs font-semibold text-amber-300 mt-1 block">Direta</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <h4 class="text-xs font-mono uppercase text-slate-400 tracking-wider">Benefícios Bioclimáticos</h4>
+                        <div id="inspect-benefits" class="space-y-2 text-xs text-slate-300"></div>
+                    </div>
+
+                    <div class="p-3.5 rounded-xl bg-sky-950/30 border border-sky-800/40 space-y-1.5">
+                        <span class="text-xs font-semibold text-sky-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-tree text-emerald-400"></i> Relação com o Pátio
+                        </span>
+                        <p id="inspect-patio-rel" class="text-xs text-slate-300 leading-relaxed"></p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Climate Modal for Northeast Weather -->
+    <div id="climate-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 max-w-lg w-full rounded-2xl p-6 space-y-5 shadow-2xl relative">
+            <button onclick="toggleClimateModal(false)" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center">
+                    <i class="fa-solid fa-wind text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-white text-base">Estratégias Bioclimáticas no Nordeste</h3>
+                    <p class="text-xs text-slate-400">Como esta casa lida com o calor o ano todo</p>
+                </div>
+            </div>
+            <div class="space-y-3 text-xs text-slate-300 leading-relaxed">
+                <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
+                    <strong class="text-emerald-400 flex items-center gap-2"><i class="fa-solid fa-temperature-arrow-down"></i> Efeito Chaminé Natural</strong>
+                    <p>O pátio central descoberto atua como uma chaminé térmica. O ar quente interno sobe e sai pelo vão, enquanto as brisas da região são puxadas para dentro através das esquadrias.</p>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
+                    <strong class="text-sky-400 flex items-center gap-2"><i class="fa-solid fa-droplet"></i> Umidificação por Espelho d'Água</strong>
+                    <p>A lâmina d'água e a vegetação tropical nativa (como palmeiras e marantas) aumentam a umidade relativa do ar no entorno imediato, combatendo o calor seco.</p>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
+                    <strong class="text-amber-400 flex items-center gap-2"><i class="fa-solid fa-shield"></i> Inércia Térmica</strong>
+                    <p>Paredes externas claras e blocos cerâmicos de vedação térmica impedem que o calor do sol da tarde penetre nos dormitórios e na sala de estar.</p>
+                </div>
+            </div>
+            <button onclick="toggleClimateModal(false)" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs transition">
+                Entendido, voltar ao projeto
+            </button>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script>
+        const roomData = {
+            courtyard: {
+                name: "Pátio Central Interno (Jardim)",
+                subtitle: "Núcleo Bioclimático & Resfriador",
+                area: "42.2 m²",
+                height: "Descoberto (Céu Aberto)",
+                floor: "Grama Tropical & Deck Ipê",
+                light: "Abundante (360°)",
+                icon: "fa-tree",
+                benefits: [
+                    "Efeito chaminé natural para exaustão de ar quente.",
+                    "Vegetação e espelho d'água reduzem a temperatura local.",
+                    "Isolamento acústico entre as alas da casa."
+                ],
+                patioRel: "É o coração do projeto. Todos os cômodos circundam este oásis verde."
+            },
+            hallway: {
+                name: "Galeria de Circulação Envidraçada",
+                subtitle: "Eixo de Transição Perimetral",
+                area: "32.0 m²",
+                height: "3.00 m",
+                floor: "Porcelanato Acetinado",
+                light: "Luz Difusa Contínua",
+                icon: "fa-vr-cardboard",
+                benefits: [
+                    "Substitui corredores escuros por um passeio panorâmico.",
+                    "Painéis de vidro deslizantes para abertura total nos dias amenos."
+                ],
+                patioRel: "Emoldura 100% do jardim central através de esquadrias minimalistas."
+            },
+            living: {
+                name: "Sala de Estar & Jantar Integrada",
+                subtitle: "Zona Social Principal",
+                area: "54.5 m²",
+                height: "3.40 m (Pé-Direito Elevado)",
+                floor: "Porcelanato Premium",
+                light: "Direta (Face Sul + Pátio)",
+                icon: "fa-couch",
+                benefits: [
+                    "Ventilação cruzada contínua entre pátio e quintal posterior.",
+                    "Excelente conforto térmico para recepções sociais."
+                ],
+                patioRel: "Abraça o pátio central, integrando convívio e natureza."
+            },
+            kitchen: {
+                name: "Cozinha Gourmet & Ilha",
+                subtitle: "Área Culinária",
+                area: "26.0 m²",
+                height: "3.00 m",
+                floor: "Porcelanato Antiderrapante",
+                light: "Matutina (Leste)",
+                icon: "fa-utensils",
+                benefits: [
+                    "Próxima à área de refeições e ao pátio para cultivo de temperos.",
+                    "Exaustão rápida de aromas culinários."
+                ],
+                patioRel: "Permite vista direta para o jardim durante o preparo das refeições."
+            },
+            master_suite: {
+                name: "Suíte Master",
+                subtitle: "Dormitório Principal",
+                area: "28.5 m²",
+                height: "3.00 m",
+                floor: "Madeira Tratada / Vinílico",
+                light: "Suave / Face Norte-Leste",
+                icon: "fa-bed",
+                benefits: [
+                    "Isolamento acústico total em relação à rua.",
+                    "Acordar com vista direta para a vegetação tropical."
+                ],
+                patioRel: "Garante atmosfera relaxante e privativa."
+            },
+            master_bath: {
+                name: "BWC & Closet Master",
+                subtitle: "Sanitário Privativo",
+                area: "18.0 m²",
+                height: "2.80 m",
+                floor: "Mármore Branco",
+                light: "Zenital",
+                icon: "fa-bath",
+                benefits: ["Privacidade absoluta e ventilação natural."],
+                patioRel: "Ventilado indiretamente pelo corredor."
+            },
+            bedroom_2: {
+                name: "Suíte Hóspedes",
+                subtitle: "Dormitório Secundário",
+                area: "22.0 m²",
+                height: "3.00 m",
+                floor: "Vinílico Amadeirado",
+                light: "Manhã",
+                icon: "fa-user-large",
+                benefits: ["Conforto térmico no canto nordeste."],
+                patioRel: "Acesso visual direto ao jardim tropical."
+            },
+            office: {
+                name: "Home Office / Studio",
+                subtitle: "Trabalho & Leitura",
+                area: "16.5 m²",
+                height: "3.00 m",
+                floor: "Vinílico Acústico",
+                light: "Difusa Ideal para Telas",
+                icon: "fa-laptop-code",
+                benefits: ["Ambiente silencioso para foco absoluto."],
+                patioRel: "Pausas visuais revigorantes para o pátio verde."
+            },
+            entrance: {
+                name: "Hall de Entrada & Garagem",
+                subtitle: "Acesso Principal",
+                area: "35.0 m²",
+                height: "3.00 m",
+                floor: "Concreto Estampado",
+                light: "Direta",
+                icon: "fa-car",
+                benefits: ["Impacto visual espetacular ao entrar na residência."],
+                patioRel: "Transição imediata para o oásis verde."
+            },
+            service: {
+                name: "Lavabo & Área de Serviço",
+                subtitle: "Apoio",
+                area: "12.0 m²",
+                height: "2.80 m",
+                floor: "Cerâmica",
+                light: "Superior",
+                icon: "fa-soap",
+                benefits: ["Funcionalidade e discrição no layout."],
+                patioRel: "Isolado para manter a estética do pátio."
+            }
+        };
+
+        let currentSelectedRoom = 'courtyard';
+        let tourIndex = 0;
+        const tourRooms = Object.keys(roomData);
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderSidebarRoomList();
+            selectRoom('courtyard');
+        });
+
+        function renderSidebarRoomList() {
+            const container = document.getElementById('sidebar-room-list');
+            container.innerHTML = '';
+            Object.keys(roomData).forEach(key => {
+                const room = roomData[key];
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left p-2.5 rounded-lg border border-slate-800/80 hover:border-sky-500/40 bg-slate-900/40 hover:bg-slate-800/60 transition-all flex items-center justify-between group room-list-btn`;
+                btn.id = `sidebar-btn-${key}`;
+                btn.onclick = () => selectRoom(key);
+                btn.innerHTML = `
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-7 h-7 rounded-md bg-slate-800 text-slate-400 group-hover:text-sky-400 flex items-center justify-center text-xs">
+                            <i class="fa-solid ${room.icon}"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs font-semibold text-slate-200 group-hover:text-white">${room.name}</div>
+                            <div class="text-[10px] text-slate-500 font-mono">${room.area}</div>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-[10px] text-slate-600 group-hover:text-sky-400"></i>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        function selectRoom(roomKey) {
+            if (!roomData[roomKey]) return;
+            currentSelectedRoom = roomKey;
+
+            document.querySelectorAll('.room-shape').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.room-list-btn').forEach(el => el.classList.remove('border-sky-500', 'bg-sky-950/30'));
+
+            const svgTargets = document.querySelectorAll(`[data-room="${roomKey}"] .room-shape`);
+            svgTargets.forEach(t => t.classList.add('active'));
+
+            const sidebarBtn = document.getElementById(`sidebar-btn-${roomKey}`);
+            if (sidebarBtn) sidebarBtn.classList.add('border-sky-500', 'bg-sky-950/30');
+
+            const data = roomData[roomKey];
+            document.getElementById('default-inspector-msg').classList.add('hidden');
+            document.getElementById('active-room-details').classList.remove('hidden');
+
+            document.getElementById('room-badge').innerText = roomKey.toUpperCase();
+            document.getElementById('inspect-name').innerText = data.name;
+            document.getElementById('inspect-subtitle').innerText = data.subtitle;
+            document.getElementById('inspect-area').innerText = data.area;
+            document.getElementById('inspect-height').innerText = data.height;
+            document.getElementById('inspect-floor').innerText = data.floor;
+            document.getElementById('inspect-light').innerText = data.light;
+            document.getElementById('inspect-patio-rel').innerText = data.patioRel;
+
+            const benefitsContainer = document.getElementById('inspect-benefits');
+            benefitsContainer.innerHTML = '';
+            data.benefits.forEach(b => {
+                const item = document.createElement('div');
+                item.className = 'flex items-start gap-2 bg-slate-900/60 p-2 rounded-lg border border-slate-800/60';
+                item.innerHTML = `<i class="fa-solid fa-check text-emerald-400 text-xs mt-0.5"></i> <span>${b}</span>`;
+                benefitsContainer.appendChild(item);
+            });
+        }
+
+        function switchNavMode(mode) {
+            const btnPlan = document.getElementById('nav-mode-plan');
+            const btnTour = document.getElementById('nav-mode-tour');
+            const btnBudget = document.getElementById('nav-mode-budget');
+
+            const viewPlan = document.getElementById('view-plan');
+            const viewTour = document.getElementById('view-tour');
+            const viewBudget = document.getElementById('view-budget');
+            const sidebar = document.getElementById('sidebar-container');
+            const inspector = document.getElementById('inspector-panel');
+
+            [btnPlan, btnTour, btnBudget].forEach(b => {
+                b.className = "px-3 py-1.5 rounded-md font-medium transition-all flex items-center gap-1.5 text-slate-400 hover:text-white";
+            });
+
+            viewPlan.classList.add('hidden');
+            viewTour.classList.add('hidden');
+            viewBudget.classList.add('hidden');
+
+            if (mode === 'plan') {
+                btnPlan.className = "px-3 py-1.5 rounded-md font-medium transition-all flex items-center gap-1.5 bg-sky-600 text-white shadow";
+                viewPlan.classList.remove('hidden');
+                sidebar.classList.remove('hidden');
+                inspector.classList.remove('hidden');
+            } else if (mode === 'tour') {
+                btnTour.className = "px-3 py-1.5 rounded-md font-medium transition-all flex items-center gap-1.5 bg-sky-600 text-white shadow";
+                viewTour.classList.remove('hidden');
+                sidebar.classList.add('hidden');
+                inspector.classList.add('hidden');
+                updateTourView();
+            } else if (mode === 'budget') {
+                btnBudget.className = "px-3 py-1.5 rounded-md font-medium transition-all flex items-center gap-1.5 bg-sky-600 text-white shadow";
+                viewBudget.classList.remove('hidden');
+                sidebar.classList.add('hidden');
+                inspector.classList.add('hidden');
+            }
+        }
+
+        function updateTourView() {
+            const key = tourRooms[tourIndex];
+            const data = roomData[key];
+            document.getElementById('tour-room-title').innerText = data.name;
+            document.getElementById('tour-room-icon').innerHTML = `<i class="fa-solid ${data.icon}"></i>`;
+            document.getElementById('tour-scene-icon').className = `fa-solid ${data.icon} text-5xl text-emerald-400 animate-pulse`;
+            document.getElementById('tour-scene-desc').innerText = `Visualização Cinematic 360° • ${data.name}`;
+            document.getElementById('tour-room-desc').innerText = data.benefits[0];
+            document.getElementById('tour-room-tip').innerText = data.patioRel;
+            document.getElementById('tour-counter').innerText = `${tourIndex + 1} / ${tourRooms.length}`;
+        }
+
+        function nextTourStop() {
+            tourIndex = (tourIndex + 1) % tourRooms.length;
+            updateTourView();
+        }
+
+        function prevTourStop() {
+            tourIndex = (tourIndex - 1 + tourRooms.length) % tourRooms.length;
+            updateTourView();
+        }
+
+        function toggleClimateModal(show) {
+            const modal = document.getElementById('climate-modal');
+            if (show) modal.classList.remove('hidden');
+            else modal.classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
