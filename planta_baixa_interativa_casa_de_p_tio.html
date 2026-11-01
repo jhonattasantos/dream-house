@@ -545,7 +545,7 @@
                     "Painéis de vidro deslizantes para abertura total nos dias amenos."
                 ],
                 patioRel: "Emoldura 100% do jardim central através de esquadrias minimalistas.",
-                rects: [[5, 3, 8, 1], [5, 10, 8, 1], [5, 4, 1, 6], [12, 4, 1, 6]],
+                rects: [[5, 3, 8, 1], [0, 10, 13, 1], [5, 4, 1, 6], [12, 4, 1, 6]],
                 labelRect: [5, 3, 8, 1],
                 walls: false,
                 fill: "#0f172a", fillOpacity: 0.8, text: "#94a3b8"
@@ -573,14 +573,14 @@
                 subtitle: "Zona Social Principal",
                 height: "3.40 m (Pé-Direito Elevado)",
                 floor: "Porcelanato Premium",
-                light: "Direta (Face Sul + Pátio)",
+                light: "Direta (Face Leste + Pátio)",
                 icon: "fa-couch",
                 benefits: [
-                    "Ventilação cruzada contínua entre pátio e quintal posterior.",
+                    "Recebe a brisa leste diretamente e a conduz até o pátio (ventilação cruzada).",
                     "Excelente conforto térmico para recepções sociais."
                 ],
-                patioRel: "Abraça o pátio central, integrando convívio e natureza.",
-                rects: [[0, 11, 12, 4]],
+                patioRel: "Abre-se por inteiro para a galeria e o pátio, integrando convívio e natureza.",
+                rects: [[13, 0, 5, 11]],
                 fill: "#1e1b4b", fillOpacity: 0.4, text: "#c7d2fe"
             },
             kitchen: {
@@ -603,14 +603,14 @@
                 subtitle: "Apoio Social",
                 height: "2.80 m",
                 floor: "Porcelanato Antiderrapante",
-                light: "Janela Alta (Leste)",
+                light: "Janela Alta (Sul)",
                 icon: "fa-toilet",
                 benefits: [
                     "Atende visitas sem que precisem entrar na ala íntima.",
-                    "Janela alta a leste garante ventilação com privacidade."
+                    "Janela alta ao sul garante ventilação com privacidade."
                 ],
-                patioRel: "Acesso direto pela galeria, a poucos passos da sala.",
-                rects: [[13, 8, 5, 3]],
+                patioRel: "Acesso direto pela galeria, ao lado da cozinha.",
+                rects: [[9, 11, 3, 4]],
                 fill: "#164e63", fillOpacity: 0.35, text: "#a5f3fc"
             },
             office: {
@@ -618,11 +618,11 @@
                 subtitle: "Trabalho & Leitura",
                 height: "3.00 m",
                 floor: "Vinílico Acústico",
-                light: "Difusa Ideal para Telas",
+                light: "Sul — Difusa Ideal para Telas",
                 icon: "fa-laptop-code",
                 benefits: ["Ambiente silencioso para foco absoluto."],
                 patioRel: "Pausas visuais revigorantes para o pátio verde.",
-                rects: [[13, 4.5, 5, 3.5]],
+                rects: [[5, 11, 4, 4]],
                 fill: "#78350f", fillOpacity: 0.3, text: "#fde68a"
             },
             bedroom_2: {
@@ -630,12 +630,30 @@
                 subtitle: "Dormitório Secundário",
                 height: "3.00 m",
                 floor: "Vinílico Amadeirado",
-                light: "Manhã",
+                light: "Tarde (Oeste) + Sul",
                 icon: "fa-user-large",
-                benefits: ["Conforto térmico no canto nordeste."],
-                patioRel: "Acesso visual direto ao jardim tropical.",
-                rects: [[13, 0, 5, 4.5]],
+                benefits: [
+                    "Canto sudoeste reservado, longe da área social.",
+                    "Janela oeste pede brise ou vegetação contra o sol da tarde."
+                ],
+                patioRel: "Acesso pela galeria, com vista para o jardim no caminho.",
+                rects: [[0, 11, 5, 4]],
                 fill: "#065f46", fillOpacity: 0.3, text: "#a7f3d0"
+            },
+            service: {
+                name: "Área de Serviço & Despensa",
+                subtitle: "Apoio",
+                height: "2.80 m",
+                floor: "Cerâmica",
+                light: "Janela (Oeste)",
+                icon: "fa-soap",
+                benefits: [
+                    "Lavanderia e despensa fora da vista social.",
+                    "Janela a oeste aproveita o sol da tarde para secar roupas."
+                ],
+                patioRel: "Ligada à galeria, isolada da estética do pátio.",
+                rects: [[0, 8, 5, 2]],
+                fill: "#475569", fillOpacity: 0.3, text: "#e2e8f0"
             },
             master_suite: {
                 name: "Suíte Master",
@@ -663,21 +681,6 @@
                 patioRel: "Acesso exclusivo pela Suíte Master, longe da circulação social.",
                 rects: [[0, 5, 5, 3]],
                 fill: "#172554", fillOpacity: 0.35, text: "#bfdbfe"
-            },
-            service: {
-                name: "Área de Serviço & Despensa",
-                subtitle: "Apoio",
-                height: "2.80 m",
-                floor: "Cerâmica",
-                light: "Janela (Oeste)",
-                icon: "fa-soap",
-                benefits: [
-                    "Lavanderia e despensa fora da vista social.",
-                    "Janela a oeste aproveita o sol da tarde para secar roupas."
-                ],
-                patioRel: "Ligada à galeria, isolada da estética do pátio.",
-                rects: [[0, 8, 5, 3]],
-                fill: "#475569", fillOpacity: 0.3, text: "#e2e8f0"
             }
         };
         const EDITABLE_FIELDS = ['name', 'subtitle', 'height', 'floor', 'light', 'benefits', 'patioRel'];
@@ -689,25 +692,29 @@
             { x: 5, y: 3.1, dir: 'v', len: 0.8, type: 'door', swing: -1 },       // suíte master
             { x: 3.6, y: 5, dir: 'h', len: 0.8, type: 'door', swing: 1 },        // closet & bwc
             { x: 5, y: 8.1, dir: 'v', len: 0.9, type: 'door', swing: -1 },       // serviço
-            { x: 13, y: 3.1, dir: 'v', len: 0.8, type: 'door', swing: 1 },       // suíte hóspedes
-            { x: 13, y: 7, dir: 'v', len: 0.9, type: 'door', swing: 1 },         // home office
-            { x: 13, y: 8.1, dir: 'v', len: 0.8, type: 'door', swing: 1 },       // banheiro social
-            { x: 5.6, y: 11, dir: 'h', len: 6, type: 'opening' },                // galeria → sala
-            { x: 12, y: 11.6, dir: 'v', len: 2.6, type: 'opening' }              // sala ↔ cozinha
+            { x: 3.8, y: 11, dir: 'h', len: 0.9, type: 'door', swing: 1 },       // suíte hóspedes
+            { x: 5.3, y: 11, dir: 'h', len: 0.9, type: 'door', swing: 1 },       // home office
+            { x: 9.3, y: 11, dir: 'h', len: 0.8, type: 'door', swing: 1 },       // banheiro social
+            { x: 13, y: 0.6, dir: 'v', len: 1.8, type: 'opening' },              // hall → sala
+            { x: 13, y: 4.5, dir: 'v', len: 5, type: 'opening' },                // galeria → sala
+            { x: 13.6, y: 11, dir: 'h', len: 3.4, type: 'opening' }              // sala ↔ cozinha
         ];
 
         const WINDOWS = [
             { x: 1.2, y: 0, dir: 'h', len: 2.6, room: 'master_suite' },
-            { x: 14.2, y: 0, dir: 'h', len: 2.6, room: 'bedroom_2' },
+            { x: 14.2, y: 0, dir: 'h', len: 2.6, room: 'living' },
             { x: 0, y: 1.2, dir: 'v', len: 2.4, room: 'master_suite' },
             { x: 0, y: 6, dir: 'v', len: 1, room: 'master_bath' },
-            { x: 0, y: 9, dir: 'v', len: 1.2, room: 'service' },
-            { x: 0, y: 12, dir: 'v', len: 2, room: 'living' },
-            { x: 18, y: 1.2, dir: 'v', len: 2, room: 'bedroom_2' },
-            { x: 18, y: 5.2, dir: 'v', len: 2, room: 'office' },
-            { x: 18, y: 9, dir: 'v', len: 1, room: 'bwc_social' },
+            { x: 0, y: 8.5, dir: 'v', len: 1, room: 'service' },
+            { x: 0, y: 10.1, dir: 'v', len: 0.8, room: 'hallway' },
+            { x: 0, y: 12, dir: 'v', len: 2, room: 'bedroom_2' },
+            { x: 18, y: 1, dir: 'v', len: 3, room: 'living' },
+            { x: 18, y: 5, dir: 'v', len: 3, room: 'living' },
+            { x: 18, y: 8.8, dir: 'v', len: 1.6, room: 'living' },
             { x: 18, y: 12, dir: 'v', len: 2, room: 'kitchen' },
-            { x: 1.2, y: 15, dir: 'h', len: 8, room: 'living' },
+            { x: 1.2, y: 15, dir: 'h', len: 2.6, room: 'bedroom_2' },
+            { x: 5.8, y: 15, dir: 'h', len: 2.4, room: 'office' },
+            { x: 10, y: 15, dir: 'h', len: 1, room: 'bwc_social' },
             { x: 13.4, y: 15, dir: 'h', len: 3.2, room: 'kitchen' }
         ];
 
@@ -909,11 +916,24 @@
                     t.textContent = text;
                     return;
                 }
-                const t1 = svgEl('text', { x: cx, y: cy - 2, fill: room.text, 'font-size': fitFontSize(title, maxWidth), 'font-weight': 700 }, g);
-                t1.textContent = title;
-                const sub = `${roomDims(room)} • ${area}`;
-                const t2 = svgEl('text', { x: cx, y: cy + 13, fill: room.text, opacity: 0.7, 'font-size': fitFontSize(sub, maxWidth, 10) }, g);
-                t2.textContent = sub;
+                // Narrow rooms: break the name at " & " or " / " instead of shrinking it too much.
+                let lines = [title];
+                const sep = title.match(/ (&|\/) /);
+                if (fitFontSize(title, maxWidth) < 10 && sep) {
+                    lines = [title.slice(0, sep.index + 2), title.slice(sep.index + 3)];
+                }
+                const titleSize = Math.min(...lines.map(l => fitFontSize(l, maxWidth)));
+                lines.forEach((line, i) => {
+                    const t = svgEl('text', { x: cx, y: cy - 2 - (lines.length - 1 - i) * (titleSize + 2), fill: room.text, 'font-size': titleSize, 'font-weight': 700 }, g);
+                    t.textContent = line;
+                });
+                const subLines = room.rects.length === 1 && fitFontSize(`${roomDims(room)} • ${area}`, maxWidth, 10) < 8.5
+                    ? [roomDims(room), area]
+                    : [`${roomDims(room)} • ${area}`];
+                subLines.forEach((line, i) => {
+                    const t = svgEl('text', { x: cx, y: cy + 13 + i * 11, fill: room.text, opacity: 0.7, 'font-size': fitFontSize(line, maxWidth, 10) }, g);
+                    t.textContent = line;
+                });
             });
         }
 
@@ -938,19 +958,20 @@
 
             [[0, 5], [5, 13], [13, 18]].forEach(([a, b]) => dimH(a, b, OY - 22));
             dimH(0, HOUSE_W, OY - 50);
-            [[0, 5], [5, 8], [8, 11], [11, 15]].forEach(([a, b]) => dimV(a, b, OX - 22, -1));
+            [[0, 5], [5, 8], [8, 10], [10, 11], [11, 15]].forEach(([a, b]) => dimV(a, b, OX - 22, -1));
             dimV(0, HOUSE_H, OX - 50, -1);
-            [[0, 4.5], [4.5, 8], [8, 11], [11, 15]].forEach(([a, b]) => dimV(a, b, X(HOUSE_W) + 22, -1));
+            [[0, 11], [11, 15]].forEach(([a, b]) => dimV(a, b, X(HOUSE_W) + 22, -1));
+            [[0, 5], [5, 9], [9, 12], [12, 18]].forEach(([a, b]) => dimH(a, b, Y(HOUSE_H) + 22));
 
             // Graphic scale bar (0–5 m)
             const sb = svgEl('g', { stroke: '#cbd5e1' }, g);
             for (let i = 0; i < 5; i++) {
-                svgEl('rect', { x: X(i), y: 752, width: S, height: 6, fill: i % 2 ? 'none' : '#cbd5e1' }, sb);
+                svgEl('rect', { x: X(i), y: 764, width: S, height: 6, fill: i % 2 ? 'none' : '#cbd5e1' }, sb);
             }
-            const t0 = svgEl('text', { x: X(0), y: 772, fill: '#94a3b8', stroke: 'none', 'text-anchor': 'middle' }, g); t0.textContent = '0';
-            const t5 = svgEl('text', { x: X(5), y: 772, fill: '#94a3b8', stroke: 'none', 'text-anchor': 'middle' }, g); t5.textContent = '5 m';
-            const ts = svgEl('text', { x: X(0), y: 745, fill: '#64748b', stroke: 'none' }, g); ts.textContent = 'ESCALA GRÁFICA';
-            const lot = svgEl('text', { x: X(HOUSE_W), y: 765, fill: '#475569', stroke: 'none', 'text-anchor': 'end', 'font-size': 11 }, g);
+            const t0 = svgEl('text', { x: X(0), y: 784, fill: '#94a3b8', stroke: 'none', 'text-anchor': 'middle' }, g); t0.textContent = '0';
+            const t5 = svgEl('text', { x: X(5), y: 784, fill: '#94a3b8', stroke: 'none', 'text-anchor': 'middle' }, g); t5.textContent = '5 m';
+            const ts = svgEl('text', { x: X(0), y: 758, fill: '#64748b', stroke: 'none' }, g); ts.textContent = 'ESCALA GRÁFICA';
+            const lot = svgEl('text', { x: X(HOUSE_W), y: 778, fill: '#475569', stroke: 'none', 'text-anchor': 'end', 'font-size': 11 }, g);
             lot.textContent = `LOTE 20 × 36 m • CONSTRUÇÃO ${HOUSE_W} × ${HOUSE_H} m`;
         }
 
@@ -1027,12 +1048,12 @@
 
             let message;
             if (hour < 9) message = 'Sol da manhã, ameno: bom momento para abrir as esquadrias a leste.';
-            else if (hour < 11.5) message = 'Sol forte a leste — persianas a meia altura nos quartos e no escritório.';
+            else if (hour < 11.5) message = 'Sol forte a leste — persianas a meia altura na sala e na cozinha.';
             else if (hour <= 12.5) message = 'Sol a pino: o pátio recebe luz direta e os beirais sombreiam as fachadas.';
             else if (hour < 15) message = 'Pico de calor — a fachada oeste começa a aquecer; o pátio puxa o ar quente para cima.';
             else message = 'Sol poente a oeste, o mais quente do dia: brises e vegetação protegem as janelas.';
             if (faces.has('N')) message += ' No inverno o sol passa ao norte, aquecendo a fachada da rua.';
-            if (faces.has('S')) message += ' No verão o sol passa ao sul, alcançando a sala e a cozinha.';
+            if (faces.has('S')) message += ' No verão o sol passa ao sul, alcançando a fachada dos fundos.';
             document.getElementById('sun-message').textContent = message;
 
             const faceNames = { N: 'Norte', S: 'Sul', L: 'Leste', O: 'Oeste' };
