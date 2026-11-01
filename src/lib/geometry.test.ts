@@ -4,6 +4,7 @@ import { OPENINGS, WINDOWS } from '../data/openings';
 import { ROOMS_DEFAULT } from '../data/rooms';
 import { HOUSE_H, HOUSE_W, along, builtArea, onLine, openArea, wallLines } from './geometry';
 import { sunDirection } from './sun';
+import { wallBlocks } from './walls3d';
 
 describe('house data', () => {
   it('adds up to the documented areas', () => {
@@ -62,5 +63,20 @@ describe('sunDirection (Mamanguape, 6.8° S)', () => {
     expect(dez.north).toBeLessThan(0);
     expect(jun.north).toBeGreaterThan(0);
     expect(dez.up).toBeGreaterThan(0.9);
+  });
+});
+
+describe('wallBlocks', () => {
+  const blocks = wallBlocks(ROOMS_DEFAULT);
+
+  it('cuts a glass pane for every window', () => {
+    expect(blocks.filter(b => b.kind === 'glass')).toHaveLength(WINDOWS.length);
+  });
+
+  it('leaves the front door open up to the lintel', () => {
+    const door = OPENINGS[0];
+    const atDoor = blocks.filter(b => b.kind === 'wall' && b.y0 < 0.01 && b.y1 > -0.01 && b.x0 < door.x + door.len / 2 && b.x1 > door.x + door.len / 2);
+    expect(atDoor).toHaveLength(1);
+    expect(atDoor[0].z0).toBeCloseTo(2.1);
   });
 });

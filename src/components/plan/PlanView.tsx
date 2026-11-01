@@ -1,8 +1,11 @@
-import { useRef, useState } from 'react';
+import { Suspense, lazy, useRef, useState } from 'react';
 import { builtArea, fmtNum, openArea } from '../../lib/geometry';
 import { sunInfo } from '../../lib/sun';
 import { useHouse, type LayerKey, type PlanMode } from '../../store';
 import Plan2D, { type PlanHandle } from './Plan2D';
+
+// Three.js is only downloaded when someone opens the 3D view.
+const House3D = lazy(() => import('../three/House3D'));
 
 const LAYER_BUTTONS: { key: LayerKey; icon: string; label: string; title: string; only?: PlanMode }[] = [
   { key: 'labels', icon: 'fa-font', label: 'Nomes', title: 'Mostrar nomes dos ambientes', only: '2d' },
@@ -97,6 +100,7 @@ export default function PlanView() {
   const rooms = useHouse(s => s.rooms);
   const layers = useHouse(s => s.layers);
   const planMode = useHouse(s => s.planMode);
+  const setPlanMode = useHouse(s => s.setPlanMode);
   const toggleLayer = useHouse(s => s.toggleLayer);
   const selected = useHouse(s => s.selected);
   const selectRoom = useHouse(s => s.selectRoom);
@@ -125,6 +129,18 @@ export default function PlanView() {
       {/* Toolbar: 2D/3D, layers & zoom */}
       <div className="absolute top-3 right-3 z-10 flex flex-col items-end gap-2">
         <div className="flex gap-2">
+          <div className="glass-panel rounded-lg flex text-xs font-mono font-bold overflow-hidden" role="group" aria-label="Modo de visualização">
+            {(['2d', '3d'] as const).map(mode => (
+              <button
+                key={mode}
+                onClick={() => setPlanMode(mode)}
+                aria-pressed={planMode === mode}
+                className={`px-3 py-1.5 transition ${mode === '3d' ? 'border-l border-slate-700/60' : ''} ${planMode === mode ? 'bg-sky-600 text-white' : 'text-slate-400 hover:text-white'}`}
+              >
+                {mode.toUpperCase()}
+              </button>
+            ))}
+          </div>
           <div className="glass-panel rounded-lg flex text-xs overflow-hidden">
             {LAYER_BUTTONS.filter(b => b.only !== (is3d ? '2d' : '3d')).map((b, i) => (
               <button
@@ -153,7 +169,13 @@ export default function PlanView() {
         {is3d ? 'Arraste para girar • botão direito para mover • role para zoom' : 'Role para zoom • arraste para mover'}
       </div>
 
-      <Plan2D ref={viewRef} highlight={selected} onRoomClick={key => selectRoom(key)} className="w-full h-full drop-shadow-2xl" />
+      {is3d ? (
+        <Suspense fallback={<div className="text-sm font-mono text-slate-400">Carregando 3D…</div>}>
+          <House3D ref={viewRef} selected={selected} onRoomClick={key => selectRoom(key)} />
+        </Suspense>
+      ) : (
+        <Plan2D ref={viewRef} highlight={selected} onRoomClick={key => selectRoom(key)} className="w-full h-full drop-shadow-2xl" />
+      )}
     </div>
   );
 }
