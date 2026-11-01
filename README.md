@@ -1,6 +1,8 @@
 # Dream House — Casa de Pátio
 
-Planta baixa interativa da casa dos sonhos: uma casa de pátio (atrium house) pensada para o clima do Nordeste — 21 × 18 m, 342 m² construídos em torno de um pátio descoberto de 6 × 6 m, envolvido por uma varanda de 2,50 m para armar redes (pede lote com pelo menos 24 m de frente).
+Planta baixa interativa da casa dos sonhos: uma casa de pátio (atrium house) pensada para o clima do Nordeste — 21 × 18 m, 342 m² construídos em torno de um pátio descoberto de 6 × 6 m, envolvido por uma varanda de 2,50 m para armar redes (pede lote com pelo menos 24 m de frente). Projetada para Mamanguape (PB).
+
+São 3 suítes + home office: a Suíte Master fica nos fundos (face sul, a mais fresca e silenciosa), a Suíte Hóspedes ao lado do hall de entrada, e o Quarto 3 (com banheiro) e o Home Office na ala oeste. A sala de estar e jantar (5 × 9 m) se abre inteira para a varanda.
 
 Abra `planta_baixa_interativa_casa_de_p_tio.html` no navegador. Não há build — é uma página única que usa Tailwind e Font Awesome via CDN.
 

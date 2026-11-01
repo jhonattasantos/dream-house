@@ -533,6 +533,21 @@
                 rects: [[5, 0, 11, 3]],
                 fill: "#334155", fillOpacity: 0.3, text: "#cbd5e1"
             },
+            bedroom_2: {
+                name: "Suíte Hóspedes",
+                subtitle: "Dormitório de Visitas",
+                height: "3.00 m",
+                floor: "Vinílico Amadeirado",
+                light: "Matutina (Leste) + Norte",
+                icon: "fa-user-large",
+                benefits: [
+                    "Ao lado do hall: a visita chega ao quarto sem cruzar a ala íntima.",
+                    "Canto nordeste recebe o sol da manhã e a brisa leste."
+                ],
+                patioRel: "Vista para a varanda e o jardim a partir do hall.",
+                rects: [[16, 0, 5, 5]],
+                fill: "#065f46", fillOpacity: 0.3, text: "#a7f3d0"
+            },
             hallway: {
                 name: "Varanda das Redes",
                 subtitle: "Circulação & Descanso ao Redor do Pátio",
@@ -575,14 +590,14 @@
                 subtitle: "Zona Social Principal",
                 height: "3.40 m (Pé-Direito Elevado)",
                 floor: "Porcelanato Premium",
-                light: "Direta (Face Leste + Varanda)",
+                light: "Leste + Varanda",
                 icon: "fa-couch",
                 benefits: [
                     "Recebe a brisa leste diretamente e a conduz até o pátio (ventilação cruzada).",
-                    "Excelente conforto térmico para recepções sociais."
+                    "5 × 9 m: estar e jantar bem proporcionados, colados à cozinha."
                 ],
                 patioRel: "Abre-se por inteiro para a varanda e o pátio, integrando convívio e natureza.",
-                rects: [[16, 0, 5, 14]],
+                rects: [[16, 5, 5, 9]],
                 fill: "#1e1b4b", fillOpacity: 0.4, text: "#c7d2fe"
             },
             kitchen: {
@@ -594,7 +609,7 @@
                 icon: "fa-utensils",
                 benefits: [
                     "Próxima à área de refeições e ao pátio para cultivo de temperos.",
-                    "Exaustão rápida de aromas culinários."
+                    "Espaço para despensa embutida e exaustão rápida de aromas."
                 ],
                 patioRel: "Permite vista direta para o jardim durante o preparo das refeições.",
                 rects: [[13, 14, 8, 4]],
@@ -608,68 +623,27 @@
                 light: "Janela Alta (Sul)",
                 icon: "fa-toilet",
                 benefits: [
-                    "Atende visitas sem que precisem entrar na ala íntima.",
+                    "Atende quem está na sala, na cozinha ou na varanda.",
                     "Janela alta ao sul garante ventilação com privacidade."
                 ],
                 patioRel: "Acesso direto pela varanda, ao lado da cozinha.",
                 rects: [[10, 14, 3, 4]],
                 fill: "#164e63", fillOpacity: 0.35, text: "#a5f3fc"
             },
-            office: {
-                name: "Home Office / Studio",
-                subtitle: "Trabalho & Leitura",
-                height: "3.00 m",
-                floor: "Vinílico Acústico",
-                light: "Sul — Difusa Ideal para Telas",
-                icon: "fa-laptop-code",
-                benefits: ["Ambiente silencioso para foco absoluto."],
-                patioRel: "Pausas visuais revigorantes para o pátio verde.",
-                rects: [[5.5, 14, 4.5, 4]],
-                fill: "#78350f", fillOpacity: 0.3, text: "#fde68a"
-            },
-            bedroom_2: {
-                name: "Suíte Hóspedes",
-                subtitle: "Dormitório Secundário",
-                height: "3.00 m",
-                floor: "Vinílico Amadeirado",
-                light: "Tarde (Oeste) + Sul",
-                icon: "fa-user-large",
-                benefits: [
-                    "Canto sudoeste reservado, longe da área social.",
-                    "Janela oeste pede brise ou vegetação contra o sol da tarde."
-                ],
-                patioRel: "Acesso pela varanda, com vista para o jardim no caminho.",
-                rects: [[0, 14, 5.5, 4]],
-                fill: "#065f46", fillOpacity: 0.3, text: "#a7f3d0"
-            },
-            service: {
-                name: "Área de Serviço & Despensa",
-                subtitle: "Apoio",
-                height: "2.80 m",
-                floor: "Cerâmica",
-                light: "Janela (Oeste)",
-                icon: "fa-soap",
-                benefits: [
-                    "Lavanderia e despensa fora da vista social.",
-                    "Janela a oeste aproveita o sol da tarde para secar roupas."
-                ],
-                patioRel: "Ligada à varanda, isolada da estética do pátio.",
-                rects: [[0, 8, 5, 3.5]],
-                fill: "#475569", fillOpacity: 0.3, text: "#e2e8f0"
-            },
             master_suite: {
                 name: "Suíte Master",
                 subtitle: "Dormitório Principal",
                 height: "3.00 m",
                 floor: "Madeira Tratada / Vinílico",
-                light: "Suave / Face Norte-Oeste",
+                light: "Sul — Fresca, sem Sol da Tarde",
                 icon: "fa-bed",
                 benefits: [
-                    "Isolamento acústico total em relação à rua.",
-                    "Acordar com vista direta para a vegetação tropical."
+                    "Nos fundos: o ponto mais silencioso e privado da casa, longe da rua e da garagem.",
+                    "Face sul quase sem sol direto — ideal para o calor de Mamanguape.",
+                    "Banheiro e closet a oeste funcionam como colchão térmico contra o sol da tarde."
                 ],
-                patioRel: "Garante atmosfera relaxante e privativa.",
-                rects: [[0, 0, 5, 5]],
+                patioRel: "Sai direto na varanda das redes, de frente para o jardim.",
+                rects: [[4.5, 14, 5.5, 4]],
                 fill: "#1e3a8a", fillOpacity: 0.35, text: "#bfdbfe"
             },
             master_bath: {
@@ -677,12 +651,72 @@
                 subtitle: "Sanitário Privativo",
                 height: "2.80 m",
                 floor: "Mármore Branco",
-                light: "Zenital + Janela Alta (Oeste)",
+                light: "Janelas Altas (Sul + Oeste)",
                 icon: "fa-bath",
-                benefits: ["Privacidade absoluta e ventilação natural."],
+                benefits: [
+                    "Privacidade absoluta e ventilação natural.",
+                    "Protege o quarto do sol da tarde na fachada oeste."
+                ],
                 patioRel: "Acesso exclusivo pela Suíte Master, longe da circulação social.",
-                rects: [[0, 5, 5, 3]],
+                rects: [[0, 14, 4.5, 4]],
                 fill: "#172554", fillOpacity: 0.35, text: "#bfdbfe"
+            },
+            service: {
+                name: "Área de Serviço",
+                subtitle: "Lavanderia",
+                height: "2.80 m",
+                floor: "Cerâmica",
+                light: "Janela (Oeste)",
+                icon: "fa-soap",
+                benefits: [
+                    "Lavanderia fora da vista social, ao lado da saída lateral.",
+                    "Janela a oeste aproveita o sol da tarde para secar roupas."
+                ],
+                patioRel: "Ligada à varanda, isolada da estética do pátio.",
+                rects: [[0, 9.5, 5, 2]],
+                fill: "#475569", fillOpacity: 0.3, text: "#e2e8f0"
+            },
+            bath_3: {
+                name: "Banheiro Quarto 3",
+                subtitle: "Sanitário Privativo",
+                height: "2.80 m",
+                floor: "Porcelanato Antiderrapante",
+                light: "Janela Alta (Oeste)",
+                icon: "fa-shower",
+                benefits: ["Transforma o Quarto 3 em suíte."],
+                patioRel: "Acesso pelo Quarto 3.",
+                rects: [[0, 7.5, 5, 2]],
+                fill: "#134e4a", fillOpacity: 0.35, text: "#99f6e4"
+            },
+            bedroom_3: {
+                name: "Quarto 3",
+                subtitle: "Dormitório (Filhos / Visitas)",
+                height: "3.00 m",
+                floor: "Vinílico Amadeirado",
+                light: "Tarde (Oeste) — pede Brise",
+                icon: "fa-bed",
+                benefits: [
+                    "Suíte com banheiro próprio.",
+                    "Janela oeste deve ter brise ou vegetação contra o sol da tarde."
+                ],
+                patioRel: "Porta direto para a varanda das redes.",
+                rects: [[0, 3.5, 5, 4]],
+                fill: "#4c1d95", fillOpacity: 0.3, text: "#ddd6fe"
+            },
+            office: {
+                name: "Home Office / Studio",
+                subtitle: "Trabalho & Reuniões",
+                height: "3.00 m",
+                floor: "Vinílico Acústico",
+                light: "Norte — Difusa com Brise",
+                icon: "fa-laptop-code",
+                benefits: [
+                    "Ao lado do hall: recebe clientes sem passar pela casa.",
+                    "Na frente, longe dos quartos — o barulho de trabalho não incomoda."
+                ],
+                patioRel: "Pausas visuais para a varanda e o pátio pelo hall.",
+                rects: [[0, 0, 5, 3.5]],
+                fill: "#78350f", fillOpacity: 0.3, text: "#fde68a"
             }
         };
         const EDITABLE_FIELDS = ['name', 'subtitle', 'height', 'floor', 'light', 'benefits', 'patioRel'];
@@ -691,32 +725,33 @@
         const OPENINGS = [
             { x: 9.9, y: 0, dir: 'h', len: 1.2, type: 'door', swing: 1 },        // entrada principal
             { x: 7.5, y: 3, dir: 'h', len: 6, type: 'opening' },                 // hall → varanda
-            { x: 5, y: 4.1, dir: 'v', len: 0.8, type: 'door', swing: -1 },       // suíte master
-            { x: 3.6, y: 5, dir: 'h', len: 0.8, type: 'door', swing: 1 },        // closet & bwc
-            { x: 5, y: 8.6, dir: 'v', len: 0.9, type: 'door', swing: -1 },       // serviço
+            { x: 5, y: 1.1, dir: 'v', len: 0.9, type: 'door', swing: 1 },        // home office
+            { x: 16, y: 1.1, dir: 'v', len: 0.9, type: 'door', swing: 1 },       // suíte hóspedes
+            { x: 5, y: 6.4, dir: 'v', len: 0.9, type: 'door', swing: -1 },       // quarto 3
+            { x: 3.6, y: 7.5, dir: 'h', len: 0.8, type: 'door', swing: 1 },      // banheiro quarto 3
+            { x: 5, y: 10.1, dir: 'v', len: 0.9, type: 'door', swing: -1 },      // serviço
             { x: 0, y: 12.3, dir: 'v', len: 0.9, type: 'door', swing: 1 },       // saída lateral
-            { x: 3.5, y: 14, dir: 'h', len: 0.9, type: 'door', swing: 1 },       // suíte hóspedes
-            { x: 8.6, y: 14, dir: 'h', len: 0.9, type: 'door', swing: 1 },       // home office
+            { x: 8.6, y: 14, dir: 'h', len: 0.9, type: 'door', swing: 1 },       // suíte master
+            { x: 4.5, y: 16.6, dir: 'v', len: 0.8, type: 'door', swing: -1 },    // bwc & closet master
             { x: 10.3, y: 14, dir: 'h', len: 0.8, type: 'door', swing: 1 },      // banheiro social
             { x: 13.2, y: 14, dir: 'h', len: 0.9, type: 'door', swing: 1 },      // cozinha
-            { x: 16, y: 0.6, dir: 'v', len: 1.8, type: 'opening' },              // hall → sala
             { x: 16, y: 6, dir: 'v', len: 5, type: 'opening' },                  // varanda → sala
             { x: 16.6, y: 14, dir: 'h', len: 3.8, type: 'opening' }              // sala ↔ cozinha
         ];
 
         const WINDOWS = [
-            { x: 1.2, y: 0, dir: 'h', len: 2.6, room: 'master_suite' },
-            { x: 17.2, y: 0, dir: 'h', len: 2.6, room: 'living' },
-            { x: 0, y: 1.2, dir: 'v', len: 2.4, room: 'master_suite' },
-            { x: 0, y: 6, dir: 'v', len: 1, room: 'master_bath' },
-            { x: 0, y: 9, dir: 'v', len: 1.2, room: 'service' },
-            { x: 0, y: 15, dir: 'v', len: 2, room: 'bedroom_2' },
-            { x: 21, y: 1, dir: 'v', len: 3, room: 'living' },
-            { x: 21, y: 5.5, dir: 'v', len: 3, room: 'living' },
-            { x: 21, y: 10, dir: 'v', len: 3, room: 'living' },
+            { x: 1.2, y: 0, dir: 'h', len: 2.6, room: 'office' },
+            { x: 17.2, y: 0, dir: 'h', len: 2.6, room: 'bedroom_2' },
+            { x: 0, y: 4.5, dir: 'v', len: 2, room: 'bedroom_3' },
+            { x: 0, y: 8, dir: 'v', len: 1, room: 'bath_3' },
+            { x: 0, y: 10, dir: 'v', len: 1, room: 'service' },
+            { x: 0, y: 15.5, dir: 'v', len: 1, room: 'master_bath' },
+            { x: 21, y: 1, dir: 'v', len: 2.5, room: 'bedroom_2' },
+            { x: 21, y: 6, dir: 'v', len: 3, room: 'living' },
+            { x: 21, y: 10.5, dir: 'v', len: 3, room: 'living' },
             { x: 21, y: 15, dir: 'v', len: 2, room: 'kitchen' },
-            { x: 1.4, y: 18, dir: 'h', len: 2.6, room: 'bedroom_2' },
-            { x: 6.5, y: 18, dir: 'h', len: 2.4, room: 'office' },
+            { x: 1.6, y: 18, dir: 'h', len: 1.2, room: 'master_bath' },
+            { x: 5.8, y: 18, dir: 'h', len: 3, room: 'master_suite' },
             { x: 11, y: 18, dir: 'h', len: 1, room: 'bwc_social' },
             { x: 15, y: 18, dir: 'h', len: 4, room: 'kitchen' }
         ];
@@ -1004,10 +1039,10 @@
 
             [[0, 5], [5, 16], [16, 21]].forEach(([a, b]) => dimH(a, b, OY - 22));
             dimH(0, HOUSE_W, OY - 50);
-            [[0, 5], [5, 8], [8, 11.5], [11.5, 14], [14, 18]].forEach(([a, b]) => dimV(a, b, OX - 22, -1));
+            [[0, 3.5], [3.5, 7.5], [7.5, 9.5], [9.5, 11.5], [11.5, 14], [14, 18]].forEach(([a, b]) => dimV(a, b, OX - 22, -1));
             dimV(0, HOUSE_H, OX - 50, -1);
-            [[0, 14], [14, 18]].forEach(([a, b]) => dimV(a, b, X(HOUSE_W) + 22, -1));
-            [[0, 5.5], [5.5, 10], [10, 13], [13, 21]].forEach(([a, b]) => dimH(a, b, Y(HOUSE_H) + 22));
+            [[0, 5], [5, 14], [14, 18]].forEach(([a, b]) => dimV(a, b, X(HOUSE_W) + 22, -1));
+            [[0, 4.5], [4.5, 10], [10, 13], [13, 21]].forEach(([a, b]) => dimH(a, b, Y(HOUSE_H) + 22));
 
             // Graphic scale bar (0–5 m)
             const sb = svgEl('g', { stroke: '#cbd5e1' }, g);
