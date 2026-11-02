@@ -30,7 +30,7 @@ export interface Room {
 export const EDITABLE_FIELDS = ['name', 'subtitle', 'height', 'floor', 'light', 'benefits', 'patioRel'] as const;
 export type EditableField = (typeof EDITABLE_FIELDS)[number];
 
-export const ROOMS_DEFAULT: Record<RoomKey, Room> = {
+const ROOMS_BASE: Record<RoomKey, Room> = {
     entrance: {
         name: "Hall de Entrada & Garagem",
         subtitle: "Acesso Principal",
@@ -66,14 +66,13 @@ export const ROOMS_DEFAULT: Record<RoomKey, Room> = {
         light: "Sombreada & Ventilada",
         icon: "fa-person-walking",
         benefits: [
-            "2,50 m de largura: redes armadas na diagonal nos quatro cantos (3,5 m entre armadores), com passagem livre.",
-            "Cobertura de 2,50 m + beiral de 0,50 m: chuva com vento até ~45° não alcança as portas dos cômodos.",
+            "", // set by withSizeTexts
+            "",
             "Piso 15 cm acima do jardim, com ralo linear na borda do pátio."
         ],
         patioRel: "Abraça o pátio pelos quatro lados — é a sala ao ar livre da casa.",
         rects: [[5, 3, 11, 2.5], [0, 11.5, 16, 2.5], [5, 5.5, 2.5, 6], [13.5, 5.5, 2.5, 6]],
         labelRect: [5, 3, 11, 2.5],
-        dimsLabel: "Largura 2,50 m",
         walls: false,
         fill: "#0f172a", fillOpacity: 0.8, text: "#94a3b8"
     },
@@ -105,7 +104,7 @@ export const ROOMS_DEFAULT: Record<RoomKey, Room> = {
         icon: "fa-couch",
         benefits: [
             "Recebe a brisa leste diretamente e a conduz até o pátio (ventilação cruzada).",
-            "5 × 9 m: estar e jantar bem proporcionados, colados à cozinha."
+            "" // set by withSizeTexts
         ],
         patioRel: "Abre-se por inteiro para a varanda e o pátio, integrando convívio e natureza.",
         rects: [[16, 5, 5, 9]],
@@ -230,3 +229,22 @@ export const ROOMS_DEFAULT: Record<RoomKey, Room> = {
         fill: "#78350f", fillOpacity: 0.3, text: "#fde68a"
     }
 };
+
+const m = (n: number) => n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+/** Texts that quote measurements, written from the room rects so they follow the chosen house size. */
+export function withSizeTexts(rooms: Record<RoomKey, Room>): Record<RoomKey, Room> {
+  const veranda = rooms.hallway.rects[0][3];
+  const span = Math.hypot(veranda, veranda);
+  const hammock = span >= 3
+    ? `redes armadas na diagonal nos quatro cantos (${m(span)} m entre armadores), com passagem livre`
+    : `redes na diagonal dos cantos ficam com só ${m(span)} m entre armadores (o ideal é 3 m ou mais) — prefira redes menores ou armadores mais afastados`;
+  rooms.hallway.dimsLabel = `Largura ${m(veranda)} m`;
+  rooms.hallway.benefits[0] = `${m(veranda)} m de largura: ${hammock}.`;
+  rooms.hallway.benefits[1] = `Cobertura de ${m(veranda)} m + beiral de 0,50 m: chuva com vento até ~45° não alcança as portas dos cômodos.`;
+  const [, , lw, lh] = rooms.living.rects[0];
+  rooms.living.benefits[1] = `${m(lw)} × ${m(lh)} m: estar e jantar bem proporcionados, colados à cozinha.`;
+  return rooms;
+}
+
+export const ROOMS_DEFAULT = withSizeTexts(ROOMS_BASE);

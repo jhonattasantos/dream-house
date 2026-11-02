@@ -1,20 +1,21 @@
-import { WINDOWS } from '../data/openings';
 import type { Room, RoomKey } from '../data/rooms';
-import { HOUSE_H, HOUSE_W, X, Y, clamp, wallFace, type Face } from './geometry';
+import { X, Y, clamp, wallFace, type Face } from './geometry';
+import type { HouseModel } from './model';
 
 export type Season = 'dez' | 'jun';
 
 const FACE_NAMES: Record<Face, string> = { N: 'Norte', S: 'Sul', L: 'Leste', O: 'Oeste' };
 
 /** Schematic sun for the 2D plan: position on the drawing, lit facades and the advice text. */
-export function sunInfo(hour: number, season: Season, rooms: Record<RoomKey, Room>) {
+export function sunInfo(hour: number, season: Season, rooms: Record<RoomKey, Room>, model: HouseModel) {
+  const { W, H, view, windows } = model;
   const t = (hour - 6) / 12;
   const phi = Math.PI * t;
   const elevation = Math.sin(phi);
   const northSouth = season === 'jun' ? -1 : 1; // jun: sol mais ao norte; dez: mais ao sul
-  const reach = 470 * (1 - 0.7 * elevation);
-  const sx = clamp(X(HOUSE_W / 2) + Math.cos(phi) * reach, 20, 980);
-  const sy = clamp(Y(HOUSE_H / 2) + northSouth * elevation * reach, 20, 780);
+  const reach = 0.47 * view.w * (1 - 0.7 * elevation);
+  const sx = clamp(X(W / 2) + Math.cos(phi) * reach, 20, view.w - 20);
+  const sy = clamp(Y(H / 2) + northSouth * elevation * reach, 20, view.h - 20);
 
   const faces = new Set<Face>();
   if (hour < 11.5) faces.add('L');
@@ -30,7 +31,7 @@ export function sunInfo(hour: number, season: Season, rooms: Record<RoomKey, Roo
   if (faces.has('N')) message += ' No inverno o sol passa ao norte, aquecendo a fachada da rua.';
   if (faces.has('S')) message += ' No verão o sol passa ao sul, alcançando a fachada dos fundos.';
 
-  const litRooms = [...new Set(WINDOWS.filter(w => faces.has(wallFace(w)!)).map(w => rooms[w.room].name))];
+  const litRooms = [...new Set(windows.filter(w => faces.has(wallFace(w, model)!)).map(w => rooms[w.room].name))];
   const facesText = faces.size
     ? `Fachadas ao sol: ${[...faces].map(f => FACE_NAMES[f]).join(', ')}. Janelas recebendo sol: ${litRooms.join(', ') || 'nenhuma'}.`
     : '';

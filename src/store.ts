@@ -1,10 +1,12 @@
 import { create } from 'zustand';
 import { BUDGET_DEFAULT } from './data/budget';
 import { EDITABLE_FIELDS, ROOMS_DEFAULT, type EditableField, type Room, type RoomKey } from './data/rooms';
+import { DEFAULT_SIZE, SIZES, houseModel, type HouseModel, type HouseSize } from './lib/model';
 
 // Same keys as the original single-file page, so saved edits carry over.
 const STORAGE_ROOMS = 'dream-house:rooms:v1';
 const STORAGE_BUDGET = 'dream-house:budget:v1';
+const STORAGE_SIZE = 'dream-house:size:v1';
 
 function loadJSON<T>(key: string): T | null {
   try { return JSON.parse(localStorage.getItem(key) ?? 'null') as T | null; } catch { return null; }
@@ -16,8 +18,8 @@ function saveJSON(key: string, value: unknown) {
 type RoomFields = Pick<Room, EditableField>;
 type Overrides = Partial<Record<RoomKey, Partial<RoomFields>>>;
 
-function applyOverrides(overrides: Overrides): Record<RoomKey, Room> {
-  const rooms = structuredClone(ROOMS_DEFAULT);
+function applyOverrides(overrides: Overrides, model: HouseModel): Record<RoomKey, Room> {
+  const rooms = structuredClone(model.rooms);
   (Object.entries(overrides) as [RoomKey, Partial<RoomFields>][]).forEach(([key, fields]) => {
     if (!rooms[key] || !fields) return;
     EDITABLE_FIELDS.forEach(f => {
@@ -40,6 +42,7 @@ export type Season = 'dez' | 'jun';
 export const TOUR_ROOMS = Object.keys(ROOMS_DEFAULT) as RoomKey[];
 
 interface HouseState {
+  model: HouseModel;
   rooms: Record<RoomKey, Room>;
   overrides: Overrides;
   selected: RoomKey;
@@ -53,6 +56,7 @@ interface HouseState {
   budget: Record<string, number>;
   climateOpen: boolean;
 
+  setSize: (size: HouseSize) => void;
   selectRoom: (key: RoomKey, opts?: { openDrawer?: boolean }) => void;
   setEditing: (editing: boolean) => void;
   setInspectorOpen: (open: boolean) => void;
@@ -74,8 +78,11 @@ const isSmallScreen = () => window.matchMedia('(max-width: 1023px)').matches;
 
 export const useHouse = create<HouseState>((set, get) => {
   const overrides = loadJSON<Overrides>(STORAGE_ROOMS) ?? {};
+  const savedSize = loadJSON<number>(STORAGE_SIZE);
+  const model = houseModel(SIZES.find(s => s === savedSize) ?? DEFAULT_SIZE);
   return {
-    rooms: applyOverrides(overrides),
+    model,
+    rooms: applyOverrides(overrides, model),
     overrides,
     selected: 'courtyard',
     editing: false,
@@ -88,6 +95,11 @@ export const useHouse = create<HouseState>((set, get) => {
     budget: loadBudget(),
     climateOpen: false,
 
+    setSize: size => {
+      saveJSON(STORAGE_SIZE, size);
+      const model = houseModel(size);
+      set({ model, rooms: applyOverrides(get().overrides, model) });
+    },
     selectRoom: (key, { openDrawer = true } = {}) =>
       set({ selected: key, editing: false, inspectorOpen: openDrawer && isSmallScreen() ? true : get().inspectorOpen }),
     setEditing: editing => set({ editing }),
@@ -95,13 +107,13 @@ export const useHouse = create<HouseState>((set, get) => {
     saveRoom: (key, fields) => {
       const overrides = { ...get().overrides, [key]: fields };
       saveJSON(STORAGE_ROOMS, overrides);
-      set({ overrides, rooms: applyOverrides(overrides), editing: false });
+      set({ overrides, rooms: applyOverrides(overrides, get().model), editing: false });
     },
     resetRoom: key => {
       const overrides = { ...get().overrides };
       delete overrides[key];
       saveJSON(STORAGE_ROOMS, overrides);
-      set({ overrides, rooms: applyOverrides(overrides), editing: false });
+      set({ overrides, rooms: applyOverrides(overrides, get().model), editing: false });
     },
     toggleLayer: layer => {
       const layers = { ...get().layers, [layer]: !get().layers[layer] };

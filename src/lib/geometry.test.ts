@@ -1,25 +1,42 @@
 import { describe, expect, it } from 'vitest';
-import { FURNITURE } from '../data/furniture';
+import type { FurniturePiece } from '../data/furniture';
 import { OPENINGS, WINDOWS } from '../data/openings';
-import { ROOMS_DEFAULT } from '../data/rooms';
-import { HOUSE_H, HOUSE_W, along, builtArea, onLine, openArea, wallLines } from './geometry';
+import { along, builtArea, onLine, openArea, wallLines } from './geometry';
+import { SIZES, houseModel } from './model';
 import { sunDirection } from './sun';
 import { wallBlocks } from './walls3d';
 
-describe('house data', () => {
+const extent = (p: FurniturePiece) =>
+  p.kind === 'rect' ? [p.x, p.y, p.x + p.w, p.y + p.h]
+  : p.kind === 'circle' ? [p.x - p.r, p.y - p.r, p.x + p.r, p.y + p.r]
+  : p.kind === 'ellipse' ? [p.x - p.rx, p.y - p.ry, p.x + p.rx, p.y + p.ry]
+  : [Math.min(p.x1, p.x2), Math.min(p.y1, p.y2), Math.max(p.x1, p.x2), Math.max(p.y1, p.y2)];
+
+describe('the original 21 × 18 m house', () => {
+  const { rooms } = houseModel(21);
+
   it('adds up to the documented areas', () => {
-    expect(builtArea(ROOMS_DEFAULT)).toBe(342);
-    expect(openArea(ROOMS_DEFAULT)).toBe(36);
+    expect(builtArea(rooms)).toBe(342);
+    expect(openArea(rooms)).toBe(36);
+  });
+});
+
+describe.each(SIZES)('house %s m wide', size => {
+  const model = houseModel(size);
+  const { rooms, W, H } = model;
+
+  it('keeps the proportions of the original', () => {
+    expect(W).toBe(size);
+    expect(H / W).toBeCloseTo(18 / 21, 2);
   });
 
-  it('tiles the 21 × 18 m footprint without gaps or overlaps', () => {
-    const total = builtArea(ROOMS_DEFAULT) + openArea(ROOMS_DEFAULT);
-    expect(total).toBe(HOUSE_W * HOUSE_H);
+  it('tiles the footprint without gaps or overlaps', () => {
+    expect(builtArea(rooms) + openArea(rooms)).toBeCloseTo(W * H, 6);
   });
 
   it('places every door, opening and window on an existing wall', () => {
-    const lines = wallLines(ROOMS_DEFAULT);
-    [...OPENINGS, ...WINDOWS].forEach(o => {
+    const lines = wallLines(rooms);
+    [...model.openings, ...model.windows].forEach(o => {
       const line = lines.find(l => onLine(o, l));
       expect(line, JSON.stringify(o)).toBeDefined();
       const a = along(o), b = a + o.len;
@@ -27,28 +44,37 @@ describe('house data', () => {
     });
   });
 
+  it('keeps doors at their real width', () => {
+    model.openings.forEach((o, i) => { if (o.type === 'door') expect(o.len).toBe(OPENINGS[i].len); });
+  });
+
   it('keeps the furniture inside the house', () => {
-    FURNITURE.forEach(p => {
-      const [x0, y0, x1, y1] =
-        p.kind === 'rect' ? [p.x, p.y, p.x + p.w, p.y + p.h]
-        : p.kind === 'circle' ? [p.x - p.r, p.y - p.r, p.x + p.r, p.y + p.r]
-        : p.kind === 'ellipse' ? [p.x - p.rx, p.y - p.ry, p.x + p.rx, p.y + p.ry]
-        : [Math.min(p.x1, p.x2), Math.min(p.y1, p.y2), Math.max(p.x1, p.x2), Math.max(p.y1, p.y2)];
-      expect(x0 >= 0 && y0 >= 0 && x1 <= HOUSE_W && y1 <= HOUSE_H, JSON.stringify(p)).toBe(true);
+    model.furniture.forEach(p => {
+      const [x0, y0, x1, y1] = extent(p);
+      expect(x0 >= -1e-6 && y0 >= -1e-6 && x1 <= W + 1e-6 && y1 <= H + 1e-6, JSON.stringify(p)).toBe(true);
     });
   });
-});
 
-describe('wallLines', () => {
   it('merges shared edges into continuous exterior walls', () => {
-    const north = wallLines(ROOMS_DEFAULT).find(l => l.dir === 'h' && l.at === 0)!;
+    const north = wallLines(rooms).find(l => l.dir === 'h' && l.at === 0)!;
     expect(north.exterior).toBe(true);
-    expect(north.spans).toEqual([[0, HOUSE_W]]);
+    expect(north.spans).toEqual([[0, W]]);
   });
 
   it('leaves the courtyard edge without walls', () => {
-    const courtyardEdge = wallLines(ROOMS_DEFAULT).find(l => l.dir === 'h' && l.at === 5.5);
-    expect(courtyardEdge).toBeUndefined();
+    const [, cy] = rooms.courtyard.rects[0];
+    expect(wallLines(rooms).find(l => l.dir === 'h' && l.at === cy)).toBeUndefined();
+  });
+
+  it('cuts a glass pane for every window', () => {
+    expect(wallBlocks(rooms, model).filter(b => b.kind === 'glass')).toHaveLength(WINDOWS.length);
+  });
+
+  it('leaves the front door open up to the lintel', () => {
+    const door = model.openings[0];
+    const atDoor = wallBlocks(rooms, model).filter(b => b.kind === 'wall' && b.y0 < 0.01 && b.y1 > -0.01 && b.x0 < door.x + door.len / 2 && b.x1 > door.x + door.len / 2);
+    expect(atDoor).toHaveLength(1);
+    expect(atDoor[0].z0).toBeCloseTo(2.1);
   });
 });
 
@@ -63,20 +89,5 @@ describe('sunDirection (Mamanguape, 6.8° S)', () => {
     expect(dez.north).toBeLessThan(0);
     expect(jun.north).toBeGreaterThan(0);
     expect(dez.up).toBeGreaterThan(0.9);
-  });
-});
-
-describe('wallBlocks', () => {
-  const blocks = wallBlocks(ROOMS_DEFAULT);
-
-  it('cuts a glass pane for every window', () => {
-    expect(blocks.filter(b => b.kind === 'glass')).toHaveLength(WINDOWS.length);
-  });
-
-  it('leaves the front door open up to the lintel', () => {
-    const door = OPENINGS[0];
-    const atDoor = blocks.filter(b => b.kind === 'wall' && b.y0 < 0.01 && b.y1 > -0.01 && b.x0 < door.x + door.len / 2 && b.x1 > door.x + door.len / 2);
-    expect(atDoor).toHaveLength(1);
-    expect(atDoor[0].z0).toBeCloseTo(2.1);
   });
 });

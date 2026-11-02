@@ -1,6 +1,6 @@
-import { OPENINGS, WINDOWS } from '../data/openings';
 import type { Room, RoomKey } from '../data/rooms';
 import { along, onLine, wallLines } from './geometry';
+import type { HouseModel } from './model';
 
 // Heights in meters.
 export const WALL_H = 3.0;
@@ -26,14 +26,14 @@ export interface Block {
  * Turns the plan's wall lines into 3D blocks: full-height pieces between openings,
  * lintels over doors and passages, and sill + glass + lintel at windows.
  */
-export function wallBlocks(rooms: Record<RoomKey, Room>): Block[] {
+export function wallBlocks(rooms: Record<RoomKey, Room>, { openings, windows }: HouseModel): Block[] {
   const blocks: Block[] = [];
   wallLines(rooms).forEach(line => {
     const t = line.exterior ? 0.25 : 0.15;
     const top = line.exterior ? PARAPET_H : WALL_H;
     const gaps = [
-      ...OPENINGS.filter(o => onLine(o, line)).map(o => ({ a: along(o), b: along(o) + o.len, kind: o.type, sill: 0 })),
-      ...WINDOWS.filter(w => onLine(w, line)).map(w => ({
+      ...openings.filter(o => onLine(o, line)).map(o => ({ a: along(o), b: along(o) + o.len, kind: o.type, sill: 0 })),
+      ...windows.filter(w => onLine(w, line)).map(w => ({
         a: along(w), b: along(w) + w.len, kind: 'window' as const,
         sill: HIGH_SILL_ROOMS.includes(w.room) ? HIGH_SILL : WINDOW_SILL,
       })),

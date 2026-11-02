@@ -1,4 +1,4 @@
-import { fmtNum, roomArea } from '../lib/geometry';
+import { S, X, Y, fmtNum, roomArea } from '../lib/geometry';
 import { TOUR_ROOMS, useHouse } from '../store';
 import Plan2D from './plan/Plan2D';
 
@@ -7,6 +7,7 @@ export default function TourView() {
   const tourIndex = useHouse(s => s.tourIndex);
   const setTourIndex = useHouse(s => s.setTourIndex);
   const stepTour = useHouse(s => s.stepTour);
+  const { W, H } = useHouse(s => s.model);
   const key = TOUR_ROOMS[tourIndex];
   const room = rooms[key];
 
@@ -66,7 +67,7 @@ export default function TourView() {
         <span className="text-xs font-mono text-slate-400 uppercase tracking-widest flex items-center gap-2">
           <i className="fa-solid fa-location-dot text-sky-400" /> Você está aqui
         </span>
-        <Plan2D mini viewBox="140 90 712 616" highlight={key} onRoomClick={k => setTourIndex(TOUR_ROOMS.indexOf(k))} className="w-full h-auto" />
+        <Plan2D mini viewBox={`${X(0) - 20} ${Y(0) - 20} ${W * S + 40} ${H * S + 40}`} highlight={key} onRoomClick={k => setTourIndex(TOUR_ROOMS.indexOf(k))} className="w-full h-auto" />
         <p className="text-[10px] text-slate-500 font-mono">Toque em um ambiente para ir até ele • use ← → no teclado</p>
       </div>
     </div>

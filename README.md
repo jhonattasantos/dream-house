@@ -1,8 +1,19 @@
 # Dream House — Casa de Pátio
 
-Planta baixa interativa da casa dos sonhos: uma casa de pátio (atrium house) pensada para o clima do Nordeste — 21 × 18 m, 342 m² construídos em torno de um pátio descoberto de 6 × 6 m, envolvido por uma varanda de 2,50 m para armar redes (pede lote com pelo menos 24 m de frente). Projetada para Mamanguape (PB).
+Planta baixa interativa da casa dos sonhos: uma casa de pátio (atrium house) pensada para o clima do Nordeste, construída em torno de um pátio descoberto envolvido por uma varanda para armar redes. Projetada para Mamanguape (PB).
 
-São 3 suítes + home office: a Suíte Master fica nos fundos (face sul, a mais fresca e silenciosa), a Suíte Hóspedes ao lado do hall de entrada, e o Quarto 3 (com banheiro) e o Home Office na ala oeste. A sala de estar e jantar (5 × 9 m) se abre inteira para a varanda.
+A casa tem quatro tamanhos, escolhidos no seletor da planta (régua). Todos mantêm a mesma proporção:
+
+| Largura (frente) | Construção | Área construída | Pátio | Varanda | Lote mín. de frente |
+|---|---|---|---|---|---|
+| **16,5 m** (padrão) | 16,5 × 14,15 m | 211 m² | 4,70 × 4,75 m | 1,95 m | 19,5 m |
+| 18 m | 18 × 15,45 m | 252 m² | 5,10 × 5,15 m | 2,15 m | 21 m |
+| 19,5 m | 19,5 × 16,7 m | 294 m² | 5,60 × 5,60 m | 2,30 m | 22,5 m |
+| 21 m | 21 × 18 m | 342 m² | 6 × 6 m | 2,50 m | 24 m |
+
+Portas e móveis ficam no tamanho real: os móveis só mudam de posição dentro de cada cômodo. Os demais elementos (paredes, janelas, cotas, instalações e o 3D) acompanham o tamanho escolhido.
+
+São 3 suítes + home office: a Suíte Master fica nos fundos (face sul, a mais fresca e silenciosa), a Suíte Hóspedes ao lado do hall de entrada, e o Quarto 3 (com banheiro) e o Home Office na ala oeste. A sala de estar e jantar (3,95 × 7,05 m no tamanho padrão; 5 × 9 m no maior) se abre inteira para a varanda.
 
 **Acesse:** https://jhonattasantos.github.io/dream-house/
 
@@ -33,7 +44,7 @@ Stack: Vite, React 19, TypeScript, Tailwind CSS 4, Zustand e React Three Fiber (
 
 ## Editando a planta
 
-A geometria fica em `src/data/` e é a única fonte para todos os modos:
+A geometria fica em `src/data/`, desenhada no tamanho de 21 × 18 m, e é a única fonte para todos os modos. `src/lib/model.ts` gera os tamanhos menores a partir dela:
 
 - `rooms.ts` — ambientes (retângulos em metros, origem no canto noroeste) e textos.
 - `openings.ts` — portas e vãos (`OPENINGS`), janelas (`WINDOWS`) e redes (`HAMMOCKS`).

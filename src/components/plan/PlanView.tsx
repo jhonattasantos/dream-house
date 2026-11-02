@@ -1,5 +1,6 @@
 import { Suspense, lazy, useRef, useState } from 'react';
-import { builtArea, fmtNum, openArea } from '../../lib/geometry';
+import { builtArea, fmtLen, fmtNum, openArea } from '../../lib/geometry';
+import { SIZES, houseModel } from '../../lib/model';
 import { sunInfo } from '../../lib/sun';
 import { useHouse, type LayerKey, type PlanMode } from '../../store';
 import Plan2D, { type PlanHandle } from './Plan2D';
@@ -36,7 +37,8 @@ function SunPanel() {
   const rooms = useHouse(s => s.rooms);
   const sun = useHouse(s => s.sun);
   const setSun = useHouse(s => s.setSun);
-  const info = sunInfo(sun.hour, sun.season, rooms);
+  const model = useHouse(s => s.model);
+  const info = sunInfo(sun.hour, sun.season, rooms, model);
   return (
     <div className="absolute bottom-3 left-3 right-3 sm:right-auto sm:w-80 glass-panel rounded-xl p-3 z-10 space-y-2.5">
       <div className="flex items-center justify-between">
@@ -60,6 +62,32 @@ function SunPanel() {
       </div>
       <p className="text-xs text-slate-300 leading-relaxed">{info.message}</p>
       <p className="text-[11px] text-amber-200/90 leading-relaxed">{info.facesText}</p>
+    </div>
+  );
+}
+
+/** Width options for the house; the depth and every room follow proportionally. */
+function SizePicker() {
+  const model = useHouse(s => s.model);
+  const setSize = useHouse(s => s.setSize);
+  return (
+    <div className="glass-panel rounded-lg flex items-center text-xs font-mono overflow-hidden" role="group" aria-label="Tamanho da casa">
+      <span className="px-2 text-slate-400" title="Largura da casa (frente), em metros"><i className="fa-solid fa-ruler-horizontal" /></span>
+      {SIZES.map(size => {
+        const m = houseModel(size);
+        return (
+          <button
+            key={size}
+            onClick={() => setSize(size)}
+            aria-pressed={model.size === size}
+            title={`${fmtLen(m.W)} × ${fmtLen(m.H)} m • ${fmtNum(builtArea(m.rooms), 0)} m² construídos`}
+            className={`px-2 py-1.5 border-l border-slate-700/60 transition ${model.size === size ? 'bg-sky-600 text-white font-bold' : 'text-slate-400 hover:text-white'}`}
+          >
+            {fmtLen(size)}
+          </button>
+        );
+      })}
+      <span className="px-2 text-slate-500 border-l border-slate-700/60">m</span>
     </div>
   );
 }
@@ -104,6 +132,7 @@ export default function PlanView() {
   const toggleLayer = useHouse(s => s.toggleLayer);
   const selected = useHouse(s => s.selected);
   const selectRoom = useHouse(s => s.selectRoom);
+  const { W, H } = useHouse(s => s.model);
   const viewRef = useRef<PlanHandle>(null);
   const is3d = planMode === '3d';
 
@@ -121,7 +150,7 @@ export default function PlanView() {
           </div>
           <div className="hidden sm:block">
             <div className="text-slate-300 font-semibold">VENTILAÇÃO SUDESTE/LESTE</div>
-            <div className="text-[10px] text-slate-500">{is3d ? 'Vista 3D' : 'Escala gráfica'} • {fmtNum(builtArea(rooms), 0)} m² construídos</div>
+            <div className="text-[10px] text-slate-500">{is3d ? 'Vista 3D' : 'Escala gráfica'} • {fmtLen(W)} × {fmtLen(H)} m • {fmtNum(builtArea(rooms), 0)} m² construídos</div>
           </div>
         </div>
       </div>
@@ -155,6 +184,7 @@ export default function PlanView() {
             ))}
           </div>
         </div>
+        <SizePicker />
         <div className="glass-panel rounded-lg flex flex-col text-xs overflow-hidden">
           <button onClick={() => viewRef.current?.zoomBy(1 / 1.25)} className="w-8 h-8 text-slate-300 hover:text-white hover:bg-slate-800/60" title="Aproximar"><i className="fa-solid fa-plus" /></button>
           <button onClick={() => viewRef.current?.zoomBy(1.25)} className="w-8 h-8 text-slate-300 hover:text-white hover:bg-slate-800/60 border-t border-slate-700/60" title="Afastar"><i className="fa-solid fa-minus" /></button>

@@ -1,6 +1,7 @@
 import { useEffect, useImperativeHandle, useRef, useState, type KeyboardEvent, type MouseEvent, type PointerEvent, type Ref } from 'react';
 import type { RoomKey } from '../../data/rooms';
-import { BASE_VIEW, S, X, Y, clamp } from '../../lib/geometry';
+import { S, X, Y, clamp } from '../../lib/geometry';
+import type { HouseModel } from '../../lib/model';
 import { sunInfo } from '../../lib/sun';
 import { useHouse } from '../../store';
 import {
@@ -13,7 +14,7 @@ export interface PlanHandle {
   reset: () => void;
 }
 
-type View = typeof BASE_VIEW;
+type View = HouseModel['view'];
 type Gesture =
   | { type: 'pan'; start: { x: number; y: number }; view: View; scale: number; moved: boolean }
   | { type: 'pinch'; dist: number; view: View; mid: DOMPoint; moved: boolean };
@@ -32,10 +33,14 @@ export default function Plan2D({ mini = false, highlight, onRoomClick, className
   const rooms = useHouse(s => s.rooms);
   const layers = useHouse(s => s.layers);
   const sun = useHouse(s => s.sun);
+  const model = useHouse(s => s.model);
   const svgRef = useRef<SVGSVGElement>(null);
-  const [view, setView] = useState<View>(BASE_VIEW);
+  const [view, setView] = useState<View>(model.view);
   const viewRef = useRef(view);
   viewRef.current = view;
+
+  // A new house size re-frames the drawing.
+  useEffect(() => setView(model.view), [model]);
 
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const gesture = useRef<Gesture | null>(null);
@@ -49,7 +54,7 @@ export default function Plan2D({ mini = false, highlight, onRoomClick, className
 
   useImperativeHandle(ref, () => ({
     zoomBy: factor => { const v = viewRef.current; zoomAt(factor, v.x + v.w / 2, v.y + v.h / 2); },
-    reset: () => setView(BASE_VIEW),
+    reset: () => setView(model.view),
   }));
 
   const clientToSvg = (clientX: number, clientY: number) => {
@@ -138,7 +143,7 @@ export default function Plan2D({ mini = false, highlight, onRoomClick, className
   };
 
   const courtyard = rooms.courtyard.rects[0];
-  const sunData = !mini && layers.sun ? sunInfo(sun.hour, sun.season, rooms) : null;
+  const sunData = !mini && layers.sun ? sunInfo(sun.hour, sun.season, rooms, model) : null;
 
   return (
     <svg

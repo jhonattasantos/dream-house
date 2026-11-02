@@ -1,13 +1,10 @@
 import type { Opening, Window } from '../data/openings';
 import type { Room } from '../data/rooms';
 
-// Plan coordinates are in meters; 1 m = 32 SVG units. The house is 21 m x 18 m.
+// Plan coordinates are in meters from the north-west corner; 1 m = 32 SVG units.
 export const S = 32;
 export const OX = 160;
 export const OY = 110;
-export const HOUSE_W = 21;
-export const HOUSE_H = 18;
-export const BASE_VIEW = { x: 0, y: 0, w: 1000, h: 800 };
 
 export const X = (m: number) => OX + m * S;
 export const Y = (m: number) => OY + m * S;
@@ -15,6 +12,8 @@ export const Y = (m: number) => OY + m * S;
 export const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
 export const fmtNum = (n: number, d: number) =>
   n.toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d });
+/** Lengths in meters without trailing zeros: 21, 16,5, 14,15. */
+export const fmtLen = (n: number) => n.toLocaleString('pt-BR', { maximumFractionDigits: 2 });
 export const fmtBRL = (n: number) =>
   n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
 
@@ -30,11 +29,17 @@ export const fitFontSize = (text: string, maxWidth: number, max = 12, min = 7) =
 
 export type Face = 'N' | 'S' | 'O' | 'L';
 
-export function wallFace(o: Opening | Window): Face | null {
+/** Outer size of the house: the far edges of its rooms. */
+export function houseExtent(rooms: Record<string, Room>) {
+  const rects = Object.values(rooms).flatMap(r => r.rects);
+  return { W: Math.max(...rects.map(([x, , w]) => x + w)), H: Math.max(...rects.map(([, y, , h]) => y + h)) };
+}
+
+export function wallFace(o: Opening | Window, { W, H }: { W: number; H: number }): Face | null {
   if (o.dir === 'h' && o.y === 0) return 'N';
-  if (o.dir === 'h' && o.y === HOUSE_H) return 'S';
+  if (o.dir === 'h' && o.y === H) return 'S';
   if (o.dir === 'v' && o.x === 0) return 'O';
-  if (o.dir === 'v' && o.x === HOUSE_W) return 'L';
+  if (o.dir === 'v' && o.x === W) return 'L';
   return null;
 }
 
@@ -60,8 +65,9 @@ export function wallLines(rooms: Record<string, Room>): WallLine[] {
     add('v', x, y, y + h);
     add('v', x + w, y, y + h);
   };
+  const { W, H } = houseExtent(rooms);
   Object.values(rooms).forEach(r => { if (r.walls !== false) r.rects.forEach(addRect); });
-  addRect([0, 0, HOUSE_W, HOUSE_H]);
+  addRect([0, 0, W, H]);
 
   lines.forEach(line => {
     line.spans.sort((p, q) => p[0] - q[0]);
@@ -72,7 +78,7 @@ export function wallLines(rooms: Record<string, Room>): WallLine[] {
       else merged.push([a, b]);
     });
     line.spans = merged;
-    line.exterior = line.dir === 'h' ? line.at === 0 || line.at === HOUSE_H : line.at === 0 || line.at === HOUSE_W;
+    line.exterior = line.dir === 'h' ? line.at === 0 || line.at === H : line.at === 0 || line.at === W;
   });
   return [...lines.values()];
 }
