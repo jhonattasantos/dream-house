@@ -1,10 +1,10 @@
 import { create } from 'zustand';
 import { EDITABLE_FIELDS, type EditableField, type Room, type RoomKey } from './data/rooms';
 import { DEFAULT_SIZE, SIZES, type HouseModel, type HouseSize } from './lib/model';
-import { DEFAULT_PROJECT, PROJECTS, getProject, type Project, type ProjectId } from './lib/projects';
+import { DEFAULT_PROJECT, getProject, type Project, type ProjectId } from './lib/projects';
+import { parseRoute } from './lib/router';
 
 const STORAGE_SIZE = 'dream-house:size:v1';
-const STORAGE_PROJECT = 'dream-house:project:v1';
 
 function loadJSON<T>(key: string): T | null {
   try { return JSON.parse(localStorage.getItem(key) ?? 'null') as T | null; } catch { return null; }
@@ -27,7 +27,7 @@ function applyOverrides(overrides: Overrides, model: HouseModel): Record<RoomKey
   return rooms;
 }
 
-function loadBudget(project: Project): Record<string, number> {
+export function loadBudget(project: Project): Record<string, number> {
   const saved = loadJSON<Record<string, number>>(project.storage.budget) ?? {};
   return Object.fromEntries(project.budget.map(b => [b.id, Number.isFinite(saved[b.id]) ? saved[b.id] : b.value]));
 }
@@ -88,8 +88,8 @@ export const tourRooms = (rooms: Record<RoomKey, Room>) => Object.keys(rooms);
 export const useHouse = create<HouseState>((set, get) => {
   const savedSize = loadJSON<number>(STORAGE_SIZE);
   const size = SIZES.find(s => s === savedSize) ?? DEFAULT_SIZE;
-  const savedProject = loadJSON<string>(STORAGE_PROJECT);
-  const project = PROJECTS.find(p => p.id === savedProject) ?? getProject(DEFAULT_PROJECT);
+  const route = parseRoute(location.pathname);
+  const project = route.page === 'project' ? route.project : getProject(DEFAULT_PROJECT);
   const current = () => getProject(get().project);
   const tourLength = () => tourRooms(get().rooms).length;
   return {
@@ -106,7 +106,7 @@ export const useHouse = create<HouseState>((set, get) => {
     climateOpen: false,
 
     setProject: id => {
-      saveJSON(STORAGE_PROJECT, id);
+      if (id === get().project) return;
       set({ ...projectState(getProject(id), get().size), selected: 'courtyard', editing: false, tourIndex: 0 });
     },
     setSize: size => {

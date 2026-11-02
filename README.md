@@ -1,8 +1,14 @@
 # Dream House
 
-Plantas interativas (2D e 3D) de casas pensadas para o clima do Nordeste, em Mamanguape (PB). O título no topo da página troca de projeto; cada um guarda as próprias edições e o próprio orçamento.
+Plantas interativas (2D e 3D) de casas pensadas para o clima do Nordeste, em Mamanguape (PB). Cada projeto tem um número e um endereço próprio; cada um guarda as próprias edições e o próprio orçamento.
 
-**Acesse:** https://jhonattasantos.github.io/dream-house/
+| Projeto | Endereço |
+|---|---|
+| Lista de projetos | https://jhonattasantos.github.io/dream-house/ |
+| 1 · Casa de Pátio | https://jhonattasantos.github.io/dream-house/project/1 |
+| 2 · Casa do Alpendre | https://jhonattasantos.github.io/dream-house/project/2 |
+
+A página inicial lista os projetos com miniatura da planta, medidas, área e orçamento. Dentro de um projeto, o ícone da casa volta para a lista e o título troca de projeto.
 
 ## Projetos
 
@@ -55,7 +61,7 @@ npm test          # testes de geometria e dados da casa
 npm run build     # build de produção em dist/
 ```
 
-Cada push na `main` roda os testes e publica no GitHub Pages (`.github/workflows/deploy.yml`).
+Cada push na `main` roda os testes e publica no GitHub Pages (`.github/workflows/deploy.yml`). O build copia `index.html` para `404.html`, para que o GitHub Pages abra o app quando alguém entra direto em `/project/2` (as rotas são resolvidas no navegador, em `src/lib/router.ts`). Um número de projeto que não existe volta para a lista.
 
 Stack: Vite, React 19, TypeScript, Tailwind CSS 4, Zustand e React Three Fiber (Three.js) para o 3D.
 

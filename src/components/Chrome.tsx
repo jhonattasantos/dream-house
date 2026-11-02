@@ -1,8 +1,10 @@
 import { useEffect, type FormEvent } from 'react';
 import type { RoomKey } from '../data/rooms';
 import { builtArea, fmtNum, openArea, roomArea, roomDims } from '../lib/geometry';
-import { PROJECTS, type ProjectId } from '../lib/projects';
+import { PROJECTS } from '../lib/projects';
+import { homePath, navigate, projectPath } from '../lib/router';
 import { tourRooms, useHouse, useProject, type NavMode } from '../store';
+import { Link } from './Home';
 
 const NAV: { mode: NavMode; icon: string; label: string }[] = [
   { mode: 'plan', icon: 'fa-map', label: 'Planta Baixa' },
@@ -16,20 +18,19 @@ export function Header() {
   const setNavMode = useHouse(s => s.setNavMode);
   const setClimateOpen = useHouse(s => s.setClimateOpen);
   const project = useProject();
-  const setProject = useHouse(s => s.setProject);
   return (
     <header className="h-16 border-b border-slate-800 glass-panel px-3 md:px-6 flex items-center justify-between z-20 shrink-0 gap-2">
       <div className="flex items-center space-x-3 min-w-0 flex-1">
-        <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/30 hidden sm:flex items-center justify-center text-sky-400 shrink-0">
+        <Link href={homePath()} title="Todos os projetos" className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/30 hover:bg-sky-500/20 flex items-center justify-center text-sky-400 shrink-0 transition-colors">
           <i className="fa-solid fa-house-chimney-window text-lg" />
-        </div>
+        </Link>
         <div className="min-w-0">
           <h1 className="font-bold text-base md:text-lg tracking-tight text-white flex items-center gap-2">
             {/* The title is the project switcher. */}
             <span className="relative min-w-0 flex items-center">
               <select
                 value={project.id}
-                onChange={e => setProject(e.target.value as ProjectId)}
+                onChange={e => navigate(projectPath(PROJECTS.find(p => p.id === e.target.value)!))}
                 aria-label="Projeto"
                 title="Trocar de projeto"
                 className="appearance-none bg-transparent font-bold text-white truncate pr-5 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-sky-500 rounded max-w-full"
