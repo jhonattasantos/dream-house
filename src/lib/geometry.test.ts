@@ -8,7 +8,7 @@ import { wallBlocks } from './walls3d';
 
 const MODELS: [string, HouseModel][] = [
   ...SIZES.map(size => [`Casa de Pátio ${size} m`, patioModel(size)] as [string, HouseModel]),
-  ['Casa da Mãe', getProject('mae').model(SIZES[0])],
+  ['Casa do Alpendre', getProject('alpendre').model(SIZES[0])],
 ];
 
 describe('the original 21 × 18 m Casa de Pátio', () => {
@@ -97,8 +97,8 @@ describe.each(MODELS)('%s', (_, model) => {
   });
 });
 
-describe('Casa da Mãe on the 10 × 30 m lot', () => {
-  const model = getProject('mae').model(SIZES[0]);
+describe('Casa do Alpendre on the 10 × 30 m lot', () => {
+  const model = getProject('alpendre').model(SIZES[0]);
   const [lx, ly, lw, lh] = model.lot!.rect;
 
   it('fits the lot with the setbacks', () => {

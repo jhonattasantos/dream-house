@@ -1,4 +1,4 @@
-// Casa da Mãe: a single-storey house for a 10 × 30 m lot in Mamanguape (PB).
+// Casa do Alpendre: a single-storey house for a 10 × 30 m lot in Mamanguape (PB).
 // House coordinates in meters from its north-west corner, which sits on the west boundary of the lot.
 // The street is to the north. The west wall is on the boundary (no windows there); the 1.5 m east
 // setback catches the E/SE breeze and takes the rainwater.
@@ -275,7 +275,7 @@ function buildFurniture() {
   return out;
 }
 
-export const MAE_BUDGET: BudgetItem[] = [
+export const ALPENDRE_BUDGET: BudgetItem[] = [
     { id: 'estrutura', name: 'Fundação & Estrutura', icon: 'fa-helmet-safety', color: '#f59e0b', value: 92000, desc: 'Sapatas corridas, vigas baldrame, pilares e cintas em concreto armado.' },
     { id: 'alvenaria', name: 'Alvenaria & Cobertura', icon: 'fa-cubes', color: '#6366f1', value: 80000, desc: 'Blocos cerâmicos, platibanda e telhado embutido em uma água com manta térmica.' },
     { id: 'esquadrias', name: 'Esquadrias & Vidros', icon: 'fa-window-maximize', color: '#06b6d4', value: 62000, desc: 'Alumínio com venezianas nos quartos e porta de correr da sala para o pátio.' },
@@ -287,7 +287,7 @@ export const MAE_BUDGET: BudgetItem[] = [
 
 const LOT: Rect = [0, -5, 10, 30];
 
-export const MAE_MODEL: HouseModel = {
+export const ALPENDRE_MODEL: HouseModel = {
   W, H,
   rooms: ROOMS,
   openings: OPENINGS,

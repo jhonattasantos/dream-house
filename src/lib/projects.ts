@@ -1,8 +1,8 @@
 import { BUDGET_DEFAULT, type BudgetItem } from '../data/budget';
-import { MAE_BUDGET, MAE_MODEL } from '../data/mae';
+import { ALPENDRE_BUDGET, ALPENDRE_MODEL } from '../data/alpendre';
 import { SIZES, patioModel, type HouseModel, type HouseSize } from './model';
 
-export type ProjectId = 'patio' | 'mae';
+export type ProjectId = 'patio' | 'alpendre';
 
 export interface Project {
   id: ProjectId;
@@ -30,14 +30,14 @@ export const PROJECTS: Project[] = [
     storage: { rooms: 'dream-house:rooms:v1', budget: 'dream-house:budget:v1' },
   },
   {
-    id: 'mae',
-    name: 'Casa da Mãe',
+    id: 'alpendre',
+    name: 'Casa do Alpendre',
     tagline: 'Térrea para terreno de 10 × 30 m',
     blurb: 'Casa térrea para um terreno estreito: encostada na divisa oeste, que protege do sol da tarde, e aberta para o recuo leste, de onde vem a brisa. O pátio interno faz o efeito chaminé e ilumina o miolo da casa.',
     sizes: null,
-    model: () => MAE_MODEL,
-    budget: MAE_BUDGET,
-    storage: { rooms: 'dream-house:mae:rooms:v1', budget: 'dream-house:mae:budget:v1' },
+    model: () => ALPENDRE_MODEL,
+    budget: ALPENDRE_BUDGET,
+    storage: { rooms: 'dream-house:alpendre:rooms:v1', budget: 'dream-house:alpendre:budget:v1' },
   },
 ];
 

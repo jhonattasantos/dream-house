@@ -21,7 +21,7 @@ Tem quatro tamanhos, escolhidos no seletor da planta (régua), todos na mesma pr
 
 Portas e móveis ficam no tamanho real: os móveis só mudam de posição dentro de cada cômodo. Os demais elementos (paredes, janelas, cotas, instalações e o 3D) acompanham o tamanho escolhido.
 
-### Casa da Mãe
+### Casa do Alpendre
 
 Casa térrea de 8,5 × 21 m (161 m² construídos) para um terreno de 10 × 30 m:
 
@@ -61,7 +61,7 @@ Stack: Vite, React 19, TypeScript, Tailwind CSS 4, Zustand e React Three Fiber (
 
 ## Editando a planta
 
-A geometria fica em `src/data/` e é a única fonte para todos os modos. A Casa de Pátio é desenhada em 21 × 18 m e `src/lib/model.ts` gera os tamanhos menores a partir dela; a Casa da Mãe fica inteira em `src/data/mae.ts` (cômodos, aberturas, móveis, instalações, vento, telhado e terreno). Os projetos são listados em `src/lib/projects.ts`. Arquivos da Casa de Pátio:
+A geometria fica em `src/data/` e é a única fonte para todos os modos. A Casa de Pátio é desenhada em 21 × 18 m e `src/lib/model.ts` gera os tamanhos menores a partir dela; a Casa do Alpendre fica inteira em `src/data/alpendre.ts` (cômodos, aberturas, móveis, instalações, vento, telhado e terreno). Os projetos são listados em `src/lib/projects.ts`. Arquivos da Casa de Pátio:
 
 - `rooms.ts` — ambientes (retângulos em metros, origem no canto noroeste) e textos.
 - `openings.ts` — portas e vãos (`OPENINGS`), janelas (`WINDOWS`) e redes (`HAMMOCKS`).
