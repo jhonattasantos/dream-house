@@ -43,12 +43,12 @@ Casa térrea de 8,5 × 21 m (161 m² construídos) para um terreno de 10 × 30 m
 
 ### Duas Casas
 
-Duas casas térreas no mesmo terreno de 10 × 30 m (179 m² construídos), com um só portão social:
+Duas casas térreas no mesmo terreno de 10 × 30 m (181 m² construídos), com um só portão social:
 
 - **Frente (5 m):** garagem descoberta para 2 carros lado a lado, jardim e o portão social. A fossa e o sumidouro ficam sob o jardim, perto da rua, para o caminhão limpa-fossa.
 - **Casa da frente, 8,5 × 14 m:** alpendre com redes, sala, quartos 1 e 2, suíte com banheiro, banheiro social (ventilado por domus, por estar na divisa) e cozinha com jantar voltada para o quintal.
-- **Quintal do meio, 3 m:** separa as duas casas e dá luz e ventilação a ambas.
-- **Casa dos fundos, 8,5 × 6,5 m:** sala com cozinha, 2 quartos e banheiro, com a porta para o quintal do meio.
+- **Quintal do meio, 4,5 m:** separa as duas casas e dá luz e ventilação a ambas; a cisterna fica sob ele.
+- **Casa dos fundos, 8,5 × 6,5 m, encostada no muro dos fundos:** só tem janelas para o quintal do meio (leste) e para o corredor (sul). A sala com cozinha e o quarto 1 dão para o quintal, e o quarto 2 dá para o corredor. O canto entre as duas divisas, onde não pode haver janela, fica com o banheiro (domus + exaustor) e um depósito/despensa.
 - **Corredor sul, 1,5 m:** leva do portão até a casa dos fundos sem passar por dentro da casa da frente, e recebe as janelas, a brisa sudeste e a água dos telhados.
 - **Caixa d'água:** fica em uma torre no quintal do meio, junto à divisa norte. Há uma caixa de 1.000 L para cada casa, a cerca de 3 m das duas cozinhas e na mesma parede hidráulica delas. Embaixo da laje ficam as duas lavanderias, uma de cada casa. Cada casa tem seu próprio medidor de água e de luz.
 - **Pátio interno:** não tem. O quintal do meio cumpre esse papel.

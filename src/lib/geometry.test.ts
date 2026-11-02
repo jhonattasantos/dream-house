@@ -136,7 +136,16 @@ describe('Duas Casas on the 10 × 30 m lot', () => {
     expect([lw, lh]).toEqual([10, 30]);
     expect(lx + lw - model.W).toBeGreaterThanOrEqual(1.5); // east walkway
     expect(-ly).toBeGreaterThanOrEqual(5); // front setback with the garage
-    expect(ly + lh - model.H).toBeGreaterThanOrEqual(1.5); // back yard
+    expect(ly + lh).toBe(model.H); // the back house sits on the rear boundary
+  });
+
+  it('opens a 4.5 m yard between the houses', () => {
+    expect(back[1] - (front[1] + front[3])).toBe(4.5);
+  });
+
+  it('gives every bedroom and living room a window', () => {
+    Object.entries(rooms).filter(([, r]) => r.icon === 'fa-bed' || r.icon === 'fa-couch').forEach(([key]) =>
+      expect(model.windows.some(w => w.room === key), key).toBe(true));
   });
 
   it('has 3 bedrooms in the front house and 2 in the smaller back house', () => {
@@ -171,8 +180,8 @@ describe('Duas Casas on the 10 × 30 m lot', () => {
     expect(waterTower!.z).toBeGreaterThan(2.2 + 1);
   });
 
-  it('has no window on the boundary wall', () => {
-    expect(model.windows.filter(w => w.dir === 'v' && w.x === 0)).toEqual([]);
+  it('has no window on the side and rear boundary walls', () => {
+    expect(model.windows.filter(w => (w.dir === 'v' && w.x === 0) || (w.dir === 'h' && w.y === model.H))).toEqual([]);
   });
 
   it('keeps more built area in front than in the back', () => {
