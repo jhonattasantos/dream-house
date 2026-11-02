@@ -32,9 +32,11 @@ Portas e móveis ficam no tamanho real: os móveis só mudam de posição dentro
 
 Casa térrea de 8,5 × 21 m (161 m² construídos) para um terreno de 10 × 30 m:
 
-- **Recuos:** 5 m na frente (jardim + vaga para 1 carro), 1,5 m na lateral leste e 4 m de quintal no fundo.
-- **Divisa oeste:** a casa encosta nela, sem janelas, e fica protegida do sol da tarde.
-- **Recuo leste:** recebe a brisa, as janelas e a água do telhado (embutido em uma água, atrás da platibanda).
+- **Recuos:** 5 m na frente (jardim + vaga para 1 carro), 1,5 m na lateral sul e 4 m de quintal no fundo.
+- **Frente para o leste:** o alpendre recebe o sol da manhã e a brisa, que atravessa a casa da frente para os fundos.
+- **Divisa norte:** a casa encosta nela, sem janelas.
+- **Recuo sul:** quase não recebe sol direto; recebe a brisa sudeste, as janelas e a água do telhado (embutido em uma água, atrás da platibanda).
+- **Fundos para o oeste:** as janelas do fundo pegam o sol da tarde e levam veneziana.
 - **Programa:** alpendre com redes, sala de estar e jantar, cozinha integrada, área de serviço, suíte, quartos 2 e 3, e banheiro social.
 - **Pátio interno de 3 × 6 m:** fica junto à divisa e ilumina e ventila o miolo da casa, com uma galeria aberta ligando a sala aos quartos e ao quintal.
 - **Quintal:** cisterna, fossa e sumidouro.
@@ -47,11 +49,11 @@ Duas casas térreas no mesmo terreno de 10 × 30 m (179 m² construídos), com u
 - **Casa da frente, 8,5 × 14 m:** alpendre com redes, sala, quartos 1 e 2, suíte com banheiro, banheiro social (ventilado por domus, por estar na divisa) e cozinha com jantar voltada para o quintal.
 - **Quintal do meio, 3 m:** separa as duas casas e dá luz e ventilação a ambas.
 - **Casa dos fundos, 8,5 × 6,5 m:** sala com cozinha, 2 quartos e banheiro, com a porta para o quintal do meio.
-- **Corredor leste, 1,5 m:** leva do portão até a casa dos fundos sem passar por dentro da casa da frente, e recebe as janelas, a brisa e a água dos telhados.
-- **Caixa d'água:** fica em uma torre no quintal do meio, junto à divisa oeste. Há uma caixa de 1.000 L para cada casa, a cerca de 3 m das duas cozinhas e na mesma parede hidráulica delas. Embaixo da laje ficam as duas lavanderias, uma de cada casa. Cada casa tem seu próprio medidor de água e de luz.
+- **Corredor sul, 1,5 m:** leva do portão até a casa dos fundos sem passar por dentro da casa da frente, e recebe as janelas, a brisa sudeste e a água dos telhados.
+- **Caixa d'água:** fica em uma torre no quintal do meio, junto à divisa norte. Há uma caixa de 1.000 L para cada casa, a cerca de 3 m das duas cozinhas e na mesma parede hidráulica delas. Embaixo da laje ficam as duas lavanderias, uma de cada casa. Cada casa tem seu próprio medidor de água e de luz.
 - **Pátio interno:** não tem. O quintal do meio cumpre esse papel.
 
-Nos projetos 2 e 3, a frente para a rua foi considerada ao norte; se o terreno real tiver outra orientação, a análise de sol e vento muda.
+Nos projetos 2 e 3, a frente para a rua fica a **leste**: o sol nasce na frente e a brisa (leste/sudeste) vem da frente para os fundos. No desenho, a rua fica no alto, o norte à esquerda (divisa onde as casas encostam), o sul à direita (recuo/corredor) e o oeste nos fundos. A bússola, o sol (2D e 3D), as fachadas ao sol e as setas de vento seguem essa orientação, definida em `north` no modelo de cada projeto; a Casa de Pátio continua com o norte para cima.
 
 ## Modos
 
@@ -82,7 +84,7 @@ Stack: Vite, React 19, TypeScript, Tailwind CSS 4, Zustand e React Three Fiber (
 
 A geometria fica em `src/data/` e é a única fonte para todos os modos. A Casa de Pátio é desenhada em 21 × 18 m e `src/lib/model.ts` gera os tamanhos menores a partir dela; a Casa do Alpendre fica inteira em `src/data/alpendre.ts` (cômodos, aberturas, móveis, instalações, vento, telhado e terreno). Os projetos são listados em `src/lib/projects.ts`. Arquivos da Casa de Pátio:
 
-- `rooms.ts` — ambientes (retângulos em metros, origem no canto noroeste) e textos.
+- `rooms.ts` — ambientes (retângulos em metros, origem no canto superior esquerdo do desenho) e textos.
 - `openings.ts` — portas e vãos (`OPENINGS`), janelas (`WINDOWS`) e redes (`HAMMOCKS`).
 - `furniture.ts` — móveis com a altura de cada peça.
 - `budget.ts` — etapas do orçamento.

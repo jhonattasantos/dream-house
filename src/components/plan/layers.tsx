@@ -1,7 +1,7 @@
 import { Fragment, type ReactNode, type SVGProps } from 'react';
 import type { Opening, Window } from '../../data/openings';
 import type { Rect, Room, RoomKey } from '../../data/rooms';
-import { OX, OY, S, X, Y, fitFontSize, fmtNum, outlines, roomArea, roomDims, wallFace, type Face } from '../../lib/geometry';
+import { OX, OY, S, X, Y, faceSide, fitFontSize, fmtNum, outlines, roomArea, roomDims, wallFace, type Face } from '../../lib/geometry';
 import type { HouseModel } from '../../lib/model';
 import { useHouse } from '../../store';
 
@@ -369,10 +369,9 @@ export function Utilities({ rooms }: { rooms: Rooms }) {
 }
 
 export function SunOverlay({ sx, sy, faces }: { sx: number; sy: number; faces: Set<Face> }) {
-  const { W, H } = useHouse(s => s.model);
-  const faceLines: Record<Face, [number, number, number, number]> = {
-    N: [0, 0, W, 0], S: [0, H, W, H], O: [0, 0, 0, H], L: [W, 0, W, H],
-  };
+  const { W, H, north } = useHouse(s => s.model);
+  // Top, right, bottom and left sides of the drawing.
+  const sides: [number, number, number, number][] = [[0, 0, W, 0], [W, 0, W, H], [0, H, W, H], [0, 0, 0, H]];
   return (
     <g pointerEvents="none">
       <defs>
@@ -383,7 +382,7 @@ export function SunOverlay({ sx, sy, faces }: { sx: number; sy: number; faces: S
       </defs>
       <rect x={X(0)} y={Y(0)} width={W * S} height={H * S} fill="url(#sun-grad)" />
       {[...faces].map(f => {
-        const [x1, y1, x2, y2] = faceLines[f];
+        const [x1, y1, x2, y2] = sides[faceSide(f, north)];
         return <line key={f} x1={X(x1)} y1={Y(y1)} x2={X(x2)} y2={Y(y2)} stroke="#fbbf24" strokeWidth={12} opacity={0.45} strokeLinecap="round" />;
       })}
     </g>

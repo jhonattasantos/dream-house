@@ -29,28 +29,42 @@ export const fitFontSize = (text: string, maxWidth: number, max = 12, min = 7) =
 
 export type Face = 'N' | 'S' | 'O' | 'L';
 
+/** Compass faces in clockwise order; drawing sides are numbered the same way: 0 top, 1 right, 2 bottom, 3 left. */
+const FACES: Face[] = ['N', 'L', 'S', 'O'];
+const mod4 = (n: number) => ((Math.round(n) % 4) + 4) % 4;
+/** Compass face of a side of the drawing. */
+export const sideFace = (side: number, north = 0): Face => FACES[mod4(side - north / 90)];
+/** Side of the drawing that looks to a compass face. */
+export const faceSide = (face: Face, north = 0) => mod4(FACES.indexOf(face) + north / 90);
+/** Unit vector on the drawing (x right, y down) pointing to a compass bearing (0 = north, 90 = east). */
+export function planDirection(bearing: number, north = 0): [number, number] {
+  const a = ((bearing + north) * Math.PI) / 180;
+  return [Math.sin(a), -Math.cos(a)];
+}
+
 /** Outer size of the house: the far edges of its rooms. */
 export function houseExtent(rooms: Record<string, Room>) {
   const rects = Object.values(rooms).flatMap(r => r.rects);
   return { W: Math.max(...rects.map(([x, , w]) => x + w)), H: Math.max(...rects.map(([, y, , h]) => y + h)) };
 }
 
-type Outlined = { W: number; H: number; buildings?: Rect[] };
+type Outlined = { W: number; H: number; buildings?: Rect[]; north?: number };
 
 /** Outer outlines of the buildings: the whole house, or each building of a lot with several. */
 export const outlines = ({ W, H, buildings }: Outlined): Rect[] => buildings ?? [[0, 0, W, H]];
 
-/** Facade an opening or window sits on, or null for an inner wall. */
+/** Compass facade an opening or window sits on, or null for an inner wall. */
 export function wallFace(o: Opening | Window, model: Outlined): Face | null {
   const near = (a: number, b: number) => Math.abs(a - b) < 1e-6;
+  const face = (side: number) => sideFace(side, model.north);
   for (const [x, y, w, h] of outlines(model)) {
     if (o.dir === 'h' && o.x >= x - 1e-6 && o.x + o.len <= x + w + 1e-6) {
-      if (near(o.y, y)) return 'N';
-      if (near(o.y, y + h)) return 'S';
+      if (near(o.y, y)) return face(0);
+      if (near(o.y, y + h)) return face(2);
     }
     if (o.dir === 'v' && o.y >= y - 1e-6 && o.y + o.len <= y + h + 1e-6) {
-      if (near(o.x, x)) return 'O';
-      if (near(o.x, x + w)) return 'L';
+      if (near(o.x, x)) return face(3);
+      if (near(o.x, x + w)) return face(1);
     }
   }
   return null;

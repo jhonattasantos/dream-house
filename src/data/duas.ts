@@ -1,8 +1,9 @@
 // Duas Casas: a front house (3 bedrooms) and a smaller back house (2 bedrooms) on the same 10 × 30 m lot
-// in Mamanguape (PB). Coordinates in meters from the north-west corner of the front house, which sits on
-// the west boundary of the lot; the street is to the north.
-// Both houses lean on the west boundary (no windows there) and open to the 1.5 m east strip, which is also
-// the shared walkway from the street gate to the back house. Between them, a 3 m yard holds the water
+// in Mamanguape (PB). Coordinates in meters from the top-left corner of the front house, which sits on a
+// side boundary. The street (top of the drawing) faces east: the sun rises in front and the breeze blows
+// from the front to the back. Both houses lean on the north boundary (left, no windows there) and open to
+// the 1.5 m south strip (right), which gets almost no direct sun and is also the shared walkway from the
+// street gate to the back house. Between them, a 3 m yard holds the water
 // tower: one tank per house on a slab over the two laundries, next to the kitchens and bathrooms of both.
 import { planView, type HouseModel } from '../lib/model';
 import type { BudgetItem } from './budget';
@@ -15,7 +16,7 @@ const H = 23.5;
 const FRONT: Rect = [0, 0, W, 14];
 const TOWER: Rect = [0, 14, 1.6, 3];
 const BACK: Rect = [0, 17, W, 6.5];
-// Roofs: one water each, embedded behind the parapet, falling from the west boundary to the east strip.
+// Roofs: one water each, embedded behind the parapet, falling from the north boundary to the south strip.
 const ROOF_WEST = 3.65;
 const ROOF_EAST = 3.1;
 const roofAt = (x: number) => ROOF_WEST + ((ROOF_EAST - ROOF_WEST) * x) / W;
@@ -30,11 +31,11 @@ const ROOMS: Record<RoomKey, Room> = {
     subtitle: `${FRONT_HOUSE} • Entrada`,
     height: '2.60 m',
     floor: 'Cerâmica Rústica Antiderrapante',
-    light: 'Norte, Sombreada',
+    light: 'Leste (rua), Sombreada',
     icon: 'fa-person-walking-arrow-right',
     benefits: [
       'Duas redes armadas na diagonal dos cantos.',
-      'Sombreia a sala e o quarto 1, que dão para a rua.',
+      'Recebe o sol da manhã e a brisa leste de frente, e sombreia as janelas da sala e do quarto 1.',
     ],
     patioRel: 'É a varanda da casa da frente, de frente para a garagem.',
     rects: [[0, 0, 8.5, 2]],
@@ -45,7 +46,7 @@ const ROOMS: Record<RoomKey, Room> = {
     subtitle: `${FRONT_HOUSE} • Estar`,
     height: '3.20 m',
     floor: 'Porcelanato Acetinado',
-    light: 'Norte (alpendre)',
+    light: 'Leste (alpendre)',
     icon: 'fa-couch',
     benefits: [
       'A TV fica na parede da divisa, que não tem janelas.',
@@ -60,11 +61,11 @@ const ROOMS: Record<RoomKey, Room> = {
     subtitle: `${FRONT_HOUSE} • Casal`,
     height: '3.00 m',
     floor: 'Vinílico Amadeirado',
-    light: 'Norte (alpendre) + Leste',
+    light: 'Leste (alpendre) + Sul',
     icon: 'fa-bed',
     benefits: [
-      'Janela para o alpendre e outra para o leste: ventilação cruzada.',
-      'O alpendre sombreia a janela da rua.',
+      'Janela para o alpendre e outra para o sul: ventilação cruzada com a brisa da frente.',
+      'O alpendre sombreia a janela da rua do sol da manhã.',
     ],
     patioRel: 'Fica na frente da casa, ao lado da sala.',
     rects: [[4.7, 2, 3.8, 3.2]],
@@ -75,10 +76,10 @@ const ROOMS: Record<RoomKey, Room> = {
     subtitle: `${FRONT_HOUSE} • Solteiro / Escritório`,
     height: '3.00 m',
     floor: 'Vinílico Amadeirado',
-    light: 'Leste',
+    light: 'Sul',
     icon: 'fa-bed',
     benefits: [
-      'Janela para o leste: sol só pela manhã e a brisa de frente.',
+      'Janela para o sul: quase sem sol direto e com a brisa sudeste.',
       'Cabe cama de solteiro e uma mesa de estudo.',
     ],
     patioRel: 'A porta abre para o corredor.',
@@ -105,7 +106,7 @@ const ROOMS: Record<RoomKey, Room> = {
     subtitle: `${FRONT_HOUSE} • Circulação`,
     height: '3.00 m',
     floor: 'Porcelanato Acetinado',
-    light: 'Porta do quintal (Sul)',
+    light: 'Porta do quintal (Oeste)',
     icon: 'fa-shoe-prints',
     benefits: [
       'Liga a sala aos quartos, à cozinha e ao quintal do meio.',
@@ -120,11 +121,11 @@ const ROOMS: Record<RoomKey, Room> = {
     subtitle: `${FRONT_HOUSE} • Copa`,
     height: '3.00 m',
     floor: 'Porcelanato Antiderrapante',
-    light: 'Sul (quintal)',
+    light: 'Oeste (quintal)',
     icon: 'fa-utensils',
     benefits: [
       "Bancada na parede da divisa, a mesma que leva a água da caixa d'água: canos curtos.",
-      'Janela para o quintal do meio, a face mais fresca da casa.',
+      'Janela para o quintal do meio, sombreada à tarde pela casa dos fundos.',
       'Mesa para 4 pessoas.',
     ],
     patioRel: 'Fica de frente para o quintal e ao lado da torre da caixa d’água.',
@@ -136,10 +137,10 @@ const ROOMS: Record<RoomKey, Room> = {
     subtitle: `${FRONT_HOUSE} • Dormitório Principal`,
     height: '3.00 m',
     floor: 'Vinílico Amadeirado',
-    light: 'Leste',
+    light: 'Sul',
     icon: 'fa-bed',
     benefits: [
-      'Janela para o leste: sol da manhã e a brisa entrando de frente.',
+      'Janela para o sul: quase sem sol direto e com a brisa sudeste entrando de frente.',
       'Banheiro próprio e guarda-roupa de 2,4 m.',
     ],
     patioRel: 'Fica nos fundos da casa, perto do quintal do meio.',
@@ -151,10 +152,10 @@ const ROOMS: Record<RoomKey, Room> = {
     subtitle: `${FRONT_HOUSE} • Banheiro Privativo`,
     height: '2.80 m',
     floor: 'Porcelanato Antiderrapante',
-    light: 'Sul + Leste',
+    light: 'Oeste + Sul',
     icon: 'fa-shower',
     benefits: [
-      'Janelas altas para o quintal e para o leste: ventila sem perder privacidade.',
+      'Janelas altas para o quintal e para o sul: ventila sem perder privacidade.',
       'Aquecedor solar logo acima, no telhado.',
     ],
     patioRel: 'Dá para o quintal do meio.',
@@ -166,7 +167,7 @@ const ROOMS: Record<RoomKey, Room> = {
     subtitle: `${FRONT_HOUSE} • Torre da Caixa d'Água`,
     height: '3.60 m',
     floor: 'Cerâmica Antiderrapante',
-    light: 'Leste (quintal)',
+    light: 'Sul (quintal)',
     icon: 'fa-jug-detergent',
     benefits: [
       "Embaixo da caixa d'água da casa da frente: tanque e máquina com água por gravidade.",
@@ -181,7 +182,7 @@ const ROOMS: Record<RoomKey, Room> = {
     subtitle: `${BACK_HOUSE} • Torre da Caixa d'Água`,
     height: '3.60 m',
     floor: 'Cerâmica Antiderrapante',
-    light: 'Leste (quintal)',
+    light: 'Sul (quintal)',
     icon: 'fa-jug-detergent',
     benefits: [
       "Embaixo da caixa d'água da casa dos fundos, separada da outra lavanderia por uma parede.",
@@ -201,7 +202,7 @@ const ROOMS: Record<RoomKey, Room> = {
     benefits: [
       "Afasta as duas casas 3 m: cada uma tem janelas, luz e ventilação para o quintal.",
       "Abriga a torre da caixa d'água, no ponto mais perto das cozinhas e banheiros das duas casas.",
-      'Varal das duas lavanderias, com sol da manhã e vento leste.',
+      'Varal das duas lavanderias, no caminho da brisa sudeste que entra pelo corredor.',
     ],
     patioRel: 'Liga as duas casas e se abre para o corredor lateral, que leva à rua.',
     rects: [[1.6, 14, 6.9, 3]],
@@ -214,11 +215,11 @@ const ROOMS: Record<RoomKey, Room> = {
     subtitle: `${BACK_HOUSE} • Estar e Cozinha`,
     height: '3.00 m',
     floor: 'Porcelanato Acetinado',
-    light: 'Norte (quintal) + Leste',
+    light: 'Leste (quintal) + Sul',
     icon: 'fa-couch',
     benefits: [
       "Bancada da cozinha na parede da divisa, colada na torre da caixa d'água.",
-      'Janelas para o quintal e para o leste: ventilação cruzada.',
+      'Janelas para o quintal e para o sul: ventilação cruzada com a brisa que vem da frente.',
     ],
     patioRel: 'A porta de entrada abre para o quintal do meio.',
     rects: [[0, 17, 8.5, 3]],
@@ -229,10 +230,10 @@ const ROOMS: Record<RoomKey, Room> = {
     subtitle: `${BACK_HOUSE} • Casal`,
     height: '3.00 m',
     floor: 'Vinílico Amadeirado',
-    light: 'Sul',
+    light: 'Oeste',
     icon: 'fa-bed',
     benefits: [
-      'Janela para o quintal dos fundos, a face mais fresca e silenciosa do terreno.',
+      'Janela para o quintal dos fundos, longe da rua; veneziana e beiral seguram o sol da tarde.',
       'Cama de casal e guarda-roupa de 1,9 m.',
     ],
     patioRel: 'Fica no fundo do terreno, longe da rua.',
@@ -244,7 +245,7 @@ const ROOMS: Record<RoomKey, Room> = {
     subtitle: `${BACK_HOUSE} • Banheiro`,
     height: '2.80 m',
     floor: 'Porcelanato Antiderrapante',
-    light: 'Sul',
+    light: 'Oeste',
     icon: 'fa-shower',
     benefits: [
       'Entre os dois quartos, com janela alta para o quintal dos fundos.',
@@ -258,10 +259,10 @@ const ROOMS: Record<RoomKey, Room> = {
     subtitle: `${BACK_HOUSE} • Casal / Solteiro`,
     height: '3.00 m',
     floor: 'Vinílico Amadeirado',
-    light: 'Sul + Leste',
+    light: 'Oeste + Sul',
     icon: 'fa-bed',
     benefits: [
-      'Janelas para o sul e para o leste: o quarto mais ventilado das duas casas.',
+      'Janelas para o sul e para o oeste: ventilação cruzada; a do oeste com veneziana para o sol da tarde.',
     ],
     patioRel: 'Fica no fundo do terreno, junto ao corredor lateral.',
     rects: [[5.1, 20, 3.4, 3.5]],
@@ -457,27 +458,29 @@ export const DUAS_MODEL: HouseModel = {
     solar: [5.0, 12.25, 1.8, 1.3],
     board: [0.2, 2.15, 1.0, 0.35],
     legend: {
-      slope: 'Telhados embutidos em uma água, caindo para o corredor leste: nenhuma água vai para o vizinho',
-      gutter: 'Calhas atrás da platibanda leste → 3 condutores Ø100 no corredor',
+      slope: 'Telhados embutidos em uma água, caindo para o corredor sul: nenhuma água vai para o vizinho',
+      gutter: 'Calhas atrás da platibanda sul → 3 condutores Ø100 no corredor',
       drain: 'Condutores + ralo do quintal → caixa de areia (CA) → cisterna no fundo → extravasor até a rua',
       sewer: 'Esgoto pelo corredor → caixa de gordura (CG) → fossa (F) + sumidouro (S) sob o jardim da frente, perto da rua para o caminhão limpa-fossa',
-      hydraulic: "Parede hidráulica na divisa oeste: cozinhas, banheiro social e lavanderias alinhados com a caixa d'água",
+      hydraulic: "Parede hidráulica na divisa norte: cozinhas, banheiro social e lavanderias alinhados com a caixa d'água",
       tank: "Torre no quintal do meio: uma caixa de 1.000 L para cada casa, a ~3 m das duas cozinhas",
       board: 'Um quadro (QD) e um medidor de luz e de água por casa',
     },
     drainsToPatio: false,
   },
   wind: {
+    // East is the street side (top), so the breezes come in from the front and down the south walkway.
     breezes: [
-      [[W + 4.78, 3.7], [W + 2.5, 3.7], [6, 4.2], [3.2, 5.2]],
-      [[W + 4.78, 10.2], [W + 2.5, 10.2], [5.5, 10.6], [2.2, 11.2]],
-      [[W + 4.78, 15.5], [W + 2.5, 15.5], [5.5, 15.4], [2.4, 15.6]],
-      [[W + 4.78, H + 1.2], [W + 2.5, H + 0.3], [7, 21.6], [2.4, 18.6]],
+      [[2.0, -6.2], [2.0, -3], [2.2, 0.5], [2.0, 4.6]],
+      [[6.8, -6.2], [6.8, -3], [6.8, 0.5], [6.6, 3.6]],
+      [[W + 3.5, -6.0], [W + 0.9, -2], [W + 0.75, 6], [6.4, 6.8]],
+      [[W + 3.5, -6.0], [W + 0.9, 4], [W + 0.75, 15.5], [3.2, 15.5]],
+      [[W + 3.5, -6.0], [W + 0.9, 8], [W + 0.75, 18.4], [4.0, 18.6]],
     ],
     hot: null,
     labels: [
-      { at: [W + 4.78, 3.2], text: 'BRISA LESTE', anchor: 'end' },
-      { at: [W + 4.78, H + 2.1], text: 'BRISA SUDESTE', anchor: 'end' },
+      { at: [0.2, -6.6], text: 'BRISA LESTE', anchor: 'start' },
+      { at: [W + 4.78, -6.6], text: 'BRISA SUDESTE', anchor: 'end' },
     ],
   },
   lot: {
@@ -493,5 +496,6 @@ export const DUAS_MODEL: HouseModel = {
       { at: [5.3, 24.25], text: 'QUINTAL 1,5 m' },
     ],
   },
+  north: 270,
   view: planView(W, H, LOT),
 };

@@ -1,5 +1,5 @@
 import type { Room, RoomKey } from '../data/rooms';
-import { X, Y, clamp, wallFace, type Face } from './geometry';
+import { X, Y, clamp, planDirection, wallFace, type Face } from './geometry';
 import type { HouseModel } from './model';
 
 export type Season = 'dez' | 'jun';
@@ -8,14 +8,18 @@ const FACE_NAMES: Record<Face, string> = { N: 'Norte', S: 'Sul', L: 'Leste', O: 
 
 /** Schematic sun for the 2D plan: position on the drawing, lit facades and the advice text. */
 export function sunInfo(hour: number, season: Season, rooms: Record<RoomKey, Room>, model: HouseModel) {
-  const { W, H, view, windows } = model;
+  const { W, H, view, windows, north = 0 } = model;
   const t = (hour - 6) / 12;
   const phi = Math.PI * t;
   const elevation = Math.sin(phi);
   const northSouth = season === 'jun' ? -1 : 1; // jun: sol mais ao norte; dez: mais ao sul
-  const reach = 0.47 * view.w * (1 - 0.7 * elevation);
-  const sx = clamp(X(W / 2) + Math.cos(phi) * reach, 20, view.w - 20);
-  const sy = clamp(Y(H / 2) + northSouth * elevation * reach, 20, view.h - 20);
+  // Offset towards the east (sunrise → sunset) and towards the north (June) or south (December),
+  // reaching out to the edges of the drawing along each axis.
+  const reach = 0.47 * (1 - 0.7 * elevation);
+  const toEast = Math.cos(phi), toNorth = -northSouth * elevation;
+  const [ex, ey] = planDirection(90, north), [nx, ny] = planDirection(0, north);
+  const sx = clamp(X(W / 2) + (toEast * ex + toNorth * nx) * reach * view.w, view.x + 20, view.x + view.w - 20);
+  const sy = clamp(Y(H / 2) + (toEast * ey + toNorth * ny) * reach * view.h, view.y + 20, view.y + view.h - 20);
 
   const faces = new Set<Face>();
   if (hour < 11.5) faces.add('L');
@@ -28,8 +32,8 @@ export function sunInfo(hour: number, season: Season, rooms: Record<RoomKey, Roo
   else if (hour <= 12.5) message = 'Sol a pino: o pátio recebe luz direta e os beirais sombreiam as fachadas.';
   else if (hour < 15) message = 'Pico de calor — a fachada oeste começa a aquecer; o pátio puxa o ar quente para cima.';
   else message = 'Sol poente a oeste, o mais quente do dia: brises e vegetação protegem as janelas.';
-  if (faces.has('N')) message += ' No inverno o sol passa ao norte, aquecendo a fachada da rua.';
-  if (faces.has('S')) message += ' No verão o sol passa ao sul, alcançando a fachada dos fundos.';
+  if (faces.has('N')) message += ' No inverno o sol passa ao norte, aquecendo as paredes voltadas para o norte.';
+  if (faces.has('S')) message += ' No verão o sol passa ao sul, alcançando as paredes voltadas para o sul.';
 
   const litRooms = [...new Set(windows.filter(w => faces.has(wallFace(w, model)!)).map(w => rooms[w.room].name))];
   const facesText = faces.size

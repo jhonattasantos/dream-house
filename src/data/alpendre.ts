@@ -1,7 +1,8 @@
 // Casa do Alpendre: a single-storey house for a 10 × 30 m lot in Mamanguape (PB).
-// House coordinates in meters from its north-west corner, which sits on the west boundary of the lot.
-// The street is to the north. The west wall is on the boundary (no windows there); the 1.5 m east
-// setback catches the E/SE breeze and takes the rainwater.
+// House coordinates in meters from the top-left corner of the drawing, which sits on a side boundary.
+// The street (top of the drawing) faces east, so the sun rises in front and the breeze blows from the
+// front to the back. The left wall is on the north boundary (no windows there); the 1.5 m setback on the
+// right faces south, gets almost no direct sun, catches the SE breeze and takes the rainwater.
 import { planView, type HouseModel } from '../lib/model';
 import type { BudgetItem } from './budget';
 import { DARK, STONE, WOOD, furnitureKit } from './furniture';
@@ -10,7 +11,7 @@ import type { Rect, Room, RoomKey } from './rooms';
 
 const W = 8.5;
 const H = 21;
-// Roof: one water, embedded behind the parapet, falling from the west boundary to the east setback.
+// Roof: one water, embedded behind the parapet, falling from the north boundary to the south setback.
 const ROOF_WEST = 3.65;
 const ROOF_EAST = 3.1;
 const roofAt = (x: number) => ROOF_WEST + ((ROOF_EAST - ROOF_WEST) * x) / W;
@@ -21,11 +22,11 @@ const ROOMS: Record<RoomKey, Room> = {
     subtitle: 'Entrada & Descanso',
     height: '2.60 m',
     floor: 'Cerâmica Rústica Antiderrapante',
-    light: 'Norte, Sombreada',
+    light: 'Leste (rua), Sombreada',
     icon: 'fa-person-walking-arrow-right',
     benefits: [
       'Duas redes armadas na diagonal dos cantos (3,4 m entre armadores).',
-      'Sombreia a fachada da rua e a sala, que nunca recebem sol direto nas janelas.',
+      'Recebe o sol da manhã e a brisa leste de frente, e sombreia as janelas da sala.',
     ],
     patioRel: 'É a varanda de frente da casa; o pátio fica no miolo, visto da sala.',
     rects: [[0, 0, 8.5, 2]],
@@ -36,10 +37,10 @@ const ROOMS: Record<RoomKey, Room> = {
     subtitle: 'Zona Social',
     height: '3.20 m',
     floor: 'Porcelanato Acetinado',
-    light: 'Norte (alpendre) + Leste + Pátio',
+    light: 'Leste (alpendre) + Sul + Pátio',
     icon: 'fa-couch',
     benefits: [
-      'Recebe a brisa leste pelas janelas do recuo e a solta no pátio (ventilação cruzada).',
+      'Recebe a brisa leste pelo alpendre e a sudeste pelo recuo sul, e a solta no pátio (ventilação cruzada).',
       'Integrada à cozinha por um balcão, sem portas no caminho.',
       'A TV fica na parede da divisa, que não tem janelas.',
     ],
@@ -52,7 +53,7 @@ const ROOMS: Record<RoomKey, Room> = {
     subtitle: 'Circulação',
     height: '3.40 m',
     floor: 'Cerâmica Atérmica',
-    light: 'Pátio (Oeste)',
+    light: 'Pátio (Norte)',
     icon: 'fa-shoe-prints',
     benefits: [
       'Liga a sala aos quartos e ao quintal pela beira do pátio, sempre iluminada.',
@@ -72,9 +73,9 @@ const ROOMS: Record<RoomKey, Room> = {
     light: 'Zenital',
     icon: 'fa-tree',
     benefits: [
-      'Efeito chaminé: o ar quente da casa sobe pelo pátio e puxa a brisa pelas janelas do leste.',
+      'Efeito chaminé: o ar quente da casa sobe pelo pátio e puxa a brisa pela frente e pelo recuo sul.',
       'Dá luz e ventilação à sala, ao quarto 2 e à galeria, que estão longe das fachadas.',
-      'Fica junto à divisa oeste: o muro alto protege do sol da tarde e dá privacidade.',
+      'Fica junto à divisa norte: o muro alto sombreia o pátio no inverno, quando o sol passa ao norte, e dá privacidade.',
     ],
     patioRel: 'É o coração da casa, cercado pela sala, pela galeria e pelo quarto 2.',
     rects: [[0, 7, 3, 6]],
@@ -87,10 +88,10 @@ const ROOMS: Record<RoomKey, Room> = {
     subtitle: 'Integrada à Sala',
     height: '3.00 m',
     floor: 'Porcelanato Antiderrapante',
-    light: 'Leste',
+    light: 'Sul',
     icon: 'fa-utensils',
     benefits: [
-      'Bancada em L com a pia sob a janela do leste, que pega o sol só pela manhã.',
+      'Bancada em L com a pia sob a janela do recuo sul, que quase não recebe sol direto.',
       'Aberta para a sala: quem cozinha participa da conversa.',
     ],
     patioRel: 'Vê o pátio através da sala e da galeria.',
@@ -102,10 +103,10 @@ const ROOMS: Record<RoomKey, Room> = {
     subtitle: 'Lavanderia',
     height: '3.00 m',
     floor: 'Cerâmica Antiderrapante',
-    light: 'Leste',
+    light: 'Sul',
     icon: 'fa-jug-detergent',
     benefits: [
-      'Porta direta para o recuo leste, onde fica o varal: roupa seca com sol da manhã e vento.',
+      'Porta direta para o recuo sul, onde fica o varal, no corredor da brisa sudeste.',
       'Na mesma parede hidráulica da cozinha.',
     ],
     patioRel: 'Fica atrás da cozinha, fora da vista da sala.',
@@ -117,11 +118,11 @@ const ROOMS: Record<RoomKey, Room> = {
     subtitle: 'Solteiro / Hóspedes',
     height: '3.00 m',
     floor: 'Vinílico Amadeirado',
-    light: 'Pátio (Norte)',
+    light: 'Pátio (Leste)',
     icon: 'fa-bed',
     benefits: [
       'Janela para o pátio: luz filtrada pela árvore e privacidade total.',
-      'Não pega sol da tarde: a parede oeste é a da divisa.',
+      'Não pega sol da tarde: a janela olha para o pátio, a leste, e a parede norte é a da divisa.',
     ],
     patioRel: 'A janela do quarto se abre direto para o jardim.',
     rects: [[0, 13, 3, 3.5]],
@@ -132,10 +133,10 @@ const ROOMS: Record<RoomKey, Room> = {
     subtitle: 'Casal',
     height: '3.00 m',
     floor: 'Vinílico Amadeirado',
-    light: 'Sul (Quintal)',
+    light: 'Oeste (Quintal)',
     icon: 'fa-bed',
     benefits: [
-      'Janela para o quintal, a face mais fresca e silenciosa do terreno.',
+      'Janela para o quintal, longe da rua; veneziana e uma árvore no quintal seguram o sol da tarde.',
       'Cama de casal com guarda-roupa de 2 m.',
     ],
     patioRel: 'Fica no fundo, perto do quintal e longe da rua.',
@@ -147,10 +148,10 @@ const ROOMS: Record<RoomKey, Room> = {
     subtitle: 'Dormitório Principal',
     height: '3.00 m',
     floor: 'Vinílico Amadeirado',
-    light: 'Leste',
+    light: 'Sul',
     icon: 'fa-bed',
     benefits: [
-      'Janela para o recuo leste: sol da manhã e a brisa entrando de frente.',
+      'Janela para o recuo sul: quase sem sol direto e com a brisa sudeste entrando de frente.',
       'Banheiro próprio e guarda-roupa de 2,5 m.',
     ],
     patioRel: 'A porta abre para a galeria, a poucos passos do pátio.',
@@ -162,7 +163,7 @@ const ROOMS: Record<RoomKey, Room> = {
     subtitle: 'Banheiro Privativo',
     height: '2.80 m',
     floor: 'Porcelanato Antiderrapante',
-    light: 'Sul + Leste',
+    light: 'Oeste + Sul',
     icon: 'fa-shower',
     benefits: [
       'Janelas altas para o quintal e o recuo: ventila sem perder privacidade.',
@@ -177,7 +178,7 @@ const ROOMS: Record<RoomKey, Room> = {
     subtitle: 'Banheiro dos Quartos',
     height: '2.80 m',
     floor: 'Porcelanato Antiderrapante',
-    light: 'Sul',
+    light: 'Oeste',
     icon: 'fa-restroom',
     benefits: [
       'Atende o quarto 2, o quarto 3 e as visitas, com porta para a galeria.',
@@ -197,7 +198,7 @@ const OPENINGS: Opening[] = [
   { x: 3, y: 7, dir: 'h', len: 1.2, type: 'opening' },              // sala → galeria
   { x: 4.6, y: 7, dir: 'h', len: 3.5, type: 'opening' },            // sala ↔ cozinha
   { x: 5.0, y: 11, dir: 'h', len: 0.8, type: 'door', swing: 1 },    // cozinha → serviço
-  { x: 8.5, y: 11.6, dir: 'v', len: 0.8, type: 'door', swing: -1 }, // serviço → recuo leste
+  { x: 8.5, y: 11.6, dir: 'v', len: 0.8, type: 'door', swing: -1 }, // serviço → recuo sul
   { x: 3, y: 13.4, dir: 'v', len: 0.8, type: 'door', swing: -1 },   // quarto 2
   { x: 4.2, y: 13.3, dir: 'v', len: 0.8, type: 'door', swing: 1 },  // suíte
   { x: 3, y: 16.9, dir: 'v', len: 0.8, type: 'door', swing: -1 },   // quarto 3
@@ -338,10 +339,10 @@ export const ALPENDRE_MODEL: HouseModel = {
     solar: [6.15, 18.1, 2.0, 0.8],
     board: [1.0, 2.15, 1.2, 0.4],
     legend: {
-      slope: 'Telhado embutido em uma água, caindo para o recuo leste: nenhuma água vai para o vizinho',
-      gutter: 'Calha atrás da platibanda leste → 3 condutores Ø100 no recuo',
+      slope: 'Telhado embutido em uma água, caindo para o recuo sul: nenhuma água vai para o vizinho',
+      gutter: 'Calha atrás da platibanda sul → 3 condutores Ø100 no recuo',
       drain: 'Condutores + ralo do pátio → caixa de areia (CA) → cisterna no quintal → extravasor até a rua',
-      sewer: 'Esgoto pelo recuo leste → caixa de gordura (CG) → fossa séptica (F) + sumidouro (S) no quintal',
+      sewer: 'Esgoto pelo recuo sul → caixa de gordura (CG) → fossa séptica (F) + sumidouro (S) no quintal',
       hydraulic: 'Parede hidráulica: banheiros lado a lado; cozinha e serviço na mesma parede',
       tank: "Caixa d'água + aquecedor solar sobre os banheiros",
       board: 'Quadro de distribuição (QD) junto à entrada',
@@ -349,15 +350,17 @@ export const ALPENDRE_MODEL: HouseModel = {
     drainsToPatio: false,
   },
   wind: {
+    // East is the street side (top), so the breezes come in from the front and down the south setback.
     breezes: [
-      [[W + 4.78, 4.2], [W + 2.5, 4.2], [6, 4.6], [3.2, 5.6]],
-      [[W + 4.78, 8.8], [W + 2.5, 8.8], [5.5, 9.4], [2.2, 9.8]],
-      [[W + 4.78, H + 2.3], [W + 2.5, H + 0.5], [7, 15.2], [2.4, 12.2]],
+      [[1.8, -6.2], [1.8, -3], [2.0, 0.5], [1.8, 5.2]],
+      [[6.2, -6.2], [6.2, -3], [6.0, 0.5], [5.4, 4.8]],
+      [[W + 3.5, -6.0], [W + 0.9, -2], [W + 0.75, 6], [6.0, 9.2]],
+      [[W + 3.5, -6.0], [W + 0.9, 2], [W + 0.75, 13], [5.6, 15.2]],
     ],
     hot: null,
     labels: [
-      { at: [W + 4.78, 3.7], text: 'BRISA LESTE', anchor: 'end' },
-      { at: [W + 4.78, H + 3.2], text: 'BRISA SUDESTE', anchor: 'end' },
+      { at: [0.2, -6.6], text: 'BRISA LESTE', anchor: 'start' },
+      { at: [W + 4.78, -6.6], text: 'BRISA SUDESTE', anchor: 'end' },
       { at: [1.5, 8.2], text: '↑ CHAMINÉ', hot: true },
     ],
   },
@@ -373,5 +376,6 @@ export const ALPENDRE_MODEL: HouseModel = {
       { at: [4.3, 24.4], text: 'QUINTAL 4 m' },
     ],
   },
+  north: 270,
   view: planView(W, H, LOT),
 };

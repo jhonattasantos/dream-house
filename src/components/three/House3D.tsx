@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import type { FurniturePiece } from '../../data/furniture';
 import type { Rect, RoomKey } from '../../data/rooms';
 import { BASE_H, BASE_W } from '../../lib/model';
+import { planDirection } from '../../lib/geometry';
 import { sunDirection } from '../../lib/sun';
 import { wallBlocks, type Block } from '../../lib/walls3d';
 import { useHouse } from '../../store';
@@ -251,8 +252,11 @@ function Roof() {
 function Sun() {
   const sun = useHouse(s => s.sun);
   const showSun = useHouse(s => s.layers.sun);
+  const northAngle = useHouse(s => s.model.north);
   const { east, up, north } = sunDirection(sun.hour, sun.season);
-  const dir = new THREE.Vector3(east, Math.max(up, 0.05), -north).normalize();
+  // Plan x and y map to the scene's x and z.
+  const [ex, ey] = planDirection(90, northAngle), [nx, ny] = planDirection(0, northAngle);
+  const dir = new THREE.Vector3(east * ex + north * nx, Math.max(up, 0.05), east * ey + north * ny).normalize();
   const intensity = up > 0 ? 2.6 * Math.min(1, up * 4) : 0;
   return (
     <>

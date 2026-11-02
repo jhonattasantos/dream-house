@@ -88,6 +88,11 @@ export interface HouseModel {
   utilities: UtilitiesPlan;
   wind: WindPlan;
   lot: LotPlan | null;
+  /**
+   * Where north points on the drawing, in degrees clockwise from its top (default 0: north up).
+   * 270 puts north on the left, so the top of the drawing (the street) faces east.
+   */
+  north?: number;
   /** Outer outlines of the separate buildings, when there is more than one (default: the whole W × H). */
   buildings?: Rect[];
   /** Elevated slab carrying the water tanks (cylinders of radius r and height h standing on it). */

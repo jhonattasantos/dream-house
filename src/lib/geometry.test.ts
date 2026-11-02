@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { OPENINGS } from '../data/openings';
-import { along, builtArea, onLine, openArea, wallLines } from './geometry';
+import { along, builtArea, onLine, openArea, planDirection, wallFace, wallLines } from './geometry';
 import { SIZES, patioModel, pieceExtent, type HouseModel } from './model';
 import { getProject } from './projects';
 import { sunDirection } from './sun';
@@ -177,6 +177,36 @@ describe('Duas Casas on the 10 × 30 m lot', () => {
 
   it('keeps more built area in front than in the back', () => {
     expect(area(k => !k.startsWith('back_') && !k.startsWith('laundry') && k !== 'courtyard')).toBeGreaterThan(area(k => k.startsWith('back_')));
+  });
+});
+
+describe.each(['alpendre', 'duas'] as const)('%s faces the street to the east', id => {
+  const model = getProject(id).model(SIZES[0]);
+
+  it('has the sun rising in front and setting at the back', () => {
+    const toPlan = ({ east, north }: { east: number; north: number }) => {
+      const [ex, ey] = planDirection(90, model.north), [nx, ny] = planDirection(0, model.north);
+      return [east * ex + north * nx, east * ey + north * ny];
+    };
+    expect(toPlan(sunDirection(7, 'dez'))[1]).toBeLessThan(-0.8); // towards the top (street)
+    expect(toPlan(sunDirection(17, 'jun'))[1]).toBeGreaterThan(0.8); // towards the back
+  });
+
+  it('names the facades: street east, setback south, back west', () => {
+    expect(wallFace({ x: 1, y: 0, dir: 'h', len: 1, type: 'opening' }, model)).toBe('L');
+    expect(wallFace({ x: model.W, y: 3, dir: 'v', len: 1, type: 'opening' }, model)).toBe('S');
+    expect(wallFace({ x: 1, y: model.H, dir: 'h', len: 1, type: 'opening' }, model)).toBe('O');
+    expect(wallFace({ x: 0, y: 3, dir: 'v', len: 1, type: 'opening' }, model)).toBe('N');
+  });
+
+  it('blows the breezes from the street side to the back', () => {
+    model.wind.breezes.forEach(b => expect(b[0][1]).toBeLessThan(b[3][1]));
+  });
+});
+
+describe('the Casa de Pátio keeps north up', () => {
+  it('names the top facade north', () => {
+    expect(wallFace({ x: 1, y: 0, dir: 'h', len: 1, type: 'opening' }, patioModel(21))).toBe('N');
   });
 });
 

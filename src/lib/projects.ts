@@ -43,7 +43,7 @@ export const PROJECTS: Project[] = [
     number: 2,
     name: 'Casa do Alpendre',
     tagline: 'Térrea para terreno de 10 × 30 m',
-    blurb: 'Casa térrea para um terreno estreito: encostada na divisa oeste, que protege do sol da tarde, e aberta para o recuo leste, de onde vem a brisa. O pátio interno faz o efeito chaminé e ilumina o miolo da casa.',
+    blurb: 'Casa térrea para um terreno estreito com a frente para o leste: o alpendre recebe o sol da manhã e a brisa, a casa encosta na divisa norte e se abre para o recuo sul, que quase não recebe sol direto. O pátio interno faz o efeito chaminé e ilumina o miolo da casa.',
     highlights: ['Térrea', '3 quartos, 1 suíte', 'Pátio interno estreito', '1 vaga no recuo da frente'],
     sizes: null,
     model: () => ALPENDRE_MODEL,

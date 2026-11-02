@@ -1,5 +1,5 @@
 import { Suspense, lazy, useRef, useState } from 'react';
-import { builtArea, fmtLen, fmtNum, openArea } from '../../lib/geometry';
+import { builtArea, faceSide, fmtLen, fmtNum, openArea, type Face } from '../../lib/geometry';
 import { patioModel } from '../../lib/model';
 import { sunInfo } from '../../lib/sun';
 import { useHouse, useProject, type LayerKey, type PlanMode } from '../../store';
@@ -137,6 +137,9 @@ function UtilsPanel() {
   );
 }
 
+/** Where each side of the drawing (top, right, bottom, left) puts its compass letter. */
+const COMPASS_SIDES = ['top-0.5', 'right-1', 'bottom-0.5', 'left-1'];
+
 export default function PlanView() {
   const rooms = useHouse(s => s.rooms);
   const layers = useHouse(s => s.layers);
@@ -145,7 +148,7 @@ export default function PlanView() {
   const toggleLayer = useHouse(s => s.toggleLayer);
   const selected = useHouse(s => s.selected);
   const selectRoom = useHouse(s => s.selectRoom);
-  const { W, H } = useHouse(s => s.model);
+  const { W, H, north } = useHouse(s => s.model);
   const viewRef = useRef<PlanHandle>(null);
   const is3d = planMode === '3d';
 
@@ -155,10 +158,9 @@ export default function PlanView() {
       <div className="absolute top-3 left-3 pointer-events-none z-10 flex flex-col gap-1">
         <div className="flex items-center gap-2 text-slate-500 font-mono text-xs">
           <div className="w-8 h-8 rounded-full border border-slate-700/60 flex items-center justify-center relative bg-slate-900/60">
-            <span className="absolute top-0.5 text-[9px] font-bold text-sky-400">N</span>
-            <span className="absolute bottom-0.5 text-[9px]">S</span>
-            <span className="absolute left-1 text-[9px]">O</span>
-            <span className="absolute right-1 text-[9px]">L</span>
+            {(['N', 'L', 'S', 'O'] as Face[]).map(f => (
+              <span key={f} className={`absolute ${COMPASS_SIDES[faceSide(f, north)]} text-[9px] ${f === 'N' ? 'font-bold text-sky-400' : ''}`}>{f}</span>
+            ))}
             <div className="w-full h-0.5 bg-slate-700/40 transform rotate-45" />
           </div>
           <div className="hidden sm:block">
