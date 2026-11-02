@@ -1,7 +1,7 @@
 import { Fragment, type ReactNode, type SVGProps } from 'react';
 import type { Opening, Window } from '../../data/openings';
 import type { Rect, Room, RoomKey } from '../../data/rooms';
-import { OX, OY, S, X, Y, fitFontSize, fmtNum, roomArea, roomDims, wallFace, type Face } from '../../lib/geometry';
+import { OX, OY, S, X, Y, fitFontSize, fmtNum, outlines, roomArea, roomDims, wallFace, type Face } from '../../lib/geometry';
 import type { HouseModel } from '../../lib/model';
 import { useHouse } from '../../store';
 
@@ -45,13 +45,15 @@ export function CourtyardDecor({ rect: [x0, y0, w, h] }: { rect: Rect }) {
 }
 
 export function Walls({ rooms, mini }: { rooms: Rooms; mini: boolean }) {
-  const { W, H } = useHouse(s => s.model);
+  const model = useHouse(s => s.model);
   return (
     <g stroke="#e2e8f0" fill="none" strokeLinecap="square" pointerEvents="none">
       {Object.values(rooms).filter(r => r.walls !== false).flatMap(r => r.rects).map(([x, y, w, h], i) => (
         <rect key={i} x={X(x)} y={Y(y)} width={w * S} height={h * S} strokeWidth={mini ? 2 : 3} />
       ))}
-      <rect x={X(0)} y={Y(0)} width={W * S} height={H * S} strokeWidth={mini ? 5 : 8} />
+      {outlines(model).map(([x, y, w, h], i) => (
+        <rect key={`b${i}`} x={X(x)} y={Y(y)} width={w * S} height={h * S} strokeWidth={mini ? 5 : 8} />
+      ))}
     </g>
   );
 }
@@ -82,18 +84,24 @@ export function VerandaEdge() {
   );
 }
 
-/** Lot boundary, setbacks and the parking space, for projects drawn on a specific terrain. */
+/** Lot boundary, setbacks, walkways and the parking spaces, for projects drawn on a specific terrain. */
 export function LotLayer() {
   const lot = useHouse(s => s.model.lot);
   if (!lot) return null;
   const [lx, ly, lw, lh] = lot.rect;
-  const [cx, cy, cw, ch] = lot.car;
   return (
     <g pointerEvents="none">
       <rect x={X(lx)} y={Y(ly)} width={lw * S} height={lh * S} fill="#14532d" fillOpacity={0.12} stroke="#a3e635" strokeOpacity={0.6} strokeWidth={1.5} strokeDasharray="10 4 2 4" />
-      <rect x={X(cx)} y={Y(cy)} width={cw * S} height={ch * S} rx={10} fill="#475569" fillOpacity={0.35} stroke="#94a3b8" strokeWidth={1} />
-      <rect x={X(cx + 0.2)} y={Y(cy + 0.9)} width={(cw - 0.4) * S} height={0.6 * S} rx={3} fill="#1f2937" fillOpacity={0.6} />
-      <rect x={X(cx + 0.2)} y={Y(cy + ch - 1.4)} width={(cw - 0.4) * S} height={0.5 * S} rx={3} fill="#1f2937" fillOpacity={0.6} />
+      {lot.paths.map(([x, y, w, h]) => (
+        <rect key={`p${x}-${y}`} x={X(x)} y={Y(y)} width={w * S} height={h * S} fill="#a8a29e" fillOpacity={0.18} stroke="#a8a29e" strokeOpacity={0.4} strokeWidth={1} />
+      ))}
+      {lot.cars.map(([cx, cy, cw, ch]) => (
+        <g key={`c${cx}-${cy}`}>
+          <rect x={X(cx)} y={Y(cy)} width={cw * S} height={ch * S} rx={10} fill="#475569" fillOpacity={0.35} stroke="#94a3b8" strokeWidth={1} />
+          <rect x={X(cx + 0.2)} y={Y(cy + 0.9)} width={(cw - 0.4) * S} height={0.6 * S} rx={3} fill="#1f2937" fillOpacity={0.6} />
+          <rect x={X(cx + 0.2)} y={Y(cy + ch - 1.4)} width={(cw - 0.4) * S} height={0.5 * S} rx={3} fill="#1f2937" fillOpacity={0.6} />
+        </g>
+      ))}
       {lot.notes.map(({ at: [x, y], text, vertical }) => (
         <text
           key={text} x={X(x)} y={Y(y)} fill="#bef264" fillOpacity={0.75} fontFamily="JetBrains Mono" fontSize={9} fontWeight={600}

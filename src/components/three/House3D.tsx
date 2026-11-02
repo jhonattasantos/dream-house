@@ -92,7 +92,7 @@ function Site({ courtyard }: { courtyard: Rect }) {
   const { W, H, courtyardDecor: { pond, deck, trees }, pillars, pillarH, lot } = useHouse(s => s.model);
   const [cx, cy, cw, ch] = courtyard;
   // Slab around the sunken courtyard, split into four pieces.
-  const slab: Rect[] = [[0, 0, W, cy], [0, cy + ch, W, H - cy - ch], [0, cy, cx, ch], [cx + cw, cy, W - cx - cw, ch]];
+  const slab = ([[0, 0, W, cy], [0, cy + ch, W, H - cy - ch], [0, cy, cx, ch], [cx + cw, cy, W - cx - cw, ch]] as Rect[]).filter(([, , w, h]) => w > 0 && h > 0);
   return (
     <group>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[W / 2, -0.3, H / 2]} receiveShadow>
@@ -101,6 +101,7 @@ function Site({ courtyard }: { courtyard: Rect }) {
       </mesh>
       {slab.map(([x, y, w, h], i) => <Box key={i} x0={x} y0={y} x1={x + w} y1={y + h} z0={-0.3} z1={FLOOR_TOP - 0.04} color="#57534e" />)}
       {lot && <Lot />}
+      <WaterTower />
       {/* Espelho d'água and deck */}
       {pond && <Box x0={pond[0]} y0={pond[1]} x1={pond[0] + pond[2]} y1={pond[1] + pond[3]} z0={PATIO_LEVEL} z1={PATIO_LEVEL + 0.05} color="#0ea5e9" opacity={0.85} />}
       {deck && <Box x0={deck[0]} y0={deck[1]} x1={deck[0] + deck[2]} y1={deck[1] + deck[3]} z0={PATIO_LEVEL} z1={PATIO_LEVEL + 0.04} color="#92400e" />}
@@ -128,7 +129,6 @@ function Site({ courtyard }: { courtyard: Rect }) {
 function Lot() {
   const lot = useHouse(s => s.model.lot)!;
   const [lx, ly, lw, lh] = lot.rect;
-  const [cx, cy, cw, ch] = lot.car;
   const t = 0.15, h = 1.8;
   return (
     <group>
@@ -136,9 +136,38 @@ function Lot() {
       <Box x0={lx - t} y0={ly} x1={lx} y1={ly + lh} z0={-0.3} z1={h} color="#d6d3d1" />
       <Box x0={lx + lw} y0={ly} x1={lx + lw + t} y1={ly + lh} z0={-0.3} z1={h} color="#d6d3d1" />
       <Box x0={lx - t} y0={ly + lh} x1={lx + lw + t} y1={ly + lh + t} z0={-0.3} z1={h} color="#d6d3d1" />
-      <Box x0={cx - 0.2} y0={cy - 0.2} x1={cx + cw + 0.2} y1={cy + ch + 0.2} z0={-0.27} z1={-0.24} color="#78716c" />
-      <Box x0={cx} y0={cy} x1={cx + cw} y1={cy + ch} z0={-0.1} z1={0.75} color="#475569" />
-      <Box x0={cx + 0.1} y0={cy + 1.0} x1={cx + cw - 0.1} y1={cy + ch - 0.9} z0={0.75} z1={1.3} color="#1f2937" />
+      {lot.paths.map(([x, y, w, d]) => <Box key={`p${x}-${y}`} x0={x} y0={y} x1={x + w} y1={y + d} z0={-0.27} z1={-0.25} color="#a8a29e" />)}
+      {lot.cars.map(([cx, cy, cw, ch]) => (
+        <group key={`c${cx}-${cy}`}>
+          <Box x0={cx - 0.2} y0={cy - 0.2} x1={cx + cw + 0.2} y1={cy + ch + 0.2} z0={-0.27} z1={-0.24} color="#78716c" />
+          <Box x0={cx} y0={cy} x1={cx + cw} y1={cy + ch} z0={-0.1} z1={0.75} color="#475569" />
+          <Box x0={cx + 0.1} y0={cy + 1.0} x1={cx + cw - 0.1} y1={cy + ch - 0.9} z0={0.75} z1={1.3} color="#1f2937" />
+        </group>
+      ))}
+    </group>
+  );
+}
+
+/** Slab on top of a small tower with the water tanks standing on it. */
+function WaterTower() {
+  const tower = useHouse(s => s.model.waterTower);
+  if (!tower) return null;
+  const [x, y, w, d] = tower.slab;
+  return (
+    <group>
+      <Box x0={x} y0={y} x1={x + w} y1={y + d} z0={tower.z - 0.12} z1={tower.z} color="#a8a29e" />
+      {tower.tanks.map(([tx, ty]) => (
+        <group key={`${tx}-${ty}`}>
+          <mesh position={[tx, tower.z + tower.h / 2, ty]} castShadow>
+            <cylinderGeometry args={[tower.r * 0.85, tower.r, tower.h, 32]} />
+            <meshStandardMaterial color="#2563eb" roughness={0.6} />
+          </mesh>
+          <mesh position={[tx, tower.z + tower.h + 0.05, ty]} castShadow>
+            <cylinderGeometry args={[tower.r * 0.88, tower.r * 0.88, 0.1, 32]} />
+            <meshStandardMaterial color="#1d4ed8" roughness={0.6} />
+          </mesh>
+        </group>
+      ))}
     </group>
   );
 }

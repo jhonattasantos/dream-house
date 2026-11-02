@@ -58,7 +58,10 @@ export interface WindPlan {
 /** The lot around the house, for projects designed for a specific terrain. */
 export interface LotPlan {
   rect: Rect;
-  car: Rect;
+  /** Parked cars. */
+  cars: Rect[];
+  /** Paved walkways. */
+  paths: Rect[];
   notes: { at: Point; text: string; vertical?: boolean }[];
 }
 
@@ -85,6 +88,10 @@ export interface HouseModel {
   utilities: UtilitiesPlan;
   wind: WindPlan;
   lot: LotPlan | null;
+  /** Outer outlines of the separate buildings, when there is more than one (default: the whole W × H). */
+  buildings?: Rect[];
+  /** Elevated slab carrying the water tanks (cylinders of radius r and height h standing on it). */
+  waterTower?: { slab: Rect; z: number; tanks: Point[]; r: number; h: number };
   /** SVG frame that fits the house (and lot) with its dimension lines. */
   view: { x: number; y: number; w: number; h: number };
 }

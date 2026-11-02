@@ -1,5 +1,5 @@
 import type { Room, RoomKey } from '../data/rooms';
-import { along, onLine, wallLines } from './geometry';
+import { along, onLine, outlines, wallLines } from './geometry';
 import type { HouseModel } from './model';
 
 // Heights in meters.
@@ -25,9 +25,10 @@ export interface Block {
  * Turns the plan's wall lines into 3D blocks: full-height pieces between openings,
  * lintels over doors and passages, and sill + glass + lintel at windows.
  */
-export function wallBlocks(rooms: Record<RoomKey, Room>, { openings, windows, highSillRooms }: HouseModel): Block[] {
+export function wallBlocks(rooms: Record<RoomKey, Room>, model: HouseModel): Block[] {
+  const { openings, windows, highSillRooms } = model;
   const blocks: Block[] = [];
-  wallLines(rooms).forEach(line => {
+  wallLines(rooms, outlines(model)).forEach(line => {
     const t = line.exterior ? 0.25 : 0.15;
     const top = line.exterior ? PARAPET_H : WALL_H;
     const gaps = [

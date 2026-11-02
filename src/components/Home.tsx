@@ -1,5 +1,5 @@
 import type { MouseEvent, ReactNode } from 'react';
-import { builtArea, fmtBRL, fmtLen, fmtNum, openArea } from '../lib/geometry';
+import { builtArea, fmtBRL, fmtLen, fmtNum, openArea, outlines } from '../lib/geometry';
 import type { HouseModel } from '../lib/model';
 import { PROJECTS, type Project } from '../lib/projects';
 import { navigate, projectPath } from '../lib/router';
@@ -22,11 +22,12 @@ function Thumbnail({ model }: { model: HouseModel }) {
   return (
     <svg viewBox={`${lx - pad} ${ly - pad} ${lw + 2 * pad} ${lh + 2 * pad}`} className="w-full h-full" aria-hidden>
       {model.lot && <rect x={lx} y={ly} width={lw} height={lh} fill="#14532d" fillOpacity={0.25} stroke="#4ade80" strokeOpacity={0.5} strokeWidth={0.08} strokeDasharray="0.3 0.2" />}
-      {model.lot && <rect x={model.lot.car[0]} y={model.lot.car[1]} width={model.lot.car[2]} height={model.lot.car[3]} rx={0.3} fill="#475569" />}
+      {model.lot?.paths.map(([x, y, w, h]) => <rect key={`p${x}-${y}`} x={x} y={y} width={w} height={h} fill="#a8a29e" fillOpacity={0.3} />)}
+      {model.lot?.cars.map(([x, y, w, h]) => <rect key={`c${x}-${y}`} x={x} y={y} width={w} height={h} rx={0.3} fill="#475569" />)}
       {Object.values(model.rooms).flatMap(room => room.rects.map(([x, y, w, h], i) => (
         <rect key={`${room.name}${i}`} x={x} y={y} width={w} height={h} fill={room.uncovered ? '#10b981' : room.fill} fillOpacity={room.uncovered ? 0.45 : Math.max(room.fillOpacity, 0.35)} stroke="#e2e8f0" strokeWidth={0.06} />
       )))}
-      <rect x={0} y={0} width={model.W} height={model.H} fill="none" stroke="#f8fafc" strokeWidth={0.18} />
+      {outlines(model).map(([x, y, w, h], i) => <rect key={`b${i}`} x={x} y={y} width={w} height={h} fill="none" stroke="#f8fafc" strokeWidth={0.18} />)}
     </svg>
   );
 }
@@ -65,7 +66,7 @@ function ProjectCard({ project }: { project: Project }) {
             {project.highlights.map(h => <li key={h} className="text-[11px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">{h}</li>)}
           </ul>
           <dl className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-            <Fact label="Casa" value={`${fmtLen(model.W)} × ${fmtLen(model.H)} m`} />
+            <Fact label={project.footprint ? 'Casas' : 'Casa'} value={project.footprint ?? `${fmtLen(model.W)} × ${fmtLen(model.H)} m`} />
             <Fact label="Construída" value={`${fmtNum(builtArea(model.rooms), 0)} m²`} />
             <Fact label={model.lot ? 'Terreno' : 'Área aberta'} value={model.lot ? `${fmtLen(lotW!)} × ${fmtLen(lotH!)} m` : `${fmtNum(openArea(model.rooms), 0)} m²`} />
             <Fact label="Orçamento" value={fmtBRL(total)} />

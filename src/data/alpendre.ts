@@ -363,7 +363,8 @@ export const ALPENDRE_MODEL: HouseModel = {
   },
   lot: {
     rect: LOT,
-    car: [7.65, -4.7, 1.85, 4.4],
+    cars: [[7.65, -4.7, 1.85, 4.4]],
+    paths: [],
     notes: [
       { at: [5, -5.7], text: 'RUA • TERRENO 10 × 30 m' },
       { at: [3.2, -2.5], text: 'RECUO FRONTAL 5 m • JARDIM' },

@@ -7,6 +7,7 @@ Plantas interativas (2D e 3D) de casas pensadas para o clima do Nordeste, em Mam
 | Lista de projetos | https://jhonattasantos.github.io/dream-house/ |
 | 1 · Casa de Pátio | https://jhonattasantos.github.io/dream-house/project/1 |
 | 2 · Casa do Alpendre | https://jhonattasantos.github.io/dream-house/project/2 |
+| 3 · Duas Casas | https://jhonattasantos.github.io/dream-house/project/3 |
 
 A página inicial lista os projetos com miniatura da planta, medidas, área e orçamento. Dentro de um projeto, o ícone da casa volta para a lista e o título troca de projeto.
 
@@ -38,7 +39,19 @@ Casa térrea de 8,5 × 21 m (161 m² construídos) para um terreno de 10 × 30 m
 - **Pátio interno de 3 × 6 m:** fica junto à divisa e ilumina e ventila o miolo da casa, com uma galeria aberta ligando a sala aos quartos e ao quintal.
 - **Quintal:** cisterna, fossa e sumidouro.
 
-A frente para a rua foi considerada ao norte; se o terreno real tiver outra orientação, a análise de sol e vento muda.
+### Duas Casas
+
+Duas casas térreas no mesmo terreno de 10 × 30 m (179 m² construídos), com um só portão social:
+
+- **Frente (5 m):** garagem descoberta para 2 carros lado a lado, jardim e o portão social. A fossa e o sumidouro ficam sob o jardim, perto da rua, para o caminhão limpa-fossa.
+- **Casa da frente, 8,5 × 14 m:** alpendre com redes, sala, quartos 1 e 2, suíte com banheiro, banheiro social (ventilado por domus, por estar na divisa) e cozinha com jantar voltada para o quintal.
+- **Quintal do meio, 3 m:** separa as duas casas e dá luz e ventilação a ambas.
+- **Casa dos fundos, 8,5 × 6,5 m:** sala com cozinha, 2 quartos e banheiro, com a porta para o quintal do meio.
+- **Corredor leste, 1,5 m:** leva do portão até a casa dos fundos sem passar por dentro da casa da frente, e recebe as janelas, a brisa e a água dos telhados.
+- **Caixa d'água:** fica em uma torre no quintal do meio, junto à divisa oeste. Há uma caixa de 1.000 L para cada casa, a cerca de 3 m das duas cozinhas e na mesma parede hidráulica delas. Embaixo da laje ficam as duas lavanderias, uma de cada casa. Cada casa tem seu próprio medidor de água e de luz.
+- **Pátio interno:** não tem. O quintal do meio cumpre esse papel.
+
+Nos projetos 2 e 3, a frente para a rua foi considerada ao norte; se o terreno real tiver outra orientação, a análise de sol e vento muda.
 
 ## Modos
 

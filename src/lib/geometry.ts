@@ -1,5 +1,5 @@
 import type { Opening, Window } from '../data/openings';
-import type { Room } from '../data/rooms';
+import type { Rect, Room } from '../data/rooms';
 
 // Plan coordinates are in meters from the north-west corner; 1 m = 32 SVG units.
 export const S = 32;
@@ -35,11 +35,24 @@ export function houseExtent(rooms: Record<string, Room>) {
   return { W: Math.max(...rects.map(([x, , w]) => x + w)), H: Math.max(...rects.map(([, y, , h]) => y + h)) };
 }
 
-export function wallFace(o: Opening | Window, { W, H }: { W: number; H: number }): Face | null {
-  if (o.dir === 'h' && o.y === 0) return 'N';
-  if (o.dir === 'h' && o.y === H) return 'S';
-  if (o.dir === 'v' && o.x === 0) return 'O';
-  if (o.dir === 'v' && o.x === W) return 'L';
+type Outlined = { W: number; H: number; buildings?: Rect[] };
+
+/** Outer outlines of the buildings: the whole house, or each building of a lot with several. */
+export const outlines = ({ W, H, buildings }: Outlined): Rect[] => buildings ?? [[0, 0, W, H]];
+
+/** Facade an opening or window sits on, or null for an inner wall. */
+export function wallFace(o: Opening | Window, model: Outlined): Face | null {
+  const near = (a: number, b: number) => Math.abs(a - b) < 1e-6;
+  for (const [x, y, w, h] of outlines(model)) {
+    if (o.dir === 'h' && o.x >= x - 1e-6 && o.x + o.len <= x + w + 1e-6) {
+      if (near(o.y, y)) return 'N';
+      if (near(o.y, y + h)) return 'S';
+    }
+    if (o.dir === 'v' && o.y >= y - 1e-6 && o.y + o.len <= y + h + 1e-6) {
+      if (near(o.x, x)) return 'O';
+      if (near(o.x, x + w)) return 'L';
+    }
+  }
   return null;
 }
 
@@ -51,8 +64,8 @@ export interface WallLine {
   exterior: boolean;
 }
 
-/** Collects room outlines plus the exterior perimeter and merges overlapping edges. */
-export function wallLines(rooms: Record<string, Room>): WallLine[] {
+/** Collects room outlines plus the exterior perimeter of each building and merges overlapping edges. */
+export function wallLines(rooms: Record<string, Room>, buildings?: Rect[]): WallLine[] {
   const lines = new Map<string, WallLine>();
   const add = (dir: 'h' | 'v', at: number, a: number, b: number) => {
     const key = `${dir}:${at.toFixed(2)}`;
@@ -65,9 +78,11 @@ export function wallLines(rooms: Record<string, Room>): WallLine[] {
     add('v', x, y, y + h);
     add('v', x + w, y, y + h);
   };
-  const { W, H } = houseExtent(rooms);
+  const perimeter = buildings ?? outlines(houseExtent(rooms));
   Object.values(rooms).forEach(r => { if (r.walls !== false) r.rects.forEach(addRect); });
-  addRect([0, 0, W, H]);
+  perimeter.forEach(addRect);
+  const onPerimeter = (dir: 'h' | 'v', at: number) => perimeter.some(([x, y, w, h]) =>
+    dir === 'h' ? Math.abs(at - y) < 1e-6 || Math.abs(at - y - h) < 1e-6 : Math.abs(at - x) < 1e-6 || Math.abs(at - x - w) < 1e-6);
 
   lines.forEach(line => {
     line.spans.sort((p, q) => p[0] - q[0]);
@@ -78,7 +93,7 @@ export function wallLines(rooms: Record<string, Room>): WallLine[] {
       else merged.push([a, b]);
     });
     line.spans = merged;
-    line.exterior = line.dir === 'h' ? line.at === 0 || line.at === H : line.at === 0 || line.at === W;
+    line.exterior = onPerimeter(line.dir, line.at);
   });
   return [...lines.values()];
 }

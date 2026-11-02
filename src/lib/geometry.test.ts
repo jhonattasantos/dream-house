@@ -9,6 +9,7 @@ import { wallBlocks } from './walls3d';
 const MODELS: [string, HouseModel][] = [
   ...SIZES.map(size => [`Casa de Pátio ${size} m`, patioModel(size)] as [string, HouseModel]),
   ['Casa do Alpendre', getProject('alpendre').model(SIZES[0])],
+  ['Duas Casas', getProject('duas').model(SIZES[0])],
 ];
 
 describe('the original 21 × 18 m Casa de Pátio', () => {
@@ -50,10 +51,12 @@ describe.each(MODELS)('%s', (_, model) => {
     });
   });
 
-  it('keeps the furniture inside the house', () => {
+  it('keeps every piece of furniture inside one room', () => {
+    const rects = Object.values(rooms).filter(r => !r.uncovered).flatMap(r => r.rects);
     model.furniture.forEach(p => {
       const [x0, y0, x1, y1] = pieceExtent(p);
-      expect(x0 >= -1e-6 && y0 >= -1e-6 && x1 <= W + 1e-6 && y1 <= H + 1e-6, JSON.stringify(p)).toBe(true);
+      const inside = rects.some(([x, y, w, h]) => x0 >= x - 1e-6 && y0 >= y - 1e-6 && x1 <= x + w + 1e-6 && y1 <= y + h + 1e-6);
+      expect(inside, JSON.stringify(p)).toBe(true);
     });
   });
 
@@ -63,7 +66,7 @@ describe.each(MODELS)('%s', (_, model) => {
     expect(north.spans).toEqual([[0, W]]);
   });
 
-  it('leaves the courtyard open to the veranda or gallery', () => {
+  it.runIf(!!rooms.hallway)('leaves the courtyard open to the veranda or gallery', () => {
     const [cx, cy, cw, ch] = rooms.courtyard.rects[0];
     const hall = rooms.hallway.rects;
     // Courtyard edges that face the veranda/gallery must not have a wall at their midpoint.
@@ -114,8 +117,66 @@ describe('Casa do Alpendre on the 10 × 30 m lot', () => {
   });
 
   it('parks the car inside the front setback', () => {
-    const [cx, cy, cw, ch] = model.lot!.car;
+    const [[cx, cy, cw, ch]] = model.lot!.cars;
     expect(cx >= lx && cx + cw <= lx + lw && cy >= ly && cy + ch <= 0).toBe(true);
+  });
+});
+
+describe('Duas Casas on the 10 × 30 m lot', () => {
+  const model = getProject('duas').model(SIZES[0]);
+  const { rooms, lot, buildings, waterTower } = model;
+  const [lx, ly, lw, lh] = lot!.rect;
+  const [front, tower, back] = buildings!;
+  const area = (prefix: (k: string) => boolean) =>
+    Object.entries(rooms).filter(([k]) => prefix(k)).reduce((sum, [, r]) => sum + r.rects.reduce((s, [, , w, h]) => s + w * h, 0), 0);
+  const inside = ([x, y, w, h]: number[], [ox, oy, ow, oh]: number[]) => x >= ox - 1e-6 && y >= oy - 1e-6 && x + w <= ox + ow + 1e-6 && y + h <= oy + oh + 1e-6;
+  const bedrooms = (b: number[]) => Object.values(rooms).filter(r => r.icon === 'fa-bed' && inside(r.rects[0], b)).length;
+
+  it('fits the lot with the setbacks', () => {
+    expect([lw, lh]).toEqual([10, 30]);
+    expect(lx + lw - model.W).toBeGreaterThanOrEqual(1.5); // east walkway
+    expect(-ly).toBeGreaterThanOrEqual(5); // front setback with the garage
+    expect(ly + lh - model.H).toBeGreaterThanOrEqual(1.5); // back yard
+  });
+
+  it('has 3 bedrooms in the front house and 2 in the smaller back house', () => {
+    expect(bedrooms(front)).toBe(3);
+    expect(bedrooms(back)).toBe(2);
+    expect(back[2] * back[3]).toBeLessThan(front[2] * front[3]);
+  });
+
+  it('parks two cars side by side in the front setback', () => {
+    const cars = lot!.cars;
+    expect(cars).toHaveLength(2);
+    cars.forEach(c => expect(inside(c, [lx, ly, lw, -ly])).toBe(true));
+    const [[ax, , aw], [bx]] = cars;
+    expect(ax + aw).toBeLessThanOrEqual(bx);
+  });
+
+  it('reaches the back house through the walkway from the street', () => {
+    const walk = lot!.paths.find(([x, y, , h]) => x >= model.W && y === ly && y + h >= back[1])!;
+    expect(walk).toBeDefined();
+    expect(walk[2]).toBeGreaterThanOrEqual(1.2);
+    // The back house door opens onto the yard, which opens onto the walkway.
+    expect(model.openings.some(o => o.type === 'door' && o.dir === 'h' && o.y === back[1])).toBe(true);
+    expect(rooms.courtyard.rects[0][0] + rooms.courtyard.rects[0][2]).toBe(model.W);
+  });
+
+  it('puts the water tower between the two houses, one tank each', () => {
+    expect(tower[1]).toBe(front[1] + front[3]);
+    expect(tower[1] + tower[3]).toBe(back[1]);
+    expect(waterTower!.tanks).toHaveLength(2);
+    waterTower!.tanks.forEach(([x, y]) => expect(inside([x, y, 0, 0], tower)).toBe(true));
+    // Tanks stand above every shower head of both single-storey houses.
+    expect(waterTower!.z).toBeGreaterThan(2.2 + 1);
+  });
+
+  it('has no window on the boundary wall', () => {
+    expect(model.windows.filter(w => w.dir === 'v' && w.x === 0)).toEqual([]);
+  });
+
+  it('keeps more built area in front than in the back', () => {
+    expect(area(k => !k.startsWith('back_') && !k.startsWith('laundry') && k !== 'courtyard')).toBeGreaterThan(area(k => k.startsWith('back_')));
   });
 });
 

@@ -1,8 +1,9 @@
 import { BUDGET_DEFAULT, type BudgetItem } from '../data/budget';
 import { ALPENDRE_BUDGET, ALPENDRE_MODEL } from '../data/alpendre';
+import { DUAS_BUDGET, DUAS_MODEL } from '../data/duas';
 import { SIZES, patioModel, type HouseModel, type HouseSize } from './model';
 
-export type ProjectId = 'patio' | 'alpendre';
+export type ProjectId = 'patio' | 'alpendre' | 'duas';
 
 export interface Project {
   id: ProjectId;
@@ -14,6 +15,8 @@ export interface Project {
   blurb: string;
   /** Short facts shown on the project list. */
   highlights: string[];
+  /** Replaces "W × H m" on the project list, for lots with more than one building. */
+  footprint?: string;
   /** Size options (house width in meters), or null for a project drawn for a specific lot. */
   sizes: readonly HouseSize[] | null;
   model: (size: HouseSize) => HouseModel;
@@ -46,6 +49,19 @@ export const PROJECTS: Project[] = [
     model: () => ALPENDRE_MODEL,
     budget: ALPENDRE_BUDGET,
     storage: { rooms: 'dream-house:alpendre:rooms:v1', budget: 'dream-house:alpendre:budget:v1' },
+  },
+  {
+    id: 'duas',
+    number: 3,
+    name: 'Duas Casas',
+    tagline: 'Casa da frente e casa dos fundos no terreno de 10 × 30 m',
+    blurb: "Duas casas térreas no mesmo terreno, com um só portão: a da frente com 3 quartos e garagem para 2 carros, a dos fundos com 2 quartos, ligadas por um corredor lateral. Entre elas, o quintal do meio guarda a torre da caixa d'água, colada nas cozinhas e banheiros das duas.",
+    highlights: ['Frente: 3 quartos, 1 suíte', 'Fundos: 2 quartos', 'Garagem para 2 carros', "Caixa d'água central"],
+    footprint: '8,5 × 14 m + 8,5 × 6,5 m',
+    sizes: null,
+    model: () => DUAS_MODEL,
+    budget: DUAS_BUDGET,
+    storage: { rooms: 'dream-house:duas:rooms:v1', budget: 'dream-house:duas:budget:v1' },
   },
 ];
 
