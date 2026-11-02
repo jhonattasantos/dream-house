@@ -8,15 +8,16 @@ export type FurniturePiece =
   /** Lines are drawing details in 2D; with a height they become thin partitions in 3D. */
   | { kind: 'line'; x1: number; y1: number; x2: number; y2: number; z?: number; color: string; strong?: boolean };
 
-const WOOD = '#a47551';
-const FABRIC = '#94a3b8';
-const WHITE = '#f8fafc';
-const STONE = '#d6d3d1';
-const DARK = '#1f2937';
+export const WOOD = '#a47551';
+export const FABRIC = '#94a3b8';
+export const WHITE = '#f8fafc';
+export const STONE = '#d6d3d1';
+export const DARK = '#1f2937';
 
 type Side = 'N' | 'S' | 'E' | 'W';
 
-function buildFurniture(): FurniturePiece[] {
+/** Drawing helpers shared by every project's furniture list; pieces are collected in `out`. */
+export function furnitureKit() {
   const out: FurniturePiece[] = [];
   const rect = (x: number, y: number, w: number, h: number, z = 0.45, color = STONE, round = 2) =>
     out.push({ kind: 'rect', x, y, w, h, z, color, round });
@@ -71,6 +72,11 @@ function buildFurniture(): FurniturePiece[] {
     if (back === 'E') rect(x + w - 0.25, y, 0.25, h, 0.8, FABRIC);
     if (back === 'W') rect(x, y, 0.25, h, 0.8, FABRIC);
   };
+  return { out, rect, circle, ellipse, line, bed, toilet, shower, sink, chair, sofa };
+}
+
+function buildFurniture(): FurniturePiece[] {
+  const { out, rect, circle, line, bed, toilet, shower, sink, chair, sofa } = furnitureKit();
 
   // Hall & garagem: one car and a sideboard by the door
   rect(11.4, 0.55, 4.4, 1.85, 1.3, '#475569', 10);

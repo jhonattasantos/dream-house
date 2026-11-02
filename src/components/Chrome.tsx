@@ -1,7 +1,8 @@
 import { useEffect, type FormEvent } from 'react';
-import { ROOMS_DEFAULT, type RoomKey } from '../data/rooms';
+import type { RoomKey } from '../data/rooms';
 import { builtArea, fmtNum, openArea, roomArea, roomDims } from '../lib/geometry';
-import { TOUR_ROOMS, useHouse, type NavMode } from '../store';
+import { PROJECTS, type ProjectId } from '../lib/projects';
+import { tourRooms, useHouse, useProject, type NavMode } from '../store';
 
 const NAV: { mode: NavMode; icon: string; label: string }[] = [
   { mode: 'plan', icon: 'fa-map', label: 'Planta Baixa' },
@@ -14,6 +15,8 @@ export function Header() {
   const navMode = useHouse(s => s.navMode);
   const setNavMode = useHouse(s => s.setNavMode);
   const setClimateOpen = useHouse(s => s.setClimateOpen);
+  const project = useProject();
+  const setProject = useHouse(s => s.setProject);
   return (
     <header className="h-16 border-b border-slate-800 glass-panel px-3 md:px-6 flex items-center justify-between z-20 shrink-0 gap-2">
       <div className="flex items-center space-x-3 min-w-0 flex-1">
@@ -22,12 +25,24 @@ export function Header() {
         </div>
         <div className="min-w-0">
           <h1 className="font-bold text-base md:text-lg tracking-tight text-white flex items-center gap-2">
-            <span className="truncate">Casa de Pátio</span>
+            {/* The title is the project switcher. */}
+            <span className="relative min-w-0 flex items-center">
+              <select
+                value={project.id}
+                onChange={e => setProject(e.target.value as ProjectId)}
+                aria-label="Projeto"
+                title="Trocar de projeto"
+                className="appearance-none bg-transparent font-bold text-white truncate pr-5 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-sky-500 rounded max-w-full"
+              >
+                {PROJECTS.map(p => <option key={p.id} value={p.id} className="bg-slate-900 text-sm font-normal">{p.name}</option>)}
+              </select>
+              <i className="fa-solid fa-chevron-down text-[10px] text-sky-400 absolute right-0 pointer-events-none" />
+            </span>
             <span className="hidden sm:inline text-xs px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 font-mono border border-sky-500/30 whitespace-nowrap">
               Nordeste {fmtNum(builtArea(rooms), 0)} m²
             </span>
           </h1>
-          <p className="text-xs text-slate-400 hidden sm:block">Tour Virtual & Simulação Bioclimática</p>
+          <p className="text-xs text-slate-400 hidden sm:block">{project.tagline}</p>
         </div>
       </div>
 
@@ -62,15 +77,14 @@ export function Sidebar() {
   const rooms = useHouse(s => s.rooms);
   const selected = useHouse(s => s.selected);
   const selectRoom = useHouse(s => s.selectRoom);
+  const { blurb } = useProject();
   return (
     <aside className="w-80 border-r border-slate-800 glass-panel flex-col z-10 hidden xl:flex">
       <div className="p-4 border-b border-slate-800/80 bg-slate-900/40">
         <h2 className="text-xs uppercase font-mono tracking-wider text-sky-400 font-semibold mb-2 flex items-center gap-2">
           <i className="fa-solid fa-sun text-amber-400" /> Adaptação Nordestina
         </h2>
-        <p className="text-xs text-slate-300 leading-relaxed">
-          Projeto otimizado para o clima tropical quente e úmido/semiárido. O pátio central gera um <strong>efeito chaminé</strong>, puxando a brisa constante do mar/sertão.
-        </p>
+        <p className="text-xs text-slate-300 leading-relaxed">{blurb}</p>
       </div>
 
       <div className="p-3 border-b border-slate-800 font-mono text-xs text-slate-400 flex justify-between items-center">
@@ -120,13 +134,14 @@ function RoomEditor({ roomKey }: { roomKey: RoomKey }) {
   const saveRoom = useHouse(s => s.saveRoom);
   const resetRoom = useHouse(s => s.resetRoom);
   const setEditing = useHouse(s => s.setEditing);
+  const defaultName = useHouse(s => s.model.rooms[roomKey].name);
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
     const text = (name: string) => String(data.get(name) ?? '').trim();
     saveRoom(roomKey, {
-      name: text('name') || ROOMS_DEFAULT[roomKey].name,
+      name: text('name') || defaultName,
       subtitle: text('subtitle'),
       height: text('height'),
       floor: text('floor'),
@@ -181,6 +196,7 @@ export function Inspector() {
   const open = useHouse(s => s.inspectorOpen);
   const setOpen = useHouse(s => s.setInspectorOpen);
   const openTourAtSelected = useHouse(s => s.openTourAtSelected);
+  const tour = tourRooms(useHouse(s => s.rooms));
 
   return (
     <aside
@@ -194,7 +210,7 @@ export function Inspector() {
         </div>
         <div className="flex items-center gap-2">
           <span className="px-2 py-0.5 text-[10px] rounded-full font-mono bg-slate-800 text-slate-300 border border-slate-700">
-            {TOUR_ROOMS.indexOf(selected) + 1} / {TOUR_ROOMS.length}
+            {tour.indexOf(selected) + 1} / {tour.length}
           </span>
           <button onClick={() => setOpen(false)} className="lg:hidden w-7 h-7 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800" title="Fechar">
             <i className="fa-solid fa-xmark" />

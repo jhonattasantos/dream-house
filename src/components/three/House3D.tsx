@@ -4,12 +4,11 @@ import { useEffect, useImperativeHandle, useMemo, useRef, useState, type Ref, ty
 import * as THREE from 'three';
 import type { FurniturePiece } from '../../data/furniture';
 import type { Rect, RoomKey } from '../../data/rooms';
-import { BASE_W, courtyardDecor } from '../../lib/model';
+import { BASE_H, BASE_W } from '../../lib/model';
 import { sunDirection } from '../../lib/sun';
-import { EAVE, ROOF_INNER_H, ROOF_OUTER_H, wallBlocks, type Block } from '../../lib/walls3d';
+import { wallBlocks, type Block } from '../../lib/walls3d';
 import { useHouse } from '../../store';
 import type { PlanHandle } from '../plan/Plan2D';
-import { PILLAR_OFFSETS } from '../plan/layers';
 
 // Plan meters → scene: x stays east, plan y (southwards) becomes +z, heights go on y.
 // The scene group is shifted so the house is centred on the origin.
@@ -19,7 +18,7 @@ import { PILLAR_OFFSETS } from '../plan/layers';
 const DEFAULT_CAMERA = new THREE.Vector3(5, 30, 27);
 const FLOOR_TOP = 0.02;
 const PATIO_LEVEL = -0.15;
-const FLOOR_OVERRIDES: Partial<Record<RoomKey, string>> = { hallway: '#cbbfa8', entrance: '#a8a29e' };
+const FLOOR_OVERRIDES: Partial<Record<RoomKey, string>> = { hallway: '#cbbfa8', entrance: '#a8a29e', porch: '#a8a29e' };
 
 /** Box from plan-space extents. */
 function Box({ x0, y0, x1, y1, z0, z1, color, opacity = 1, ...props }: {
@@ -90,9 +89,8 @@ function Floors({ selected, onRoomClick, onHover }: {
 }
 
 function Site({ courtyard }: { courtyard: Rect }) {
-  const { W, H } = useHouse(s => s.model);
+  const { W, H, courtyardDecor: { pond, deck, trees }, pillars, pillarH, lot } = useHouse(s => s.model);
   const [cx, cy, cw, ch] = courtyard;
-  const { pond: [px, py, pw, ph], deck: [dx, dy, dw, dh], trees } = courtyardDecor(courtyard);
   // Slab around the sunken courtyard, split into four pieces.
   const slab: Rect[] = [[0, 0, W, cy], [0, cy + ch, W, H - cy - ch], [0, cy, cx, ch], [cx + cw, cy, W - cx - cw, ch]];
   return (
@@ -102,9 +100,10 @@ function Site({ courtyard }: { courtyard: Rect }) {
         <meshStandardMaterial color="#1c2b1c" roughness={1} />
       </mesh>
       {slab.map(([x, y, w, h], i) => <Box key={i} x0={x} y0={y} x1={x + w} y1={y + h} z0={-0.3} z1={FLOOR_TOP - 0.04} color="#57534e" />)}
+      {lot && <Lot />}
       {/* Espelho d'água and deck */}
-      <Box x0={px} y0={py} x1={px + pw} y1={py + ph} z0={PATIO_LEVEL} z1={PATIO_LEVEL + 0.05} color="#0ea5e9" opacity={0.85} />
-      <Box x0={dx} y0={dy} x1={dx + dw} y1={dy + dh} z0={PATIO_LEVEL} z1={PATIO_LEVEL + 0.04} color="#92400e" />
+      {pond && <Box x0={pond[0]} y0={pond[1]} x1={pond[0] + pond[2]} y1={pond[1] + pond[3]} z0={PATIO_LEVEL} z1={PATIO_LEVEL + 0.05} color="#0ea5e9" opacity={0.85} />}
+      {deck && <Box x0={deck[0]} y0={deck[1]} x1={deck[0] + deck[2]} y1={deck[1] + deck[3]} z0={PATIO_LEVEL} z1={PATIO_LEVEL + 0.04} color="#92400e" />}
       {trees.map(([x, y, r]) => (
         <group key={`${x}-${y}`} position={[x, PATIO_LEVEL, y]}>
           <mesh position={[0, 1.1, 0]} castShadow>
@@ -117,10 +116,29 @@ function Site({ courtyard }: { courtyard: Rect }) {
           </mesh>
         </group>
       ))}
-      {/* Pillars carrying the veranda roof */}
-      {PILLAR_OFFSETS(cw, ch).map(([dx, dy]) => (
-        <Box key={`${dx}-${dy}`} x0={cx + dx - 0.15} y0={cy + dy - 0.15} x1={cx + dx + 0.15} y1={cy + dy + 0.15} z0={0} z1={ROOF_INNER_H} color="#e7e5e4" />
+      {/* Pillars carrying the roof over the courtyard edge */}
+      {pillars.map(([x, y]) => (
+        <Box key={`${x}-${y}`} x0={x - 0.15} y0={y - 0.15} x1={x + 0.15} y1={y + 0.15} z0={0} z1={pillarH} color="#e7e5e4" />
       ))}
+    </group>
+  );
+}
+
+/** Lawn of the lot, boundary walls on the sides and back, and the car in its parking space. */
+function Lot() {
+  const lot = useHouse(s => s.model.lot)!;
+  const [lx, ly, lw, lh] = lot.rect;
+  const [cx, cy, cw, ch] = lot.car;
+  const t = 0.15, h = 1.8;
+  return (
+    <group>
+      <Box x0={lx} y0={ly} x1={lx + lw} y1={ly + lh} z0={-0.3} z1={-0.27} color="#3f6212" />
+      <Box x0={lx - t} y0={ly} x1={lx} y1={ly + lh} z0={-0.3} z1={h} color="#d6d3d1" />
+      <Box x0={lx + lw} y0={ly} x1={lx + lw + t} y1={ly + lh} z0={-0.3} z1={h} color="#d6d3d1" />
+      <Box x0={lx - t} y0={ly + lh} x1={lx + lw + t} y1={ly + lh + t} z0={-0.3} z1={h} color="#d6d3d1" />
+      <Box x0={cx - 0.2} y0={cy - 0.2} x1={cx + cw + 0.2} y1={cy + ch + 0.2} z0={-0.27} z1={-0.24} color="#78716c" />
+      <Box x0={cx} y0={cy} x1={cx + cw} y1={cy + ch} z0={-0.1} z1={0.75} color="#475569" />
+      <Box x0={cx + 0.1} y0={cy + 1.0} x1={cx + cw - 0.1} y1={cy + ch - 0.9} z0={0.75} z1={1.3} color="#1f2937" />
     </group>
   );
 }
@@ -183,24 +201,16 @@ function FurniturePieceMesh({ p }: { p: FurniturePiece }) {
   }
 }
 
-/** Inward-sloping roof: four planes from the parapet line down to the eave over the courtyard. */
-function Roof({ courtyard: [cx, cy, cw, ch] }: { courtyard: Rect }) {
-  const { W, H } = useHouse(s => s.model);
+/** Roof planes from the project, each split into two triangles. */
+function Roof() {
+  const quads = useHouse(s => s.model.roof);
   const geometry = useMemo(() => {
-    const o = [[0, 0], [W, 0], [W, H], [0, H]];
-    const i = [[cx + EAVE, cy + EAVE], [cx + cw - EAVE, cy + EAVE], [cx + cw - EAVE, cy + ch - EAVE], [cx + EAVE, cy + ch - EAVE]];
-    const v = (p: number[], h: number) => [p[0], h, p[1]];
-    const positions: number[] = [];
-    for (let k = 0; k < 4; k++) {
-      const n = (k + 1) % 4;
-      const quad = [v(o[k], ROOF_OUTER_H), v(o[n], ROOF_OUTER_H), v(i[n], ROOF_INNER_H), v(i[k], ROOF_INNER_H)];
-      positions.push(...quad[0], ...quad[1], ...quad[2], ...quad[0], ...quad[2], ...quad[3]);
-    }
+    const positions = quads.flatMap(q => [q[0], q[1], q[2], q[0], q[2], q[3]].flatMap(([x, y, z]) => [x, z, y]));
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
     g.computeVertexNormals();
     return g;
-  }, [W, H, cx, cy, cw, ch]);
+  }, [quads]);
   return (
     // Receiving its own shadow makes the sloped planes flicker with acne, so the roof only casts.
     <mesh geometry={geometry} castShadow onClick={stop} onPointerMove={stop}>
@@ -248,7 +258,7 @@ function CameraRig({ api }: { api: RefObject<PlanHandle | null> }) {
   const camera = useThree(s => s.camera);
   const controls = useThree(s => s.controls) as unknown as Orbit | null;
   const size = useThree(s => s.size);
-  const houseW = useHouse(s => s.model.W);
+  const { W: houseW, H: houseH } = useHouse(s => s.model);
 
   // Narrow (portrait) screens need the camera further back for the whole house to fit.
   const frame = () => {
@@ -256,10 +266,10 @@ function CameraRig({ api }: { api: RefObject<PlanHandle | null> }) {
     const aspect = size.width / size.height;
     controls.target.set(0, 0, 0);
     const fit = aspect < 1.3 ? Math.min(2.6, 1.3 / aspect) : 1;
-    camera.position.copy(DEFAULT_CAMERA).multiplyScalar(fit * (houseW / BASE_W));
+    camera.position.copy(DEFAULT_CAMERA).multiplyScalar(fit * Math.max(houseW / BASE_W, houseH / BASE_H));
     controls.update();
   };
-  useEffect(frame, [controls, houseW]);
+  useEffect(frame, [controls, houseW, houseH]);
   useImperativeHandle(api, () => ({
     zoomBy: factor => {
       if (!controls) return;
@@ -269,7 +279,7 @@ function CameraRig({ api }: { api: RefObject<PlanHandle | null> }) {
       controls.update();
     },
     reset: frame,
-  }), [camera, controls, size, houseW]);
+  }), [camera, controls, size, houseW, houseH]);
   return null;
 }
 
@@ -307,7 +317,7 @@ export default function House3D({ selected, onRoomClick, ref }: Props) {
           <Walls />
           <Hammocks />
           {layers.furniture && furniture.map((p, i) => <FurniturePieceMesh key={i} p={p} />)}
-          {layers.roof && <Roof courtyard={courtyard} />}
+          {layers.roof && <Roof />}
         </group>
         <OrbitControls makeDefault enableDamping target={[0, 0, 0]} maxPolarAngle={Math.PI / 2 - 0.05} minDistance={4} maxDistance={70} />
         <CameraRig api={api} />

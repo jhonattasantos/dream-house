@@ -1,7 +1,9 @@
 // Rooms in tour order. rects = [x, y, width, height] in meters, origin at the north-west corner.
 export type Rect = [number, number, number, number];
 
-export type RoomKey =
+export type RoomKey = string;
+/** Rooms of the Casa de Pátio. */
+export type PatioRoomKey =
   | 'entrance' | 'bedroom_2' | 'hallway' | 'courtyard' | 'living' | 'kitchen' | 'bwc_social'
   | 'master_suite' | 'master_bath' | 'service' | 'bath_3' | 'bedroom_3' | 'office';
 

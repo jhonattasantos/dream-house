@@ -1,8 +1,8 @@
 import { Fragment, type ReactNode, type SVGProps } from 'react';
 import type { Opening, Window } from '../../data/openings';
 import type { Rect, Room, RoomKey } from '../../data/rooms';
-import { OX, OY, S, X, Y, clamp, fitFontSize, fmtLen, fmtNum, roomArea, roomDims, wallFace, type Face } from '../../lib/geometry';
-import { courtyardDecor, type HouseModel } from '../../lib/model';
+import { OX, OY, S, X, Y, fitFontSize, fmtNum, roomArea, roomDims, wallFace, type Face } from '../../lib/geometry';
+import type { HouseModel } from '../../lib/model';
 import { useHouse } from '../../store';
 
 type Rooms = Record<RoomKey, Room>;
@@ -29,14 +29,14 @@ export function PlanDefs() {
   );
 }
 
-export function CourtyardDecor({ rect }: { rect: Rect }) {
-  const [x0, y0, w, h] = rect;
-  const { pond: [px, py, pw, ph], deck: [dx, dy, dw, dh], trees } = courtyardDecor(rect);
+export function CourtyardDecor({ rect: [x0, y0, w, h] }: { rect: Rect }) {
+  const { pond, deck, trees } = useHouse(s => s.model.courtyardDecor);
+  const box = ([x, y, bw, bh]: Rect) => ({ x: X(x), y: Y(y), width: bw * S, height: bh * S });
   return (
     <g pointerEvents="none">
       <rect x={X(x0)} y={Y(y0)} width={w * S} height={h * S} fill="url(#grass-pattern)" opacity={0.6} />
-      <rect x={X(dx)} y={Y(dy)} width={dw * S} height={dh * S} fill="url(#deck-pattern)" opacity={0.8} />
-      <rect x={X(px)} y={Y(py)} width={pw * S} height={ph * S} rx={6} fill="#0ea5e9" fillOpacity={0.25} stroke="#38bdf8" strokeOpacity={0.5} />
+      {deck && <rect {...box(deck)} fill="url(#deck-pattern)" opacity={0.8} />}
+      {pond && <rect {...box(pond)} rx={6} fill="#0ea5e9" fillOpacity={0.25} stroke="#38bdf8" strokeOpacity={0.5} />}
       {trees.map(([x, y, r]) => (
         <circle key={`${x}-${y}`} className="animate-foliage" cx={X(x)} cy={Y(y)} r={r * S} fill="#059669" fillOpacity={0.45} stroke="#10b981" strokeOpacity={0.6} />
       ))}
@@ -66,17 +66,41 @@ export function CourtyardEdge({ rect: [cx, cy, cw, ch], mini }: { rect: Rect; mi
   );
 }
 
-export const PILLAR_OFFSETS = (cw: number, ch: number): Pt[] =>
-  [0, cw / 2, cw].flatMap(dx => [0, ch / 2, ch].map(dy => [dx, dy] as Pt)).filter(([dx, dy]) => !(dx === cw / 2 && dy === ch / 2));
-
-/** Roof eave 0.5 m over the garden and the pillars that carry it. */
-export function VerandaEdge({ rect: [cx, cy, cw, ch] }: { rect: Rect }) {
-  const eave = 0.5, p = 0.3;
+/** Roof eave over the garden and the pillars that carry the roof. */
+export function VerandaEdge() {
+  const { eave, pillars } = useHouse(s => s.model);
+  const p = 0.3;
   return (
     <g pointerEvents="none">
-      <rect x={X(cx + eave)} y={Y(cy + eave)} width={(cw - 2 * eave) * S} height={(ch - 2 * eave) * S} fill="none" stroke="#94a3b8" strokeWidth={1} strokeDasharray="8 5" opacity={0.7} />
-      {PILLAR_OFFSETS(cw, ch).map(([dx, dy]) => (
-        <rect key={`${dx}-${dy}`} x={X(cx + dx - p / 2)} y={Y(cy + dy - p / 2)} width={p * S} height={p * S} fill="#e2e8f0" />
+      {eave && (
+        <rect x={X(eave[0])} y={Y(eave[1])} width={eave[2] * S} height={eave[3] * S} fill="none" stroke="#94a3b8" strokeWidth={1} strokeDasharray="8 5" opacity={0.7} />
+      )}
+      {pillars.map(([x, y]) => (
+        <rect key={`${x}-${y}`} x={X(x - p / 2)} y={Y(y - p / 2)} width={p * S} height={p * S} fill="#e2e8f0" />
+      ))}
+    </g>
+  );
+}
+
+/** Lot boundary, setbacks and the parking space, for projects drawn on a specific terrain. */
+export function LotLayer() {
+  const lot = useHouse(s => s.model.lot);
+  if (!lot) return null;
+  const [lx, ly, lw, lh] = lot.rect;
+  const [cx, cy, cw, ch] = lot.car;
+  return (
+    <g pointerEvents="none">
+      <rect x={X(lx)} y={Y(ly)} width={lw * S} height={lh * S} fill="#14532d" fillOpacity={0.12} stroke="#a3e635" strokeOpacity={0.6} strokeWidth={1.5} strokeDasharray="10 4 2 4" />
+      <rect x={X(cx)} y={Y(cy)} width={cw * S} height={ch * S} rx={10} fill="#475569" fillOpacity={0.35} stroke="#94a3b8" strokeWidth={1} />
+      <rect x={X(cx + 0.2)} y={Y(cy + 0.9)} width={(cw - 0.4) * S} height={0.6 * S} rx={3} fill="#1f2937" fillOpacity={0.6} />
+      <rect x={X(cx + 0.2)} y={Y(cy + ch - 1.4)} width={(cw - 0.4) * S} height={0.5 * S} rx={3} fill="#1f2937" fillOpacity={0.6} />
+      {lot.notes.map(({ at: [x, y], text, vertical }) => (
+        <text
+          key={text} x={X(x)} y={Y(y)} fill="#bef264" fillOpacity={0.75} fontFamily="JetBrains Mono" fontSize={9} fontWeight={600}
+          textAnchor="middle" dominantBaseline="middle" transform={vertical ? `rotate(-90 ${X(x)} ${Y(y)})` : undefined}
+        >
+          {text}
+        </text>
       ))}
     </g>
   );
@@ -173,15 +197,18 @@ export function Labels({ rooms }: { rooms: Rooms }) {
   return (
     <g pointerEvents="none" fontFamily="JetBrains Mono" textAnchor="middle">
       {Object.entries(rooms).map(([key, room]) => {
-        const [x, y, w, h] = room.labelRect || room.rects[0];
-        const cx = X(x + w / 2), cy = Y(y + h / 2);
+        const [x, y, rw, rh] = room.labelRect || room.rects[0];
+        const cx = X(x + rw / 2), cy = Y(y + rh / 2);
+        // Long, narrow strips (a corridor) get their label along the strip.
+        const vertical = rh > rw * 2.5 && rw < 2;
+        const [w, h] = vertical ? [rh, rw] : [rw, rh];
         const maxWidth = w * S * 0.9;
         const area = `${fmtNum(roomArea(room), 1)} m²`;
         const title = room.name.toUpperCase();
 
         if (h < 2) {
           const text = `${title} • ${area}`;
-          return <text key={key} x={cx} y={cy + 3.5} fill={room.text} fontSize={fitFontSize(text, maxWidth, 10)} fontWeight={600}>{text}</text>;
+          return <text key={key} x={cx} y={cy + 3.5} fill={room.text} fontSize={fitFontSize(text, maxWidth, 10)} fontWeight={600} transform={vertical ? `rotate(-90 ${cx} ${cy})` : undefined}>{text}</text>;
         }
         // Narrow rooms: break the name at " & " or " / " instead of shrinking it too much.
         let lines = [title];
@@ -193,14 +220,14 @@ export function Labels({ rooms }: { rooms: Rooms }) {
         const dims = roomDims(room);
         const subLines = room.rects.length === 1 && fitFontSize(`${dims} • ${area}`, maxWidth, 10) < 8.5 ? [dims, area] : [`${dims} • ${area}`];
         return (
-          <Fragment key={key}>
+          <g key={key} transform={vertical ? `rotate(-90 ${cx} ${cy})` : undefined}>
             {lines.map((line, i) => (
               <text key={`t${i}`} x={cx} y={cy - 2 - (lines.length - 1 - i) * (titleSize + 2)} fill={room.text} fontSize={titleSize} fontWeight={700}>{line}</text>
             ))}
             {subLines.map((line, i) => (
               <text key={`s${i}`} x={cx} y={cy + 13 + i * 11} fill={room.text} opacity={0.7} fontSize={fitFontSize(line, maxWidth, 10)}>{line}</text>
             ))}
-          </Fragment>
+          </g>
         );
       })}
     </g>
@@ -208,33 +235,31 @@ export function Labels({ rooms }: { rooms: Rooms }) {
 }
 
 export function Dimensions() {
-  const { W, H, mx, my } = useHouse(s => s.model);
+  const { W, H, dims, caption, lot } = useHouse(s => s.model);
   const items: ReactNode[] = [];
   const label = (x: number, y: number, text: string, rotate = false) =>
     items.push(<text key={items.length} x={x} y={y} fill="#94a3b8" stroke="none" textAnchor="middle" transform={rotate ? `rotate(-90 ${x} ${y})` : undefined}>{text}</text>);
   const line = (x1: number, y1: number, x2: number, y2: number) => items.push(<line key={items.length} x1={x1} y1={y1} x2={x2} y2={y2} />);
   const tick = (x: number, y: number) => line(x - 4, y + 4, x + 4, y - 4);
-  // Spans are listed on the 21 × 18 m drawing and mapped to the chosen size.
-  const dimH = (a0: number, b0: number, y: number) => {
-    const a = mx(a0), b = mx(b0);
+  const dimH = (a: number, b: number, y: number) => {
     line(X(a) - 6, y, X(b) + 6, y);
     tick(X(a), y); tick(X(b), y);
     label((X(a) + X(b)) / 2, y - 5, fmtNum(b - a, 2));
   };
-  const dimV = (a0: number, b0: number, x: number, side: number) => {
-    const a = my(a0), b = my(b0);
+  const dimV = (a: number, b: number, x: number, side: number) => {
     line(x, Y(a) - 6, x, Y(b) + 6);
     tick(x, Y(a)); tick(x, Y(b));
     label(x + side * 6, (Y(a) + Y(b)) / 2, fmtNum(b - a, 2), true);
   };
 
-  [[0, 5], [5, 16], [16, 21]].forEach(([a, b]) => dimH(a, b, OY - 22));
-  dimH(0, 21, OY - 50);
-  [[0, 3.5], [3.5, 7.5], [7.5, 9.5], [9.5, 11.5], [11.5, 14], [14, 18]].forEach(([a, b]) => dimV(a, b, OX - 22, -1));
-  dimV(0, 18, OX - 50, -1);
-  [[0, 5], [5, 14], [14, 18]].forEach(([a, b]) => dimV(a, b, X(W) + 22, -1));
-  [[0, 4.5], [4.5, 10], [10, 13], [13, 21]].forEach(([a, b]) => dimH(a, b, Y(H) + 22));
-  const base = Y(H) + 56;
+  dims.top.forEach(([a, b]) => dimH(a, b, OY - 22));
+  dimH(0, W, OY - 50);
+  dims.left.forEach(([a, b]) => dimV(a, b, OX - 22, -1));
+  dimV(0, H, OX - 50, -1);
+  dims.right.forEach(([a, b]) => dimV(a, b, X(W) + 22, -1));
+  dims.bottom.forEach(([a, b]) => dimH(a, b, Y(H) + 22));
+  // The scale bar goes under the house, or under the lot when there is one.
+  const base = Y(Math.max(H, lot ? lot.rect[1] + lot.rect[3] : H)) + 56;
 
   return (
     <g pointerEvents="none" stroke="#64748b" strokeWidth={1} fontFamily="JetBrains Mono" fontSize={10}>
@@ -246,127 +271,91 @@ export function Dimensions() {
       <text x={X(0)} y={base + 20} fill="#94a3b8" stroke="none" textAnchor="middle">0</text>
       <text x={X(5)} y={base + 20} fill="#94a3b8" stroke="none" textAnchor="middle">5 m</text>
       <text x={X(0)} y={base - 6} fill="#64748b" stroke="none">ESCALA GRÁFICA</text>
-      <text x={X(W)} y={base + 36} fill="#475569" stroke="none" textAnchor="end" fontSize={11}>
-        {`CONSTRUÇÃO ${fmtLen(W)} × ${fmtLen(H)} m • LOTE MÍN. ${fmtLen(W + 3)} m DE FRENTE`}
-      </text>
+      <text x={X(Math.max(W, lot ? lot.rect[0] + lot.rect[2] : W))} y={base + 36} fill="#475569" stroke="none" textAnchor="end" fontSize={11}>{caption}</text>
     </g>
   );
 }
 
 export function Wind() {
-  const { W, H, mx, my } = useHouse(s => s.model);
-  // Breezes come in from beyond the east facade and reach the courtyard; the curves were drawn on the 21 × 18 m plan.
-  const east = X(W) + 153, south = Y(H) + 74;
-  const p = (x: number, y: number) => `${X(mx(x))} ${Y(my(y))}`;
-  const breeze = [
-    `M ${east} ${Y(my(2.81))} C ${east - 85} ${Y(my(2.81))}, ${p(17.5, 4.69)}, ${p(13.75, 6.25)}`,
-    `M ${east} ${Y(my(9.06))} C ${east - 85} ${Y(my(9.06))}, ${p(17.5, 8.75)}, ${p(13.75, 8.59)}`,
-    `M ${east} ${south} C ${east - 85} ${south - 60}, ${p(17.5, 14.06)}, ${p(13.59, 11.25)}`,
-  ];
-  const hot = `M ${p(7.5, 6.875)} C ${p(4.375, 6.56)}, ${p(1.25, 6.25)}, ${X(mx(0)) - 140} ${Y(my(5.94))}`;
-  const label = (x: number, y: number, text: string, fill: string, anchor: 'start' | 'middle' | 'end' = 'middle') => (
-    <text key={text} x={x} y={y} fill={fill} fontFamily="JetBrains Mono" fontSize={10} fontWeight={700} textAnchor={anchor}>{text}</text>
-  );
+  const { breezes, hot, labels } = useHouse(s => s.model.wind);
+  const curve = ([a, b, c, d]: Pt[]) => `M ${X(a[0])} ${Y(a[1])} C ${X(b[0])} ${Y(b[1])}, ${X(c[0])} ${Y(c[1])}, ${X(d[0])} ${Y(d[1])}`;
   return (
     <g pointerEvents="none" fill="none">
-      {breeze.map(d => <path key={d} d={d} className="wind-path" stroke="#38bdf8" strokeWidth={2.5} markerEnd="url(#arrow-wind)" opacity={0.85} />)}
-      <path d={hot} className="wind-path" stroke="#fb923c" strokeWidth={2} markerEnd="url(#arrow-hot)" opacity={0.7} />
-      {label(east, Y(my(2.81)) - 15, 'BRISA LESTE', '#7dd3fc', 'end')}
-      {label(east, south + 30, 'BRISA SUDESTE', '#7dd3fc', 'end')}
-      {label(X(mx(0)) - 140, Y(my(5.94)) - 10, 'AR QUENTE SAI A OESTE', '#fdba74', 'start')}
-      {label(X(mx(10.5)), Y(my(11.05)), '↑ EFEITO CHAMINÉ', '#fdba74')}
+      {breezes.map(b => <path key={String(b)} d={curve(b)} className="wind-path" stroke="#38bdf8" strokeWidth={2.5} markerEnd="url(#arrow-wind)" opacity={0.85} />)}
+      {hot && <path d={curve(hot)} className="wind-path" stroke="#fb923c" strokeWidth={2} markerEnd="url(#arrow-hot)" opacity={0.7} />}
+      {labels.map(({ at: [x, y], text, hot: warm, anchor = 'middle' }) => (
+        <text key={text} x={X(x)} y={Y(y)} fill={warm ? '#fdba74' : '#7dd3fc'} fontFamily="JetBrains Mono" fontSize={10} fontWeight={700} textAnchor={anchor}>{text}</text>
+      ))}
     </g>
   );
 }
 
-const WET_ROOMS: RoomKey[] = ['bath_3', 'service', 'master_bath', 'bwc_social', 'kitchen'];
-
 /**
- * Roof drains inward (implúvio): eave gutter → downpipes in the pillars → linear drain → two independent outlets.
- * Wet areas send sewage along the west setback to a septic tank in the front setback.
+ * Rainwater from the roof to the cistern, sewage to the septic tank, and the water tank,
+ * solar heater and distribution board, as each project lays them out.
  */
-export function Utilities({ rooms, courtyard: [cx, cy, cw, ch] }: { rooms: Rooms; courtyard: Rect }) {
-  const { mx, my } = useHouse(s => s.model);
-  // Fixed positions below are on the 21 × 18 m drawing; P, B and tag map them to the chosen size.
-  const P = (x: number, y: number): Pt => [mx(x), my(y)];
-  const B = ([x, y, w, h]: Rect): Rect => [mx(x), my(y), mx(x + w) - mx(x), my(y + h) - my(y)];
+export function Utilities({ rooms }: { rooms: Rooms }) {
+  const u = useHouse(s => s.model.utilities);
   const box = ([x, y, w, h]: Rect, props: SVGProps<SVGRectElement>) => <rect x={X(x)} y={Y(y)} width={w * S} height={h * S} {...props} />;
-  const tag = (x: number, y: number, text: string, fill: string, size = 8) => (
-    <text x={X(mx(x))} y={Y(my(y))} fill={fill} fontFamily="JetBrains Mono" fontSize={size} fontWeight={700} textAnchor="middle" dominantBaseline="middle">{text}</text>
+  const tag = ([x, y]: Pt, text: string, fill: string, size = 8) => (
+    <text x={X(x)} y={Y(y)} fill={fill} fontFamily="JetBrains Mono" fontSize={size} fontWeight={700} textAnchor="middle" dominantBaseline="middle">{text}</text>
   );
-  const eave = 0.5, gx0 = cx + eave, gy0 = cy + eave, gx1 = cx + cw - eave, gy1 = cy + ch - eave;
-  const slopes: Pt[][] = [
-    [P(8.1, 3.25), [mx(8.1), gy0]], [P(12.9, 3.25), [mx(12.9), gy0]],
-    [P(8.1, 13.75), [mx(8.1), gy1]], [P(12.9, 13.75), [mx(12.9), gy1]],
-    [P(5.25, 7.4), [gx0, my(7.4)]], [P(5.25, 9.6), [gx0, my(9.6)]],
-    [P(15.75, 7.4), [gx1, my(7.4)]], [P(15.75, 9.6), [gx1, my(9.6)]],
-  ];
-  const trapMain: Pt = [cx + cw - 0.65, cy + 0.3], trapEmergency: Pt = [cx + 0.35, cy + ch - 0.35];
-  const cistern = B([14.2, 0.4, 1.6, 2.4]);
-  const pipeX = mx(14.75);
+  const center = ([x, y, w, h]: Rect): Pt => [x + w / 2, y + h / 2];
   const sewer = { stroke: '#d97706', strokeWidth: 2, strokeDasharray: '6 3' };
+  const [cisX, cisY] = center(u.cistern);
 
   return (
     <g pointerEvents="none" fill="none">
       {/* Wet areas and the walls they share */}
-      {WET_ROOMS.flatMap(k => rooms[k].rects).map((r, i) => <Fragment key={`wet${i}`}>{box(r, { fill: '#0ea5e9', fillOpacity: 0.12 })}</Fragment>)}
-      {[[P(0, 9.5), P(5, 9.5)], [P(13, 14), P(13, 18)]].map((p, i) => <path key={`hw${i}`} d={pts(p)} stroke="#38bdf8" strokeWidth={6} opacity={0.8} />)}
+      {u.wetRooms.flatMap(k => rooms[k].rects).map((r, i) => <Fragment key={`wet${i}`}>{box(r, { fill: '#0ea5e9', fillOpacity: 0.12 })}</Fragment>)}
+      {u.hydraulicWalls.map((p, i) => <path key={`hw${i}`} d={pts(p)} stroke="#38bdf8" strokeWidth={6} opacity={0.8} />)}
 
-      {/* Roof slope towards the courtyard, ending at the eave gutter */}
-      {slopes.map((p, i) => <path key={`sl${i}`} d={pts(p)} stroke="#7dd3fc" strokeWidth={1.5} strokeDasharray="5 3" markerEnd="url(#arrow-rain)" />)}
-
-      {/* Eave gutter and the eight downpipes inside the pillars */}
-      {box([gx0, gy0, gx1 - gx0, gy1 - gy0], { stroke: '#22d3ee', strokeWidth: 3 })}
-      {PILLAR_OFFSETS(cw, ch).map(([dx, dy]) => {
-        const px = cx + dx, py = cy + dy;
-        return (
-          <Fragment key={`dp${dx}-${dy}`}>
-            <path d={pts([[px, py], [clamp(px, gx0, gx1), clamp(py, gy0, gy1)]])} stroke="#22d3ee" strokeWidth={2} />
-            <circle cx={X(px)} cy={Y(py)} r={4} fill="#0284c7" stroke="#e0f2fe" strokeWidth={1} />
-          </Fragment>
-        );
-      })}
-
-      {/* Linear drain collector along the courtyard edge, with sand traps */}
-      {box([cx + 0.15, cy + 0.15, cw - 0.3, ch - 0.3], { stroke: '#3b82f6', strokeWidth: 2.5 })}
-      {[trapMain, trapEmergency].map(([x, y]) => (
-        <Fragment key={`ca${x}`}>
-          {box([x - 0.25, y - 0.25, 0.5, 0.5], { fill: '#1e3a8a', stroke: '#93c5fd', strokeWidth: 1 })}
-          <text x={X(x)} y={Y(y)} fill="#bfdbfe" fontFamily="JetBrains Mono" fontSize={7} fontWeight={700} textAnchor="middle" dominantBaseline="middle">CA</text>
+      {/* Roof fall, gutters and downpipes */}
+      {u.slopes.map((p, i) => <path key={`sl${i}`} d={pts(p)} stroke="#7dd3fc" strokeWidth={1.5} strokeDasharray="5 3" markerEnd="url(#arrow-rain)" />)}
+      {u.gutters.map((p, i) => <path key={`gu${i}`} d={pts(p)} stroke="#22d3ee" strokeWidth={3} />)}
+      {u.downpipes.map(({ at, gutter }) => (
+        <Fragment key={`dp${at}`}>
+          <path d={pts([at, gutter])} stroke="#22d3ee" strokeWidth={2} />
+          <circle cx={X(at[0])} cy={Y(at[1])} r={4} fill="#0284c7" stroke="#e0f2fe" strokeWidth={1} />
         </Fragment>
       ))}
 
-      {/* Main outlet → cistern under the garage → overflow to the street */}
-      <path d={pts([trapMain, [pipeX, trapMain[1]], [pipeX, cistern[1] + cistern[3]]])} stroke="#3b82f6" strokeWidth={3} />
-      {box(cistern, { fill: '#1e3a8a', fillOpacity: 0.5, stroke: '#60a5fa', strokeWidth: 1.5 })}
-      {tag(15, 1.35, 'CISTERNA', '#bfdbfe', 7)}
-      {tag(15, 1.8, '~15 m³', '#93c5fd', 7)}
-      <path d={pts([[mx(15.4), cistern[1]], [mx(15.4), -0.5]])} stroke="#3b82f6" strokeWidth={2} markerEnd="url(#arrow-pipe)" />
+      {/* Linear drains with sand traps */}
+      {u.drains.map((r, i) => <Fragment key={`dr${i}`}>{box(r, { stroke: '#3b82f6', strokeWidth: 2.5 })}</Fragment>)}
+      {u.traps.map(([x, y]) => (
+        <Fragment key={`ca${x}-${y}`}>
+          {box([x - 0.25, y - 0.25, 0.5, 0.5], { fill: '#1e3a8a', stroke: '#93c5fd', strokeWidth: 1 })}
+          {tag([x, y], 'CA', '#bfdbfe', 7)}
+        </Fragment>
+      ))}
 
-      {/* Independent emergency outlet → west setback */}
-      <path d={pts([trapEmergency, [trapEmergency[0], my(11.9)], [-1, my(11.9)]])} stroke="#3b82f6" strokeWidth={2.5} strokeDasharray="6 4" markerEnd="url(#arrow-pipe)" />
+      {/* Rainwater → cistern → overflow to the street */}
+      {u.rainPipes.map((p, i) => <path key={`rp${i}`} d={pts(p)} stroke="#3b82f6" strokeWidth={3} />)}
+      {box(u.cistern, { fill: '#1e3a8a', fillOpacity: 0.5, stroke: '#60a5fa', strokeWidth: 1.5 })}
+      {tag([cisX, cisY - 0.25], 'CISTERNA', '#bfdbfe', 7)}
+      {tag([cisX, cisY + 0.2], u.cisternVolume, '#93c5fd', 7)}
+      <path d={pts(u.overflow)} stroke="#3b82f6" strokeWidth={2} markerEnd="url(#arrow-pipe)" />
+      {u.emergency && <path d={pts(u.emergency)} stroke="#3b82f6" strokeWidth={2.5} strokeDasharray="6 4" markerEnd="url(#arrow-pipe)" />}
 
-      {/* Sewage → grease trap → septic tank + soakaway in the front setback */}
-      {[8.5, 10.5, 16].map(y => <path key={`sw${y}`} d={pts([P(0, y), P(-0.4, y)])} {...sewer} />)}
-      <path d={pts([P(13, 18), P(13, 18.35), P(-0.4, 18.35), P(-0.4, -0.4), P(-2, -0.4)])} {...sewer} />
-      {box(B([13.35, 18.17, 0.6, 0.36]), { fill: '#78350f', stroke: '#fbbf24', strokeWidth: 1 })}
-      {tag(13.65, 18.36, 'CG', '#fde68a', 6)}
-      {[P(-0.4, 18.35), P(-0.4, -0.4)].map(([x, y]) => <Fragment key={`ci${y}`}>{box([x - 0.15, y - 0.15, 0.3, 0.3], { fill: '#78350f', stroke: '#fbbf24', strokeWidth: 1 })}</Fragment>)}
-      {box([-4.4, -1.6, 2.4, 1.5], { fill: '#78350f', fillOpacity: 0.5, stroke: '#fbbf24', strokeWidth: 1.5 })}
-      {tag(-3.2, -0.85, 'F', '#fde68a', 10)}
-      <path d={pts([P(-3.2, -0.1), P(-3.2, 0.4)])} {...sewer} />
-      <circle cx={X(mx(-3.2))} cy={Y(my(1.2))} r={0.8 * S} fill="#78350f" fillOpacity={0.35} stroke="#fbbf24" strokeWidth={1.5} strokeDasharray="3 2" />
-      {tag(-3.2, 1.2, 'S', '#fde68a', 10)}
+      {/* Sewage → grease trap → septic tank + soakaway */}
+      {u.sewerStubs.map((p, i) => <path key={`sw${i}`} d={pts(p)} {...sewer} />)}
+      <path d={pts(u.sewerMain)} {...sewer} />
+      {box(u.greaseTrap, { fill: '#78350f', stroke: '#fbbf24', strokeWidth: 1 })}
+      {tag(center(u.greaseTrap), 'CG', '#fde68a', 6)}
+      {u.inspections.map(([x, y]) => <Fragment key={`ci${x}-${y}`}>{box([x - 0.15, y - 0.15, 0.3, 0.3], { fill: '#78350f', stroke: '#fbbf24', strokeWidth: 1 })}</Fragment>)}
+      {box(u.septic, { fill: '#78350f', fillOpacity: 0.5, stroke: '#fbbf24', strokeWidth: 1.5 })}
+      {tag(center(u.septic), 'F', '#fde68a', 10)}
+      <path d={pts(u.septicLink)} {...sewer} />
+      <circle cx={X(u.soakaway.at[0])} cy={Y(u.soakaway.at[1])} r={u.soakaway.r * S} fill="#78350f" fillOpacity={0.35} stroke="#fbbf24" strokeWidth={1.5} strokeDasharray="3 2" />
+      {tag(u.soakaway.at, 'S', '#fde68a', 10)}
 
-      {/* Water tank + solar heater over the master bathroom */}
-      {box(B([0.3, 14.3, 1.7, 0.8]), { fill: '#0ea5e9', fillOpacity: 0.3, stroke: '#38bdf8', strokeWidth: 1 })}
-      {tag(1.15, 14.7, "CX D'ÁGUA", '#bae6fd', 6)}
-      {box(B([2.2, 14.3, 2.0, 0.8]), { fill: '#f59e0b', fillOpacity: 0.3, stroke: '#fbbf24', strokeWidth: 1 })}
-      {tag(3.2, 14.7, 'SOLAR', '#fde68a', 6)}
-
-      {/* Distribution board + solar inverter by the entrance */}
-      {box(B([5.6, 0.25, 1.6, 0.5]), { fill: '#facc15', fillOpacity: 0.25, stroke: '#facc15', strokeWidth: 1, rx: 3 })}
-      {tag(6.4, 0.5, 'QD + INV', '#fef08a', 6)}
+      {/* Water tank + solar heater, distribution board */}
+      {box(u.waterTank, { fill: '#0ea5e9', fillOpacity: 0.3, stroke: '#38bdf8', strokeWidth: 1 })}
+      {tag(center(u.waterTank), "CX D'ÁGUA", '#bae6fd', 6)}
+      {box(u.solar, { fill: '#f59e0b', fillOpacity: 0.3, stroke: '#fbbf24', strokeWidth: 1 })}
+      {tag(center(u.solar), 'SOLAR', '#fde68a', 6)}
+      {box(u.board, { fill: '#facc15', fillOpacity: 0.25, stroke: '#facc15', strokeWidth: 1, rx: 3 })}
+      {tag(center(u.board), 'QD', '#fef08a', 6)}
     </g>
   );
 }

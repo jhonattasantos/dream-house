@@ -14,7 +14,6 @@ const OPENING_H = 2.6;
 const WINDOW_TOP = 2.2;
 const WINDOW_SILL = 1.0;
 const HIGH_SILL = 1.5;
-const HIGH_SILL_ROOMS: RoomKey[] = ['bath_3', 'master_bath', 'bwc_social'];
 
 /** Axis-aligned block in plan meters (x0..x1, y0..y1) between heights z0..z1. */
 export interface Block {
@@ -26,7 +25,7 @@ export interface Block {
  * Turns the plan's wall lines into 3D blocks: full-height pieces between openings,
  * lintels over doors and passages, and sill + glass + lintel at windows.
  */
-export function wallBlocks(rooms: Record<RoomKey, Room>, { openings, windows }: HouseModel): Block[] {
+export function wallBlocks(rooms: Record<RoomKey, Room>, { openings, windows, highSillRooms }: HouseModel): Block[] {
   const blocks: Block[] = [];
   wallLines(rooms).forEach(line => {
     const t = line.exterior ? 0.25 : 0.15;
@@ -35,7 +34,7 @@ export function wallBlocks(rooms: Record<RoomKey, Room>, { openings, windows }: 
       ...openings.filter(o => onLine(o, line)).map(o => ({ a: along(o), b: along(o) + o.len, kind: o.type, sill: 0 })),
       ...windows.filter(w => onLine(w, line)).map(w => ({
         a: along(w), b: along(w) + w.len, kind: 'window' as const,
-        sill: HIGH_SILL_ROOMS.includes(w.room) ? HIGH_SILL : WINDOW_SILL,
+        sill: highSillRooms.includes(w.room) ? HIGH_SILL : WINDOW_SILL,
       })),
     ].sort((p, q) => p.a - q.a);
 

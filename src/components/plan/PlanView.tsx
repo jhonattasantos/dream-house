@@ -1,8 +1,8 @@
 import { Suspense, lazy, useRef, useState } from 'react';
 import { builtArea, fmtLen, fmtNum, openArea } from '../../lib/geometry';
-import { SIZES, houseModel } from '../../lib/model';
+import { patioModel } from '../../lib/model';
 import { sunInfo } from '../../lib/sun';
-import { useHouse, type LayerKey, type PlanMode } from '../../store';
+import { useHouse, useProject, type LayerKey, type PlanMode } from '../../store';
 import Plan2D, { type PlanHandle } from './Plan2D';
 
 // Three.js is only downloaded when someone opens the 3D view.
@@ -22,16 +22,16 @@ const LAYER_BUTTONS: { key: LayerKey; icon: string; label: string; title: string
 const RAIN_MM_H = 160;
 const PATIO_STEP_M = 0.15;
 
-const UTILS_LEGEND: [string, string][] = [
-  ['<path d="M2 5 H22" stroke="#7dd3fc" stroke-width="2"/><path d="M20 1 L26 5 L20 9 z" fill="#7dd3fc"/>', 'Telhado com caimento para o pátio (implúvio)'],
-  ['<path d="M2 5 H26" stroke="#22d3ee" stroke-width="3"/><circle cx="14" cy="5" r="3.5" fill="#0284c7" stroke="#e0f2fe"/>', 'Calha no beiral → 8 condutores Ø100 dentro dos pilares'],
-  ['<path d="M2 5 H26" stroke="#3b82f6" stroke-width="3"/>', 'Ralo linear + caixa de areia (CA) → saída principal Ø200 → cisterna → extravasor para a rua'],
-  ['<path d="M2 5 H26" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="4 3"/>', 'Saída de emergência Ø150, independente → recuo oeste'],
-  ['<path d="M2 5 H26" stroke="#d97706" stroke-width="2" stroke-dasharray="6 3"/>', 'Esgoto → caixa de gordura (CG) → fossa séptica (F) + sumidouro (S)'],
-  ['<path d="M2 5 H26" stroke="#38bdf8" stroke-width="5" opacity="0.8"/>', 'Parede hidráulica: áreas molhadas agrupadas'],
-  ['<rect x="2" y="1" width="12" height="8" fill="#0ea5e9" fill-opacity="0.3" stroke="#38bdf8"/><rect x="15" y="1" width="11" height="8" fill="#f59e0b" fill-opacity="0.3" stroke="#fbbf24"/>', "Caixa d'água + aquecedor solar sobre o BWC master"],
-  ['<rect x="8" y="1" width="12" height="8" rx="1.5" fill="#facc15" fill-opacity="0.25" stroke="#facc15"/>', 'Quadro de distribuição (QD) + inversor solar junto à entrada'],
-];
+const SWATCHES = {
+  slope: '<path d="M2 5 H22" stroke="#7dd3fc" stroke-width="2"/><path d="M20 1 L26 5 L20 9 z" fill="#7dd3fc"/>',
+  gutter: '<path d="M2 5 H26" stroke="#22d3ee" stroke-width="3"/><circle cx="14" cy="5" r="3.5" fill="#0284c7" stroke="#e0f2fe"/>',
+  drain: '<path d="M2 5 H26" stroke="#3b82f6" stroke-width="3"/>',
+  emergency: '<path d="M2 5 H26" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="4 3"/>',
+  sewer: '<path d="M2 5 H26" stroke="#d97706" stroke-width="2" stroke-dasharray="6 3"/>',
+  hydraulic: '<path d="M2 5 H26" stroke="#38bdf8" stroke-width="5" opacity="0.8"/>',
+  tank: '<rect x="2" y="1" width="12" height="8" fill="#0ea5e9" fill-opacity="0.3" stroke="#38bdf8"/><rect x="15" y="1" width="11" height="8" fill="#f59e0b" fill-opacity="0.3" stroke="#fbbf24"/>',
+  board: '<rect x="8" y="1" width="12" height="8" rx="1.5" fill="#facc15" fill-opacity="0.25" stroke="#facc15"/>',
+};
 
 function SunPanel() {
   const rooms = useHouse(s => s.rooms);
@@ -68,20 +68,22 @@ function SunPanel() {
 
 /** Width options for the house; the depth and every room follow proportionally. */
 function SizePicker() {
-  const model = useHouse(s => s.model);
+  const { sizes } = useProject();
+  const current = useHouse(s => s.size);
   const setSize = useHouse(s => s.setSize);
+  if (!sizes) return null;
   return (
     <div className="glass-panel rounded-lg flex items-center text-xs font-mono overflow-hidden" role="group" aria-label="Tamanho da casa">
       <span className="px-2 text-slate-400" title="Largura da casa (frente), em metros"><i className="fa-solid fa-ruler-horizontal" /></span>
-      {SIZES.map(size => {
-        const m = houseModel(size);
+      {sizes.map(size => {
+        const m = patioModel(size);
         return (
           <button
             key={size}
             onClick={() => setSize(size)}
-            aria-pressed={model.size === size}
+            aria-pressed={current === size}
             title={`${fmtLen(m.W)} × ${fmtLen(m.H)} m • ${fmtNum(builtArea(m.rooms), 0)} m² construídos`}
-            className={`px-2 py-1.5 border-l border-slate-700/60 transition ${model.size === size ? 'bg-sky-600 text-white font-bold' : 'text-slate-400 hover:text-white'}`}
+            className={`px-2 py-1.5 border-l border-slate-700/60 transition ${current === size ? 'bg-sky-600 text-white font-bold' : 'text-slate-400 hover:text-white'}`}
           >
             {fmtLen(size)}
           </button>
@@ -94,8 +96,10 @@ function SizePicker() {
 
 function UtilsPanel() {
   const rooms = useHouse(s => s.rooms);
+  const { legend, drainsToPatio } = useHouse(s => s.model.utilities);
   const [open, setOpen] = useState(true);
-  const catchment = builtArea(rooms) + openArea(rooms);
+  // An implúvio sends the whole roof into the courtyard; otherwise only the roof goes to the cistern.
+  const catchment = drainsToPatio ? builtArea(rooms) + openArea(rooms) : builtArea(rooms);
   const flow = (RAIN_MM_H * catchment) / 3600;
   const bufferMin = (openArea(rooms) * PATIO_STEP_M * 1000) / (flow * 60);
   return (
@@ -107,16 +111,25 @@ function UtilsPanel() {
       {open && (
         <div className="space-y-2.5">
           <ul className="space-y-1.5 text-[11px] text-slate-300 leading-snug">
-            {UTILS_LEGEND.map(([swatch, text]) => (
+            {(Object.entries(legend) as [keyof typeof SWATCHES, string][]).map(([key, text]) => (
               <li key={text} className="flex items-start gap-2">
-                <svg width="28" height="10" className="shrink-0" aria-hidden="true" dangerouslySetInnerHTML={{ __html: swatch }} />
+                <svg width="28" height="10" className="shrink-0" aria-hidden="true" dangerouslySetInnerHTML={{ __html: SWATCHES[key] }} />
                 <span>{text}</span>
               </li>
             ))}
           </ul>
           <p className="text-[11px] text-sky-200/90 leading-relaxed border-t border-slate-700/60 pt-2">
-            Área que escoa para o pátio: <b>{fmtNum(catchment, 0)} m²</b> • chuva de projeto {RAIN_MM_H} mm/h → <b>{fmtNum(flow, 1)} L/s</b>.{' '}
-            Se os dois ralos entupirem, o desnível de {fmtNum(PATIO_STEP_M * 100, 0)} cm segura cerca de <b>{fmtNum(bufferMin, 0)} min</b> de chuva forte antes de chegar à varanda.
+            {drainsToPatio ? (
+              <>
+                Área que escoa para o pátio: <b>{fmtNum(catchment, 0)} m²</b> • chuva de projeto {RAIN_MM_H} mm/h → <b>{fmtNum(flow, 1)} L/s</b>.{' '}
+                Se os dois ralos entupirem, o desnível de {fmtNum(PATIO_STEP_M * 100, 0)} cm segura cerca de <b>{fmtNum(bufferMin, 0)} min</b> de chuva forte antes de chegar à varanda.
+              </>
+            ) : (
+              <>
+                Telhado: <b>{fmtNum(catchment, 0)} m²</b> • chuva de projeto {RAIN_MM_H} mm/h → <b>{fmtNum(flow, 1)} L/s</b> pela calha leste.{' '}
+                O pátio só recebe a chuva que cai nele ({fmtNum(openArea(rooms), 0)} m²), e o desnível de {fmtNum(PATIO_STEP_M * 100, 0)} cm segura cerca de <b>{fmtNum((PATIO_STEP_M * 1000 * 60) / RAIN_MM_H, 0)} min</b> dessa chuva se o ralo entupir.
+              </>
+            )}
           </p>
         </div>
       )}

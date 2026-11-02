@@ -1,12 +1,10 @@
 import { create } from 'zustand';
-import { BUDGET_DEFAULT } from './data/budget';
-import { EDITABLE_FIELDS, ROOMS_DEFAULT, type EditableField, type Room, type RoomKey } from './data/rooms';
-import { DEFAULT_SIZE, SIZES, houseModel, type HouseModel, type HouseSize } from './lib/model';
+import { EDITABLE_FIELDS, type EditableField, type Room, type RoomKey } from './data/rooms';
+import { DEFAULT_SIZE, SIZES, type HouseModel, type HouseSize } from './lib/model';
+import { DEFAULT_PROJECT, PROJECTS, getProject, type Project, type ProjectId } from './lib/projects';
 
-// Same keys as the original single-file page, so saved edits carry over.
-const STORAGE_ROOMS = 'dream-house:rooms:v1';
-const STORAGE_BUDGET = 'dream-house:budget:v1';
 const STORAGE_SIZE = 'dream-house:size:v1';
+const STORAGE_PROJECT = 'dream-house:project:v1';
 
 function loadJSON<T>(key: string): T | null {
   try { return JSON.parse(localStorage.getItem(key) ?? 'null') as T | null; } catch { return null; }
@@ -29,9 +27,16 @@ function applyOverrides(overrides: Overrides, model: HouseModel): Record<RoomKey
   return rooms;
 }
 
-function loadBudget(): Record<string, number> {
-  const saved = loadJSON<Record<string, number>>(STORAGE_BUDGET) ?? {};
-  return Object.fromEntries(BUDGET_DEFAULT.map(b => [b.id, Number.isFinite(saved[b.id]) ? saved[b.id] : b.value]));
+function loadBudget(project: Project): Record<string, number> {
+  const saved = loadJSON<Record<string, number>>(project.storage.budget) ?? {};
+  return Object.fromEntries(project.budget.map(b => [b.id, Number.isFinite(saved[b.id]) ? saved[b.id] : b.value]));
+}
+
+/** Everything that belongs to one project: its drawing at the chosen size and the user's edits. */
+function projectState(project: Project, size: HouseSize) {
+  const model = project.model(size);
+  const overrides = loadJSON<Overrides>(project.storage.rooms) ?? {};
+  return { project: project.id, model, overrides, rooms: applyOverrides(overrides, model), budget: loadBudget(project) };
 }
 
 export type LayerKey = 'labels' | 'dims' | 'sun' | 'wind' | 'furniture' | 'utils' | 'roof';
@@ -39,9 +44,9 @@ export type NavMode = 'plan' | 'tour' | 'budget';
 export type PlanMode = '2d' | '3d';
 export type Season = 'dez' | 'jun';
 
-export const TOUR_ROOMS = Object.keys(ROOMS_DEFAULT) as RoomKey[];
-
 interface HouseState {
+  project: ProjectId;
+  size: HouseSize;
   model: HouseModel;
   rooms: Record<RoomKey, Room>;
   overrides: Overrides;
@@ -56,6 +61,7 @@ interface HouseState {
   budget: Record<string, number>;
   climateOpen: boolean;
 
+  setProject: (id: ProjectId) => void;
   setSize: (size: HouseSize) => void;
   selectRoom: (key: RoomKey, opts?: { openDrawer?: boolean }) => void;
   setEditing: (editing: boolean) => void;
@@ -76,14 +82,19 @@ interface HouseState {
 
 const isSmallScreen = () => window.matchMedia('(max-width: 1023px)').matches;
 
+/** Rooms in tour order. */
+export const tourRooms = (rooms: Record<RoomKey, Room>) => Object.keys(rooms);
+
 export const useHouse = create<HouseState>((set, get) => {
-  const overrides = loadJSON<Overrides>(STORAGE_ROOMS) ?? {};
   const savedSize = loadJSON<number>(STORAGE_SIZE);
-  const model = houseModel(SIZES.find(s => s === savedSize) ?? DEFAULT_SIZE);
+  const size = SIZES.find(s => s === savedSize) ?? DEFAULT_SIZE;
+  const savedProject = loadJSON<string>(STORAGE_PROJECT);
+  const project = PROJECTS.find(p => p.id === savedProject) ?? getProject(DEFAULT_PROJECT);
+  const current = () => getProject(get().project);
+  const tourLength = () => tourRooms(get().rooms).length;
   return {
-    model,
-    rooms: applyOverrides(overrides, model),
-    overrides,
+    ...projectState(project, size),
+    size,
     selected: 'courtyard',
     editing: false,
     inspectorOpen: false,
@@ -92,13 +103,15 @@ export const useHouse = create<HouseState>((set, get) => {
     navMode: 'plan',
     planMode: '2d',
     tourIndex: 0,
-    budget: loadBudget(),
     climateOpen: false,
 
+    setProject: id => {
+      saveJSON(STORAGE_PROJECT, id);
+      set({ ...projectState(getProject(id), get().size), selected: 'courtyard', editing: false, tourIndex: 0 });
+    },
     setSize: size => {
       saveJSON(STORAGE_SIZE, size);
-      const model = houseModel(size);
-      set({ model, rooms: applyOverrides(get().overrides, model) });
+      set({ ...projectState(current(), size), size });
     },
     selectRoom: (key, { openDrawer = true } = {}) =>
       set({ selected: key, editing: false, inspectorOpen: openDrawer && isSmallScreen() ? true : get().inspectorOpen }),
@@ -106,13 +119,13 @@ export const useHouse = create<HouseState>((set, get) => {
     setInspectorOpen: inspectorOpen => set({ inspectorOpen }),
     saveRoom: (key, fields) => {
       const overrides = { ...get().overrides, [key]: fields };
-      saveJSON(STORAGE_ROOMS, overrides);
+      saveJSON(current().storage.rooms, overrides);
       set({ overrides, rooms: applyOverrides(overrides, get().model), editing: false });
     },
     resetRoom: key => {
       const overrides = { ...get().overrides };
       delete overrides[key];
-      saveJSON(STORAGE_ROOMS, overrides);
+      saveJSON(current().storage.rooms, overrides);
       set({ overrides, rooms: applyOverrides(overrides, get().model), editing: false });
     },
     toggleLayer: layer => {
@@ -126,17 +139,19 @@ export const useHouse = create<HouseState>((set, get) => {
     setNavMode: navMode => set({ navMode }),
     setPlanMode: planMode => set({ planMode }),
     setTourIndex: tourIndex => set({ tourIndex }),
-    stepTour: delta => set({ tourIndex: (get().tourIndex + delta + TOUR_ROOMS.length) % TOUR_ROOMS.length }),
-    openTourAtSelected: () => set({ tourIndex: Math.max(0, TOUR_ROOMS.indexOf(get().selected)), navMode: 'tour' }),
+    stepTour: delta => set({ tourIndex: (get().tourIndex + delta + tourLength()) % tourLength() }),
+    openTourAtSelected: () => set({ tourIndex: Math.max(0, tourRooms(get().rooms).indexOf(get().selected)), navMode: 'tour' }),
     setBudgetValue: (id, value) => {
       const budget = { ...get().budget, [id]: value };
-      saveJSON(STORAGE_BUDGET, budget);
+      saveJSON(current().storage.budget, budget);
       set({ budget });
     },
     resetBudget: () => {
-      saveJSON(STORAGE_BUDGET, {});
-      set({ budget: Object.fromEntries(BUDGET_DEFAULT.map(b => [b.id, b.value])) });
+      saveJSON(current().storage.budget, {});
+      set({ budget: Object.fromEntries(current().budget.map(b => [b.id, b.value])) });
     },
     setClimateOpen: climateOpen => set({ climateOpen }),
   };
 });
+
+export const useProject = () => getProject(useHouse(s => s.project));

@@ -6,7 +6,7 @@ import { sunInfo } from '../../lib/sun';
 import { useHouse } from '../../store';
 import {
   CourtyardDecor, CourtyardEdge, Dimensions, FurnitureLayer, Hammocks, Labels, OpeningsAndWindows,
-  PlanDefs, SunIcon, SunOverlay, Utilities, VerandaEdge, Walls, Wind,
+  LotLayer, PlanDefs, SunIcon, SunOverlay, Utilities, VerandaEdge, Walls, Wind,
 } from './layers';
 
 export interface PlanHandle {
@@ -155,6 +155,7 @@ export default function Plan2D({ mini = false, highlight, onRoomClick, className
       {...(mini ? {} : { onPointerDown, onPointerMove, onPointerUp: endPointer, onPointerCancel: endPointer, onKeyDown })}
     >
       {!mini && <PlanDefs />}
+      {!mini && <LotLayer />}
 
       <g>
         {Object.entries(rooms).map(([key, room]) => (
@@ -182,7 +183,7 @@ export default function Plan2D({ mini = false, highlight, onRoomClick, className
 
       {!mini && (
         <>
-          <VerandaEdge rect={courtyard} />
+          <VerandaEdge />
           <OpeningsAndWindows />
           <Hammocks />
           {layers.furniture && <FurnitureLayer />}
@@ -190,7 +191,7 @@ export default function Plan2D({ mini = false, highlight, onRoomClick, className
           {layers.labels && <Labels rooms={rooms} />}
           {layers.dims && <Dimensions />}
           {layers.wind && <Wind />}
-          {layers.utils && <Utilities rooms={rooms} courtyard={courtyard} />}
+          {layers.utils && <Utilities rooms={rooms} />}
           {sunData && <SunIcon sx={sunData.sx} sy={sunData.sy} />}
         </>
       )}

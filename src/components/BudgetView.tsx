@@ -1,13 +1,13 @@
-import { BUDGET_DEFAULT } from '../data/budget';
 import { builtArea, fmtBRL, fmtNum } from '../lib/geometry';
-import { useHouse } from '../store';
+import { useHouse, useProject } from '../store';
 
 export default function BudgetView() {
   const rooms = useHouse(s => s.rooms);
   const values = useHouse(s => s.budget);
   const setBudgetValue = useHouse(s => s.setBudgetValue);
   const resetBudget = useHouse(s => s.resetBudget);
-  const total = BUDGET_DEFAULT.reduce((sum, b) => sum + values[b.id], 0);
+  const items = useProject().budget;
+  const total = items.reduce((sum, b) => sum + values[b.id], 0);
   const area = builtArea(rooms);
 
   return (
@@ -40,7 +40,7 @@ export default function BudgetView() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {BUDGET_DEFAULT.map(item => {
+          {items.map(item => {
             const value = values[item.id];
             const pct = total ? (value / total) * 100 : 0;
             return (
